@@ -2,6 +2,7 @@ import { createWebHistory, createRouter } from "vue-router";
 import LandingPage from "../layout/splash-screen.vue";
 import AdminMainSidebar from "../layout/sidebar/admin-main.vue";
 import Dashboard from "../layout/sidebar/dashboard.vue";
+import Student from "../layout/sidebar/student.vue"
 const routes = [
     {
         path: "/",
@@ -14,6 +15,10 @@ const routes = [
             {
                 path: "dashboard",
                 component: Dashboard,
+            },
+            {
+                path: "student",
+                component: Student,
             },
         ],
     },
