@@ -6,7 +6,11 @@
         </ol>
       </nav>
   
-      <h4>Welcome back, admin!</h4>
+      <h4 style="
+        font-weight: 800; 
+        color: #336C2A;
+        margin-top: 1.2rem;">Welcome back, admin!
+      </h4>
   
       <div class="card-container">
       <router-link to="/adminmainsidebar/student" class="card-dashboard">
@@ -28,11 +32,10 @@
     </div>
   </template>
   
-  
-  <style>
-  .main-content {
-    margin-top: -16.58rem;
-    margin-left: -20rem;
+<style>
+.main-content {
+    margin-top: -15.2rem;
+    margin-left: -28rem;
     display: flex;
     flex-direction: column; /* Keep content stacked */
 }
@@ -43,14 +46,11 @@
   flex-wrap: wrap; /* Allow cards to wrap to the next line if the screen is too small */
 }
   
-  h4 {
-    color: #336C2A;
+h4 {
     margin-left: -17.8rem;
-    margin-top: 1.10rem;
-    font-weight: 800;
-  }
+}
   
-  .card-dashboard {
+.card-dashboard {
     margin-top: 1rem;
     display: flex;
     align-items: center;
@@ -63,10 +63,11 @@
     text-decoration: none; /* Removes underline */
     color: inherit; /* Inherit text color */
     transition: transform 0.3s ease; /* For hover effect */
-  }
+}
 
-  .card-dashboard:hover {
-  transform: scale(1.02); /* Slightly enlarge the card on hover */
+.card-dashboard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px rgba(180, 180, 180, 0.3);
 }
   
 /* Default image */
@@ -77,33 +78,33 @@
   margin-left: 0.5rem;
 }
 
-  .material-symbols-outlined {
+.material-symbols-outlined {
     font-size: 48px; /* Adjust icon size */
     color: #336C2A;
-  }
+}
   
-  .text-content {
+.text-content {
     display: flex;
     flex-direction: column;
     margin-left: 1rem;
     justify-content: space-between; /* Align top and bottom */
     height: 100%; /* Ensures that the content uses the full height for vertical alignment */
-  }
+}
   
-  .text-content h2{
+.text-content h2{
     margin: 0;
     font-size: 1.5rem;
     font-weight: 800;
     color: #336C2A;
     align-self: flex-start;
-  }
+}
   
-  .text-content h5 {
+.text-content h5 {
     margin: 0;
     font-size: 1.3rem;
     font-weight: 400;
     color: #336C2A;
     align-self: flex-start;
-  }
-  </style>
+}
+</style>
   

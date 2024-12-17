@@ -1,7 +1,7 @@
 <template>
   <div>
     <!-- Navbar -->
-    <nav class="navbar">
+    <nav class="nav-bar">
       <div class="nav-brand">
         <img src="../assets/paud.png" alt="Logo" class="logo">
         <span class="brand-text">PAUD Al Ummah</span>
@@ -15,19 +15,35 @@
         <p>Unlock your child's potential with our nurturing environment, fostering creativity, critical thinking, and a lifelong love of learning.</p>
         <div class="button-group">
           <button type="button" class="login-button" @click="showModal = true">Login</button>
-          <p class="contact-us">Contact us</p>
+          <p class="contact-us">Hubungi kami</p>
         </div>
       </div>
       <img src="../assets/images/temp.png" alt="Education Image">
       </div>
       <div v-if="showModal" class="modal-overlay" @click="closeModal">
         <div class="modal-content" @click.stop>
-          <h5>Login as</h5>
-          <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Choose one of the option to go</p>
+          <h5>Login sebagai</h5>
+          <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Pilih salah satu untuk melanjutkan</p>
           <div class="user-buttons">
-            <button type="button" class="button-user">Admin</button>
-            <button type="button" class="button-user">Teacher</button>
-            <button type="button" class="button-user">Parents</button>
+            <button 
+              type="button" 
+              class="button-user"
+              :class="{ 'active-user': selectedUser === 'Admin'}"
+              @click="selectedUser = 'Admin'">
+              Admin
+            </button>
+            <button 
+              type="button" 
+              class="button-user"
+              :class="{ 'active-user': selectedUser === 'Guru' }" 
+              @click="selectedUser = 'Guru'">
+              Guru
+            </button>
+            <button 
+              type="button" 
+              class="button-user"
+              :class="{ 'active-user': selectedUser === 'Orangtua' }" 
+              @click="selectedUser = 'Orangtua'">Orangtua</button>
           </div>
           <input 
             type="text" 
@@ -54,11 +70,16 @@ export default {
     return {
       showModal: false,
       isClosing: false,
+      selectedUser: 'Admin',
       passwordFieldType: 'password',
       passwordFieldIcon: 'fas fa-eye',
     };
   },
   methods: {
+    openModal() {
+      this.selectedUser = 'Admin';
+      this.showModal = true;
+    },
     closeModal() {
       this.isClosing = true;
       setTimeout(() => {
@@ -121,7 +142,7 @@ export default {
   color: #336C2A;
 }
 
-.navbar {
+.nav-bar {
   position: fixed;
   top: 0;
   left: 0;
@@ -206,6 +227,13 @@ h5, p {
   text-align: center; /* Ensure text is centered in case it's wrapped */
 }
 
+.button-user.active-user {
+  background-color: #C3EAA3;
+  color: #336C2A;
+  transform: translateY(-3px);
+  border: #C3EAA3;
+}
+
 .button-user:hover {
   background-color: #C3EAA3;
   color: #336C2A;
@@ -231,6 +259,7 @@ h5, p {
   background: #C3EAA3;
   border-radius: 10px;
   width: 18rem;
+  border: #C3EAA3;
   height: 4rem;
   display: block; /* Ensure it's treated as a block element */
   margin: 0 auto; /* Center the button horizontally */
@@ -238,6 +267,8 @@ h5, p {
 
 .login-button-2:hover{
   border: #C3EAA3;
+  transform: translateY(-5px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
 }
 @media (min-width: 768px) {
   .container {
