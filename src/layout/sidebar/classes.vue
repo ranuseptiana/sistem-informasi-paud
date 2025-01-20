@@ -6,7 +6,12 @@
                 <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Kelas</li>
             </ol>
         </nav>
-        <h4 class="header-text">Kelas</h4>
+        <div class="header-button">
+            <h3 class="header-text">Kelas</h3>
+            <button class="btn-add-class" @click="showModal = true">Tambah Data
+                <i class="fa-solid fa-plus"></i>
+            </button>
+        </div>
     </section>
     <section class="content">
         <div class="table-wrapper">
@@ -22,95 +27,8 @@
                             <option value="100">All</option>
                         </select>
                     </div>
-                    <div class="filter">
-                        <button @click="toggleFilterPopup" class="filter-btn">
-                            Filter
-                            <i class="fa-solid fa-filter filter-icon"></i>
-                        </button>
-                        <!-- Filter Popup -->
-                        <div v-if="isFilterPopupVisible" class="filter-popup-ortu">
-                            <!-- first row -->
-                            <div class="row">
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.noKK" />
-                                        No KK
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.nikAyah" />
-                                        NIK Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.tahunLahirAyah" />
-                                        Tahun Lahir Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pendidikanAyah" />
-                                        Pendidikan Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pekerjaanAyah" />
-                                        Pekerjaan Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.penghasilanAyah" />
-                                        Penghasilan Ayah
-                                    </label>
-                                </div>
-                            </div>
-                            <!-- second row -->
-                            <div class="row">
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.noHp" />
-                                        No HP
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.nikIbu" />
-                                        NIK Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.tahunLahirIbu" />
-                                        Tahun Lahir Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pendidikanIbu" />
-                                        Pendidikan Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pekerjaanIbu" />
-                                        Pekerjaan Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.penghasilanIbu" />
-                                        Penghasilan Ibu
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                     <div class="export-section">
-                        <button class="btn btn-primary" @click="exportData('pdf')">
+                        <button class="btn btn-danger" @click="exportData('pdf')">
                             <i class="fa fa-file-pdf" aria-hidden="true"></i>
                             PDF
                         </button>
@@ -119,12 +37,28 @@
                             Excel
                         </button>
                     </div>
-                    <div>
-                        <router-link to="/adminmainsidebar/addParents">
-                            <span class="material-symbols-outlined btn-add-ortu">
-                                add_circle
-                            </span>
-                        </router-link>
+                </div>
+                <!-- Modal -->
+                <div class="custom-modal" v-if="showModal">
+                    <div class="custom-modal-dialog">
+                        <div class="custom-modal-content">
+                            <div class="custom-modal-header">
+                                <h5 class="custom-modal-title">Tambah Data Kelas</h5>
+                                <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                            </div>
+                            <form @submit.prevent="simpanKelas">
+                                <div class="custom-modal-body">
+                                    <div class="form-group-kelas">
+                                        <label for="namaKelas">Nama Kelas</label>
+                                        <input type="text" id="namaKelas" v-model="form.nama_kelas" class="form-input" />
+                                    </div>
+                                </div>
+                                <div class="custom-modal-footer">
+                                    <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
+                                    <button type="submit" class="btn-save">Simpan Data</button>
+                                </div>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div class="search-bar-container">
@@ -137,41 +71,14 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.noKK">No Kartu Keluarga</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nikAyah">NIK Ayah</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaAyah">Nama Ayah</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tahunLahirAyah">Tahun Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pendidikanAyah">Jenjang Pendidikan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pekerjaanAyah">Pekerjaan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.penghasilanAyah">Penghasilan</th>
-
-                        <th scope="col" class="table-head" v-if="selectedFilters.nikIbu">NIK Ibu</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaIbu">Nama Ibu</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tahunLahirIbu">Tahun Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pendidikanIbu">Jenjang Pendidikan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pekerjaanIbu">Pekerjaan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.penghasilanIbu">Penghasilan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.noHp">Nomor Hp</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.namaKelas">Nama Kelas</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(ortu, index) in paginatedOrtuList" :key="index">
-                        <th scope="row">{{ index + 1 }}</th>
-                        <td v-if="selectedFilters.noKK">{{ ortu.noKK }}</td>
-                        <td v-if="selectedFilters.nikAyah">{{ ortu.nikAyah }}</td>
-                        <td v-if="selectedFilters.namaAyah">{{ ortu.namaAyah }}</td>
-                        <td v-if="selectedFilters.tahunLahirAyah">{{ ortu.tahunLahirAyah }}</td>
-                        <td v-if="selectedFilters.pendidikanAyah">{{ ortu.pendidikanAyah }}</td>
-                        <td v-if="selectedFilters.pekerjaanAyah">{{ ortu.pekerjaanAyah }}</td>
-                        <td v-if="selectedFilters.penghasilanAyah">{{ ortu.penghasilanAyah }}</td>
-                        <td v-if="selectedFilters.nikIbu">{{ ortu.nikIbu }}</td>
-                        <td v-if="selectedFilters.namaIbu">{{ ortu.namaIbu }}</td>
-                        <td v-if="selectedFilters.tahunLahirIbu">{{ ortu.tahunLahirIbu }}</td>
-                        <td v-if="selectedFilters.pendidikanIbu">{{ ortu.pendidikanIbu }}</td>
-                        <td v-if="selectedFilters.pekerjaanIbu">{{ ortu.pekerjaanIbu }}</td>
-                        <td v-if="selectedFilters.penghasilanIbu">{{ ortu.penghasilanIbu }}</td>
-                        <td v-if="selectedFilters.noHp">{{ ortu.noHp }}</td>
+                    <tr v-for="(kelas, index) in paginatedKelasList" :key="kelas.id">
+                        <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
+                        <td v-if="selectedFilters.namaKelas">{{ kelas['nama_kelas'] }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -179,13 +86,13 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }">
-                                    <button class="popup-item" @click="prepareEditOrtu(ortu)" style="color: #274278">Edit</button>
-                                    <button class="popup-item" @click="deleteOrtu(ortu.noKK)" style="color: red">Hapus</button>
+                                    <button class="popup-item" @click="prepareEditKelas(kelas)" style="color: #274278">Edit</button>
+                                    <button class="popup-item" @click="deleteKelas(kelas.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedOrtuList.length === 0">
+                    <tr v-if="paginatedKelasList.length === 0">
                         <td colspan="10" style="text-align: center">Tidak ada data</td>
                     </tr>
                 </tbody>
@@ -215,12 +122,16 @@
 </div>
 </template>
 
-    
 <script>
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Swal from "sweetalert2";
 import Papa from "papaparse";
+import axios from 'axios';
+import {
+    ref,
+    onMounted
+} from 'vue';
 
 export default {
     data() {
@@ -228,75 +139,74 @@ export default {
             rowsPerPage: 5,
             currentPage: 1,
             openModal: false,
-            errorNoKK: "",
-            editOrtu: null,
+            editKelas: null,
             dropdownIndex: null,
-            searchQuery: '', // for filtering
-            isFilterPopupVisible: false, // Show/Hide filter popup
+            searchQuery: '',
+            showModal: false,
+            isFilterPopupVisible: false,
+            KelasList: [],
             selectedFilters: {
-                noKK: true,
-                nikAyah: true,
-                namaAyah: true,
-                tahunLahirAyah: false,
-                pendidikanAyah: false,
-                pekerjaanAyah: true,
-                penghasilanAyah: false,
-                nikIbu: true,
-                namaIbu: true,
-                tahunLahirIbu: false,
-                pendidikanIbu: false,
-                pekerjaanIbu: true,
-                penghasilanIbu: false,
-                noHp: true,
+                namaKelas: true,
             },
-            newOrtu: {
-                noKK: "",
-                nikAyah: "",
-                namaAyah: "",
-                tahunLahirAyah: "",
-                pendidikanAyah: "",
-                pekerjaanAyah: "",
-                penghasilanAyah: "",
-                nikIbu: "",
-                namaIbu: "",
-                tahunLahirIbu: "",
-                pendidikanIbu: "",
-                pekerjaanIbu: "",
-                penghasilanIbu: "",
-                noHp: "",
-            },
-            ortuList: [],
             headerMapping: {
-                noKK: 'Nomor Kartu Keluarga',
-                nikAyah: 'NIK Ayah',
-                namaAyah: 'Nama Ayah',
-                tahunLahirAyah: 'Tahun Lahir Ayah',
-                pendidikanAyah: 'Pendidikan Terakhir Ayah',
-                pekerjaanAyah: 'Pekerjaan Ayah',
-                penghasilanAyah: 'Penghasilan Ayah',
-                nikIbu: 'NIK Ibu',
-                namaIbu: 'Nama Ibu',
-                tahunLahirIbu: 'Tahun Lahir Ibu',
-                pendidikanIbu: 'Pendidikan Terakhir Ibu',
-                pekerjaanIbu: 'Pekerjaan Ibu',
-                penghasilanIbu: 'Penghasilan Ibu',
-                noHp: 'Nomor Hp'
+                namaKelas: 'Nama Kelas'
+            },
+            resetForm: {
+                namaKelas: '',
+            },
+            form: {
+                nama_kelas: '',
             }
         };
     },
     methods: {
-        toggleDropdown(index) {
-            this.dropdownIndex = this.dropdownIndex === index ? null : index;
+        async simpanKelas() {
+            const payload = {
+                nama_kelas: this.form.nama_kelas,
+            };
+
+            try {
+                // Kirim data ke backend
+                const response = await axios.post('/kelas', payload);
+
+                Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success');
+                this.form.nama_kelas = '';
+                this.showModal = false;
+                this.fetchKelasList();
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors; // Tampilkan error validasi
+                } else {
+                    console.error(error);
+                    Swal.fire('Error', 'Gagal menyimpan data kelas!', 'error');
+                }
+            }
         },
-        toggleFilterPopup() {
-            this.isFilterPopupVisible = !this.isFilterPopupVisible;
-        },
-        applyFilters() {
-            this.isFilterPopupVisible = false;
-        },
-        handleClickOutside(event) {
-            if (this.$refs.popup && !this.$refs.popup.contains(event.target)) {
-                this.dropdownIndex = null;
+        // Fungsi untuk menghapus kelas berdasarkan ID
+        async deleteKelas(kelasId) {
+            try {
+                // Konfirmasi penghapusan data
+                const confirmDelete = await Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data ini akan dihapus!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (confirmDelete.isConfirmed) {
+                    // Kirim permintaan DELETE ke backend
+                    const response = await axios.delete(`/kelas/${kelasId}`);
+
+                    // Tampilkan pesan sukses
+                    Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
+
+                    // Hapus kelas dari KelasList di frontend
+                    this.KelasList = this.KelasList.filter(kelas => kelas.id !== kelasId);
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Gagal menghapus data kelas!', 'error');
             }
         },
         changePage(page) {
@@ -306,42 +216,35 @@ export default {
         },
         // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
-            return this.ortuList.map((ortu, index) => {
-                const filteredOrtu = {
-                    No: index + 1
-                }; // Menambahkan nomor urut
-                Object.keys(this.selectedFilters).forEach(key => {
+            return this.KelasList.map((kelas, index) => {
+                const filteredKelas = {
+                    No: index + 1,
+                };
+                Object.keys(this.selectedFilters).forEach((key) => {
                     if (this.selectedFilters[key]) {
-                        filteredOrtu[key] = ortu[key];
+                        filteredKelas[key] = kelas[key];
                     }
                 });
-                return filteredOrtu;
+                return filteredKelas;
             });
         },
         // Fungsi ekspor data berdasarkan filter aktif
         exportData(format) {
             const filteredData = this.getFilteredData();
-
-            // Buat header sesuai mapping
-            const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
-            const headerLabels = headers.map(header => this.headerMapping[header] || header);
+            const headers = ['No', ...Object.keys(this.selectedFilters).filter((key) => this.selectedFilters[key])];
+            const headerLabels = headers.map((header) => this.headerMapping[header] || header);
 
             if (format === 'pdf') {
                 const doc = new jsPDF();
-
-                // Buat data tabel untuk PDF
-                const data = filteredData.map(ortu => headers.map(key => ortu[key] || ''));
-
+                const data = filteredData.map((kelas) => headers.map((key) => kelas[key] || ''));
                 doc.autoTable({
                     head: [headerLabels],
                     body: data,
                 });
-
                 doc.save('filtered_data.pdf');
             } else if (format === 'excel') {
-                const data = [headerLabels, ...filteredData.map(ortu => headers.map(key => ortu[key] || ''))];
+                const data = [headerLabels, ...filteredData.map((kelas) => headers.map((key) => kelas[key] || ''))];
                 const csv = Papa.unparse(data);
-
                 const blob = new Blob([csv], {
                     type: 'text/csv;charset=utf-8;'
                 });
@@ -351,31 +254,77 @@ export default {
                 link.click();
             }
         },
+        closeModal() {
+            this.showModal = false;
+            this.newKelas.nama_kelas = '';
+            this.resetForm();
+        },
+        toggleDropdown(index) {
+            this.dropdownIndex = this.dropdownIndex === index ? null : index;
+        },
+        resetForm() {
+            this.newKelas = {
+                nama_kelas: "",
+            };
+            this.editIndex = null;
+        },
+    },
+    //untuk menampilkan data kelas
+    setup() {
+        const kelas = ref([]);
+        const KelasList = ref([]); // List kelas
+
+        const fetchKelasList = () => {
+            axios
+                .get('/kelas')
+                .then((res) => {
+                    KelasList.value = res.data.data; // Perbarui data kelas
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                });
+        };
+
+        // Panggil fetchKelasList saat komponen di-mount
+        onMounted(() => {
+            fetchKelasList();
+        });
+
+        return {
+            kelas,
+            KelasList,
+            fetchKelasList // Return supaya bisa diakses di luar setup
+        };
     },
     computed: {
-        // Filter siswa list based on search query
-        filteredOrtuList() {
-            return this.ortuList.filter((ortu) =>
-                ortu.namaAyah.toLowerCase().includes(this.searchQuery.toLowerCase())
-            );
+        filteredKelasList() {
+            if (!this.KelasList) return []; // Return empty if KelasList is undefined or null
+
+            return this.KelasList.filter(kelas => {
+                const kelasNama = kelas.namaKelas ? kelas.namaKelas.toLowerCase() : '';
+                return kelasNama.includes(this.searchQuery.toLowerCase());
+            });
         },
         isEditMode() {
-            return this.editOrtu !== null;
+            return this.editKelas !== null;
         },
         // Paginate daftar siswa
-        paginatedOrtuList() {
+        paginatedKelasList() {
             const start = (this.currentPage - 1) * this.rowsPerPage;
             const end = start + this.rowsPerPage;
-            return this.ortuList.slice(start, end);
+            return this.KelasList.slice(start, end);
         },
         // Total halaman berdasarkan jumlah siswa
         totalPages() {
-            return Math.ceil(this.filteredOrtuList.length / this.rowsPerPage);
+            return Math.ceil(this.filteredKelasList.length / this.rowsPerPage);
         },
         pageInfo() {
+            if (this.filteredKelasList.length === 0) {
+                return 'Tidak ada data';
+            }
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredOrtuList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.filteredOrtuList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredKelasList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.filteredKelasList.length} entries`;
         },
     },
     mounted() {
@@ -387,24 +336,45 @@ export default {
 };
 </script>
 
-    
 <style>
-.container {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-start;
+.content-header {
+    width: 100%;
 }
 
-.breadcrumb-stu {
-    margin-top: 4.5rem;
-    margin-bottom: 1rem;
+.header-button {
+    display: flex;
+    align-items: center; /* Pastikan semua elemen sejajar secara vertikal */
+    justify-content: space-between; /* Teks di kiri, tombol di kanan */
+    width: 100%;
 }
 
 .header-text {
-    margin: 0;
     font-weight: 800;
     color: #336C2A;
 }
+
+.btn-add-class {
+    background: #61c252;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex; /* Menggunakan flexbox untuk memastikan ikon berada di tengah */
+    align-items: center; /* Vertikal align icon dengan teks */
+    justify-content: center; /* Horizontal align icon dengan teks */
+    gap: 0.5rem; /* Menambahkan jarak antara teks dan ikon */
+    width: auto;
+}
+
+.btn-add-class i {
+    font-size: 1rem; /* Ukuran ikon */
+}
+
+.btn-add-class:hover {
+    background: #186ac2;
+}
+
 
 /* Style untuk dropdown */
 .select-rows {
@@ -417,104 +387,6 @@ export default {
     background-color: #ffffff;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
     transition: border-color 0.3s ease;
-}
-
-.filter-section {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    flex-wrap: wrap;
-    /* Agar elemen bisa berpindah baris jika ruang sempit */
-}
-
-.filter {
-    margin-left: 0.5rem;
-}
-
-.filter-actions {
-    display: flex;
-    align-items: center;
-    gap: 2px;
-}
-
-.filter-btn {
-    background-color: white;
-    color: black;
-    padding: 4px;
-    width: 7rem;
-    border-radius: 10px;
-    border: 1px solid #e2e2e286;
-    background-color: #ffffff;
-    box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
-    transition: border-color 0.3s ease;
-}
-
-.filter-icon {
-    margin-left: 2rem;
-    color: #636364;
-}
-
-.filter-popup-ortu {
-    position: absolute;
-    top: 100%;
-    margin-top: 0.3rem;
-    left: 4;
-    z-index: 999;
-    background-color: white;
-    border: 1px solid rgb(240, 238, 238);
-    border-radius: 10px;
-    padding: 10px;
-    width: 40rem;
-    max-width: 100%;
-    text-align: left;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.filter-popup label {
-    display: block;
-    margin-bottom: 5px;
-}
-
-.checkbox {
-    position: relative;
-    width: 16px;
-    height: 16px;
-    appearance: none;
-    /* Menghilangkan tampilan default */
-    border: 2px solid #ccc;
-    border-radius: 4px;
-    outline: none;
-    cursor: pointer;
-    background-color: white;
-    /* Warna dasar putih */
-}
-
-.checkbox:checked {
-    text-align: center;
-    background-color: #007bff;
-    /* Warna saat di-checked */
-    border-color: #007bff;
-    /* Border sesuai dengan warna utama */
-}
-
-.checkbox:checked::after {
-    content: '';
-    position: absolute;
-    top: 1px;
-    left: 4px;
-    width: 4px;
-    height: 8px;
-    border: solid white;
-    border-width: 0 2px 2px 0;
-    transform: rotate(45deg);
-}
-
-.btn-add-ortu {
-    right: 12px;
-}
-
-.btn-add-ortu:hover {
-    transform: translateY(-2px);
 }
 
 .material-symbols-outlined {
@@ -554,8 +426,8 @@ export default {
 }
 
 .table-wrapper {
-    width: 65rem;
-    max-width: 150rem;
+    width: 140%;
+    max-width: 100rem;
     overflow-x: auto;
     background-color: white;
     margin-top: 1rem;
@@ -574,7 +446,6 @@ export default {
 .data-table th,
 .data-table td {
     padding: 12px 8px;
-    /* Added more padding for a cleaner look */
     text-align: left;
 }
 
@@ -583,52 +454,34 @@ export default {
     color: #336C2A;
 }
 
-.data-table td:last-child {
-    text-align: center;
-    /* Align the 'Action' column */
-}
-
+.data-table td:last-child,
 .data-table th:last-child {
     text-align: center;
-    /* Align the 'Action' column */
 }
 
 .data-table tr:nth-child(even) {
     background-color: #f9f9f9;
-    /* Light gray background for alternating rows */
-}
-
-.data-table tr:hover {
-    background-color: #f1f1f1;
-    /* Light hover effect */
 }
 
 .popup .btn {
     box-shadow: none;
-    /* Remove the box shadow */
     border: none;
-    /* Optionally, remove any border */
     background: transparent;
-    /* If you want the background to be transparent */
     padding: 0;
-    /* Adjust padding if necessary */
 }
 
 .popup-menu {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    /* Bayangan abu-abu */
     padding: 10px;
     border-radius: 8px;
     display: none;
-    /* Awalnya tidak terlihat */
     z-index: 1000;
 }
 
 .popup-menu.show {
     display: block;
-    /* Tampilkan popup saat dropdownIndex === index */
 }
 
 .popup-item {
@@ -649,15 +502,129 @@ export default {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
+    width: 140%;
     margin-top: 1rem;
 }
 
-.page-info {
+.page-info,
+.pagination {
     margin: 0;
 }
 
-.pagination {
+/* Background overlay */
+.custom-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
+}
+
+.custom-modal-dialog {
+    background: white;
+    border: none;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.custom-modal-content {
+    display: flex;
+    flex-direction: column;
+}
+
+.custom-modal-header {
+    background: #ffffff;
+    padding: 1rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.custom-modal-title {
     margin: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.custom-modal-body {
+    text-align: left;
+    padding: 1rem;
+    font-size: 1rem;
+    color: #333;
+}
+
+.custom-modal-footer {
+    display: flex;
+    justify-content: flex-end;
+    padding: 0.75rem 1rem;
+    background: #ffffff;
+}
+
+.btn-save {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    width: 50%;
+}
+
+.btn-save:hover {
+    background: #0056b3;
+}
+
+.btn-cancel {
+    background: #ffffff;
+    color: rgb(10, 10, 10);
+    border: 1px solid rgb(167, 163, 163);
+    width: 50%;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.btn-cancel:hover {
+    background: #e4e3e3;
+}
+
+.form-group-kelas {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
+}
+
+label {
+    font-weight: 700;
+    width: 40%;
+    text-align: left;
+}
+
+.form-input {
+    color: black;
+    width: 60%;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #636364;
+    border-radius: 20px;
 }
 </style>
