@@ -86,14 +86,19 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }">
-                                    <button class="popup-item" @click="prepareEditKelas(kelas)" style="color: #274278">Edit</button>
+                                    <button class="popup-item" @click="prepareEditKelas(kelas.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deleteKelas(kelas.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedKelasList.length === 0">
-                        <td colspan="10" style="text-align: center">Tidak ada data</td>
+                    <tr v-if="paginatedKelasList.length === 0" class="no-data">
+                        <td colspan="7" class="no-data-cell">
+                            <div class="no-data-content">
+                                <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
+                                <p class="no-data-text">Tidak ada data</p>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -360,10 +365,10 @@ export default {
     padding: 0.5rem 1rem;
     border-radius: 20px;
     cursor: pointer;
-    display: flex; /* Menggunakan flexbox untuk memastikan ikon berada di tengah */
-    align-items: center; /* Vertikal align icon dengan teks */
-    justify-content: center; /* Horizontal align icon dengan teks */
-    gap: 0.5rem; /* Menambahkan jarak antara teks dan ikon */
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
+    gap: 0.5rem; 
     width: auto;
 }
 
@@ -372,9 +377,8 @@ export default {
 }
 
 .btn-add-class:hover {
-    background: #186ac2;
+    background: #336C2A;
 }
-
 
 /* Style untuk dropdown */
 .select-rows {

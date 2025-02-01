@@ -185,8 +185,13 @@
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedOrtuList.length === 0">
-                        <td colspan="10" style="text-align: center">Tidak ada data</td>
+                    <tr v-if="paginatedGuruList.length === 0" class="no-data">
+                        <td colspan="7" class="no-data-cell">
+                            <div class="no-data-content">
+                                <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
+                                <p class="no-data-text">Tidak ada data</p>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -447,7 +452,7 @@ export default {
             this.resetForm();
         },
         resetForm() {
-            this.newOrtu = {
+            this.newGuru = {
                 noKK: "",
                 nikAyah: "",
                 namaAyah: "",
@@ -486,16 +491,16 @@ export default {
         },
         // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
-            return this.ortuList.map((ortu, index) => {
-                const filteredOrtu = {
+            return this.guruList.map((guru, index) => {
+                const filteredGuru = {
                     No: index + 1
                 }; // Menambahkan nomor urut
                 Object.keys(this.selectedFilters).forEach(key => {
                     if (this.selectedFilters[key]) {
-                        filteredOrtu[key] = ortu[key];
+                        filteredGuru[key] = guru[key];
                     }
                 });
-                return filteredOrtu;
+                return filteredGuru;
             });
         },
         openModal() {
@@ -536,8 +541,8 @@ export default {
         },
     },
     computed: {
-        // Filter siswa list based on search query
-        filteredOrtuList() {
+        // Filter guru list based on search query
+        filteredGuruList() {
             return this.ortuList.filter((ortu) =>
                 ortu.namaAyah.toLowerCase().includes(this.searchQuery.toLowerCase())
             );
@@ -545,15 +550,15 @@ export default {
         isEditMode() {
             return this.editOrtu !== null;
         },
-        // Paginate daftar siswa
-        paginatedOrtuList() {
+        // Paginate daftar guru
+        paginatedGuruList() {
             const start = (this.currentPage - 1) * this.rowsPerPage;
             const end = start + this.rowsPerPage;
             return this.ortuList.slice(start, end);
         },
         // Total halaman berdasarkan jumlah siswa
         totalPages() {
-            return Math.ceil(this.filteredOrtuList.length / this.rowsPerPage);
+            return Math.ceil(this.filteredGuruList.length / this.rowsPerPage);
         },
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;

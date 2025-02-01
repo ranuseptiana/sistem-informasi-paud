@@ -34,8 +34,9 @@ const routes = [
                 component: Parents,
             },
             {
-                path: "addParents",
+                path: "addParents/:id?",  // :id adalah parameter opsional
                 component: AddParents,
+                props: true,  // Kirim parameter id ke komponen sebagai prop
             },
             {
                 path: "addStudents",

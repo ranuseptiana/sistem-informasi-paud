@@ -6,10 +6,16 @@
                 <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Orangtua</li>
             </ol>
         </nav>
-        <h4 class="header-text">Orangtua</h4>
+        <div class="header-button">
+            <h3 class="header-text">Orangtua</h3>
+            <router-link to="/adminmainsidebar/addParents" class="btn-add-ortu">
+                Tambah Data
+                <i class="fa-solid fa-plus"></i>
+            </router-link>
+        </div>
     </section>
     <section class="content">
-        <div class="table-wrapper">
+        <div class="table-wrapper-ortu">
             <!-- Filter section -->
             <div class="filter-section">
                 <div class="row-filter-wrapper">
@@ -23,88 +29,29 @@
                         </select>
                     </div>
                     <div class="filter">
-                        <button @click="toggleFilterPopup" class="filter-btn">
+                        <button @click="showModal = true" class="filter-btn">
                             Filter
                             <i class="fa-solid fa-filter filter-icon"></i>
                         </button>
                         <!-- Filter Popup -->
-                        <div v-if="isFilterPopupVisible" class="filter-popup-ortu">
-                            <!-- first row -->
-                            <div class="row">
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.noKK" />
-                                        No KK
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.nikAyah" />
-                                        NIK Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.tahunLahirAyah" />
-                                        Tahun Lahir Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pendidikanAyah" />
-                                        Pendidikan Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pekerjaanAyah" />
-                                        Pekerjaan Ayah
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.penghasilanAyah" />
-                                        Penghasilan Ayah
-                                    </label>
-                                </div>
-                            </div>
-                            <!-- second row -->
-                            <div class="row">
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.noHp" />
-                                        No HP
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.nikIbu" />
-                                        NIK Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.tahunLahirIbu" />
-                                        Tahun Lahir Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pendidikanIbu" />
-                                        Pendidikan Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.pekerjaanIbu" />
-                                        Pekerjaan Ibu
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.penghasilanIbu" />
-                                        Penghasilan Ibu
-                                    </label>
+                        <div>
+                            <!-- Modal Filter -->
+                            <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
+                                <div class="modal-content-ortu">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Filter Data Ortu</h5>
+                                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                                    </div>
+                                    <hr>
+                                    <div class="filter-rows">
+                                        <!-- First row -->
+                                        <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
+                                            <label>
+                                                <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
+                                                {{ filter.label }}
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -118,13 +65,6 @@
                             <i class="fa fa-file-excel" aria-hidden="true"></i>
                             Excel
                         </button>
-                    </div>
-                    <div>
-                        <router-link to="/adminmainsidebar/addParents">
-                            <span class="material-symbols-outlined btn-add-ortu">
-                                add_circle
-                            </span>
-                        </router-link>
                     </div>
                 </div>
                 <div class="search-bar-container">
@@ -156,42 +96,47 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(ortu, index) in paginatedOrtuList" :key="index">
-                        <th scope="row">{{ index + 1 }}</th>
-                        <td v-if="selectedFilters.noKK">{{ ortu.noKK }}</td>
-                        <td v-if="selectedFilters.nikAyah">{{ ortu.nikAyah }}</td>
-                        <td v-if="selectedFilters.namaAyah">{{ ortu.namaAyah }}</td>
-                        <td v-if="selectedFilters.tahunLahirAyah">{{ ortu.tahunLahirAyah }}</td>
-                        <td v-if="selectedFilters.pendidikanAyah">{{ ortu.pendidikanAyah }}</td>
-                        <td v-if="selectedFilters.pekerjaanAyah">{{ ortu.pekerjaanAyah }}</td>
-                        <td v-if="selectedFilters.penghasilanAyah">{{ ortu.penghasilanAyah }}</td>
-                        <td v-if="selectedFilters.nikIbu">{{ ortu.nikIbu }}</td>
-                        <td v-if="selectedFilters.namaIbu">{{ ortu.namaIbu }}</td>
-                        <td v-if="selectedFilters.tahunLahirIbu">{{ ortu.tahunLahirIbu }}</td>
-                        <td v-if="selectedFilters.pendidikanIbu">{{ ortu.pendidikanIbu }}</td>
-                        <td v-if="selectedFilters.pekerjaanIbu">{{ ortu.pekerjaanIbu }}</td>
-                        <td v-if="selectedFilters.penghasilanIbu">{{ ortu.penghasilanIbu }}</td>
-                        <td v-if="selectedFilters.noHp">{{ ortu.noHp }}</td>
+                    <tr v-for="(ortu, index) in paginatedOrtuList" :key="ortu.id">
+                        <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
+                        <td v-if="selectedFilters.noKK">{{ ortu.no_kk }}</td>
+                        <td v-if="selectedFilters.nikAyah">{{ ortu.nik_ayah }}</td>
+                        <td v-if="selectedFilters.namaAyah">{{ ortu.nama_ayah }}</td>
+                        <td v-if="selectedFilters.tahunLahirAyah">{{ ortu.tahun_lahir_ayah }}</td>
+                        <td v-if="selectedFilters.pendidikanAyah">{{ ortu.pendidikan_ayah }}</td>
+                        <td v-if="selectedFilters.pekerjaanAyah">{{ ortu.pekerjaan_ayah }}</td>
+                        <td v-if="selectedFilters.penghasilanAyah">{{ ortu.penghasilan_ayah }}</td>
+                        <td v-if="selectedFilters.nikIbu">{{ ortu.nik_ibu }}</td>
+                        <td v-if="selectedFilters.namaIbu">{{ ortu.nama_ibu }}</td>
+                        <td v-if="selectedFilters.tahunLahirIbu">{{ ortu.tahun_lahir_ibu }}</td>
+                        <td v-if="selectedFilters.pendidikanIbu">{{ ortu.pendidikan_ibu }}</td>
+                        <td v-if="selectedFilters.pekerjaanIbu">{{ ortu.pekerjaan_ibu }}</td>
+                        <td v-if="selectedFilters.penghasilanIbu">{{ ortu.penghasilan_ibu }}</td>
+                        <td v-if="selectedFilters.noHp">{{ ortu.no_telp }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <div class="popup-menu" :class="{ show: dropdownIndex === index }">
-                                    <button class="popup-item" @click="prepareEditOrtu(ortu)" style="color: #274278">Edit</button>
-                                    <button class="popup-item" @click="deleteOrtu(ortu.noKK)" style="color: red">Hapus</button>
+                                <div class="popup-menu" :class="{ show: dropdownIndex === index }"  v-if="dropdownIndex === index">
+                                    <button class="popup-item" @click="editOrtu(ortu.id)" style="color: #274278">Edit</button>
+                                    <button class="popup-item" @click="deleteOrtu(ortu.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedOrtuList.length === 0">
-                        <td colspan="10" style="text-align: center">Tidak ada data</td>
+                    <tr v-if="paginatedOrtuList.length === 0" class="no-data">
+                        <td colspan="7" class="no-data-cell">
+                            <div class="no-data-content">
+                                <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
+                                <p class="no-data-text">Tidak ada data</p>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
         </div>
-        <div class="pagination-info">
+        <div class="pagination-info-ortu">
             <p class="page-info">{{ pageInfo }}</p>
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
@@ -220,18 +165,20 @@ import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Swal from "sweetalert2";
 import Papa from "papaparse";
+import axios from 'axios';
+import {
+    ref,
+    onMounted
+} from 'vue';
 
 export default {
     data() {
         return {
             rowsPerPage: 5,
             currentPage: 1,
-            openModal: false,
-            errorNoKK: "",
-            editOrtu: null,
+            showModal: false,
             dropdownIndex: null,
             searchQuery: '', // for filtering
-            isFilterPopupVisible: false, // Show/Hide filter popup
             selectedFilters: {
                 noKK: true,
                 nikAyah: true,
@@ -246,23 +193,7 @@ export default {
                 pendidikanIbu: false,
                 pekerjaanIbu: true,
                 penghasilanIbu: false,
-                noHp: true,
-            },
-            newOrtu: {
-                noKK: "",
-                nikAyah: "",
-                namaAyah: "",
-                tahunLahirAyah: "",
-                pendidikanAyah: "",
-                pekerjaanAyah: "",
-                penghasilanAyah: "",
-                nikIbu: "",
-                namaIbu: "",
-                tahunLahirIbu: "",
-                pendidikanIbu: "",
-                pekerjaanIbu: "",
-                penghasilanIbu: "",
-                noHp: "",
+                noHp: false,
             },
             ortuList: [],
             headerMapping: {
@@ -280,26 +211,93 @@ export default {
                 pekerjaanIbu: 'Pekerjaan Ibu',
                 penghasilanIbu: 'Penghasilan Ibu',
                 noHp: 'Nomor Hp'
-            }
+            },
+            firstRowFilters: [{
+                    key: "noKK",
+                    label: "No KK"
+                },
+                {
+                    key: "nikAyah",
+                    label: "NIK Ayah"
+                },
+                {
+                    key: "tahunLahirAyah",
+                    label: "Tahun Lahir Ayah"
+                },
+                {
+                    key: "pendidikanAyah",
+                    label: "Pendidikan Ayah"
+                },
+                {
+                    key: "pekerjaanAyah",
+                    label: "Pekerjaan Ayah"
+                },
+                {
+                    key: "penghasilanAyah",
+                    label: "Penghasilan Ayah"
+                },
+                {
+                    key: "noHp",
+                    label: "No HP"
+                },
+                {
+                    key: "nikIbu",
+                    label: "NIK Ibu"
+                },
+                {
+                    key: "tahunLahirIbu",
+                    label: "Tahun Lahir Ibu"
+                },
+                {
+                    key: "pendidikanIbu",
+                    label: "Pendidikan Ibu"
+                },
+                {
+                    key: "pekerjaanIbu",
+                    label: "Pekerjaan Ibu"
+                },
+                {
+                    key: "penghasilanIbu",
+                    label: "Penghasilan Ibu"
+                },
+            ],
+        };
+    },
+    //untuk menampilkan data orangtua
+    setup() {
+        const ortuList = ref([]); // List ortu
+
+        const fetchOrtuList = () => {
+            axios
+                .get('/orangtua')
+                .then((res) => {
+                    // console.log('Data yang diterima:', res.data);
+                    ortuList.value = res.data.data; // Perbarui data ortu
+                })
+                .catch((error) => {
+                    console.log(error.response.data);
+                });
+        };
+
+        // Panggil fetchOrtuList saat komponen di-mount
+        onMounted(() => {
+            fetchOrtuList();
+        });
+
+        return {
+            ortuList,
+            fetchOrtuList // Return supaya bisa diakses di luar setup
         };
     },
     methods: {
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
-        toggleFilterPopup() {
-            this.isFilterPopupVisible = !this.isFilterPopupVisible;
-        },
-        applyFilters() {
-            this.isFilterPopupVisible = false;
-        },
-        handleClickOutside(event) {
-            if (this.$refs.popup && !this.$refs.popup.contains(event.target)) {
-                this.dropdownIndex = null;
-            }
+        closeModal() {
+            this.showModal = false;
         },
         changePage(page) {
-            if (page > 0 && page <= this.totalPages) {
+            if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
             }
         },
@@ -350,43 +348,123 @@ export default {
                 link.click();
             }
         },
+        editOrtu(id) {
+            // Mengarahkan ke halaman addParents dengan ID orangtua yang ingin diedit
+            this.$router.push(`/adminmainsidebar/addParents/${id}`);
+        },
+        // Fungsi untuk menghapus kelas berdasarkan ID
+        async deleteOrtu(orangtuaId) {
+            try {
+                // Konfirmasi penghapusan data
+                const confirmDelete = await Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data ini akan dihapus!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (confirmDelete.isConfirmed) {
+                    // Kirim permintaan DELETE ke backend
+                    const response = await axios.delete(`/orangtua/${orangtuaId}`);
+
+                    // Tampilkan pesan sukses
+                    Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
+
+                    // Hapus kelas dari KelasList di frontend
+                    this.ortuList = this.ortuList.filter(ortu => ortu.id !== orangtuaId);
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Gagal menghapus data kelas!', 'error');
+            }
+        },
     },
     computed: {
-        // Filter siswa list based on search query
         filteredOrtuList() {
-            return this.ortuList.filter((ortu) =>
-                ortu.namaAyah.toLowerCase().includes(this.searchQuery.toLowerCase())
-            );
+            return this.ortuList.filter((ortu) => {
+                return ortu.nama_ayah ?.toLowerCase().includes(this.searchQuery.toLowerCase());
+            });
         },
         isEditMode() {
             return this.editOrtu !== null;
         },
-        // Paginate daftar siswa
         paginatedOrtuList() {
-            const start = (this.currentPage - 1) * this.rowsPerPage;
-            const end = start + this.rowsPerPage;
-            return this.ortuList.slice(start, end);
+            const startIndex = (this.currentPage - 1) * this.rowsPerPage;
+            const endIndex = startIndex + this.rowsPerPage;
+            return this.ortuList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
         },
-        // Total halaman berdasarkan jumlah siswa
         totalPages() {
-            return Math.ceil(this.filteredOrtuList.length / this.rowsPerPage);
+            return Math.ceil(this.ortuList.length / this.rowsPerPage);
         },
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredOrtuList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.filteredOrtuList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.ortuList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.ortuList.length} entries`;
         },
     },
     mounted() {
-        document.addEventListener('click', this.handleClickOutside);
-    },
-    beforeDestroy() {
-        document.removeEventListener('click', this.handleClickOutside);
-    },
+        console.log(this.ortuList);
+
+        // Hapus duplikasi berdasarkan ID
+        this.ortuList = this.ortuList.filter(
+            (item, index, self) => index === self.findIndex((t) => t.id === item.id)
+        );
+    }
 };
 </script>
 
 <style>
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+/* Modal Content */
+.modal-content-ortu {
+    background: rgb(255, 255, 255);
+    padding: 1.5rem;
+    border-radius: 10px;
+    width: 30%;
+    max-width: 250px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+/* Filter Rows */
+.filter-rows {
+    margin: 0.5rem 0;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 1rem;
+}
+
+.col {
+    display: flex;
+    margin-bottom: 0.3rem;
+    align-items: center;
+}
+
+.checkbox {
+    margin-right: 0.5rem;
+}
+
+label {
+    display: inline-block;
+    white-space: nowrap;
+    width: calc(100% - 30px);
+    color: #636364;
+}
+
 .container {
     display: flex;
     flex-direction: column;
@@ -402,6 +480,32 @@ export default {
     margin: 0;
     font-weight: 800;
     color: #336C2A;
+}
+
+.btn-add-ortu {
+    text-decoration: none;
+    /* Hilangkan underline */
+    background: #61c252;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: auto;
+}
+
+.btn-add-ortu:hover {
+    color: white;
+    background: #336C2A;
+    text-decoration: none;
+}
+
+.btn-add-ortu i {
+    font-size: 1rem;
 }
 
 /* Style untuk dropdown */
@@ -478,21 +582,17 @@ export default {
     width: 16px;
     height: 16px;
     appearance: none;
-    /* Menghilangkan tampilan default */
     border: 2px solid #ccc;
     border-radius: 4px;
     outline: none;
     cursor: pointer;
     background-color: white;
-    /* Warna dasar putih */
 }
 
 .checkbox:checked {
     text-align: center;
     background-color: #007bff;
-    /* Warna saat di-checked */
     border-color: #007bff;
-    /* Border sesuai dengan warna utama */
 }
 
 .checkbox:checked::after {
@@ -551,28 +651,33 @@ export default {
     border-color: #636364;
 }
 
-.table-wrapper {
-    width: 65rem;
-    max-width: 150rem;
+.table-wrapper-ortu {
+    width: 100%;
+    max-width: 100%;
     overflow-x: auto;
     background-color: white;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+    /* Pastikan padding dan border tidak melebihi lebar */
 }
 
 .data-table {
     width: 100%;
+    /* Pastikan tabel mengambil 100% lebar dari wrapper */
+    min-width: 1000px;
+    /* Tentukan lebar minimum yang lebih besar dari wrapper */
     border-collapse: collapse;
-    min-width: 50rem;
+    box-sizing: border-box;
+    /* Pastikan border dan padding tidak mempengaruhi lebar */
     margin-top: 1rem;
 }
 
 .data-table th,
 .data-table td {
     padding: 12px 8px;
-    /* Added more padding for a cleaner look */
     text-align: left;
 }
 
@@ -583,50 +688,35 @@ export default {
 
 .data-table td:last-child {
     text-align: center;
-    /* Align the 'Action' column */
 }
 
 .data-table th:last-child {
     text-align: center;
-    /* Align the 'Action' column */
 }
 
 .data-table tr:nth-child(even) {
     background-color: #f9f9f9;
-    /* Light gray background for alternating rows */
-}
-
-.data-table tr:hover {
-    background-color: #f1f1f1;
-    /* Light hover effect */
 }
 
 .popup .btn {
     box-shadow: none;
-    /* Remove the box shadow */
     border: none;
-    /* Optionally, remove any border */
     background: transparent;
-    /* If you want the background to be transparent */
     padding: 0;
-    /* Adjust padding if necessary */
 }
 
 .popup-menu {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    /* Bayangan abu-abu */
     padding: 10px;
     border-radius: 8px;
     display: none;
-    /* Awalnya tidak terlihat */
     z-index: 1000;
 }
 
 .popup-menu.show {
     display: block;
-    /* Tampilkan popup saat dropdownIndex === index */
 }
 
 .popup-item {
@@ -639,16 +729,13 @@ export default {
     cursor: pointer;
 }
 
-.popup-item:hover {
-    background-color: #f5f5f5;
-}
-
-.pagination-info {
+.pagination-info-ortu {
     display: flex;
     align-items: center;
     justify-content: space-between;
     width: 100%;
     margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .page-info {

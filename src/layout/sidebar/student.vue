@@ -6,7 +6,13 @@
                 <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Siswa</li>
             </ol>
         </nav>
-        <h4 class="header-text">Siswa</h4>
+        <div class="header-button">
+            <h3 class="header-text">Siswa</h3>
+            <router-link to="/adminmainsidebar/addStudents" class="btn-add-siswa">
+                Tambah Data
+                <i class="fa-solid fa-plus"></i>
+            </router-link>
+        </div>
     </section>
     <section class="content">
         <div class="table-wrapper">
@@ -29,74 +35,24 @@
                             <i class="fa-solid fa-filter filter-icon"></i>
                         </button>
                         <!-- Filter Popup -->
-                        <div v-if="isFilterPopupVisible" class="filter-popup">
-                            <!-- first row -->
-                            <div class="row">
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.NIS" />
-                                        NISN
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.nama" />
-                                        Nama
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.jenisKelamin" />
-                                        Jenis Kelamin
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.nik" />
-                                        NIK
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.rombel" />
-                                        Rombel
-                                    </label>
-                                </div>
-                            </div>
-                            <!-- second row -->
-                            <div class="row">
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.tempatLahir">
-                                        Tempat Lahir
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.tanggalLahir" />
-                                        Tanggal Lahir
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.agama" />
-                                        Agama
-                                    </label>
-                                </div>
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.alamat" />
-                                        Alamat
-                                    </label>
-                                </div>
-                            </div>
-                            <!-- fourth row -->
-                            <div class="row">
-                                <div class="col">
-                                    <label>
-                                        <input type="checkbox" class="checkbox" v-model="selectedFilters.orangtua" />
-                                        Nama Ayah
-                                    </label>
+                        <div>
+                            <!-- Modal Filter -->
+                            <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
+                                <div class="modal-content-siswa">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Filter Data Siswa</h5>
+                                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                                    </div>
+                                    <hr>
+                                    <div class="filter-rows">
+                                        <!-- First row -->
+                                        <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
+                                            <label>
+                                                <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
+                                                {{ filter.label }}
+                                            </label>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -112,13 +68,6 @@
                             Excel
                         </button>
                     </div>
-                    <div>
-                        <router-link to="/adminmainsidebar/addStudents">
-                            <span class="material-symbols-outlined btn-add-ortu">
-                                add_circle
-                            </span>
-                        </router-link>
-                    </div>
                 </div>
                 <!-- Pencarian -->
                 <div class="search-bar-container">
@@ -131,48 +80,40 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.NIS">NISN</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.noKk">No KK</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.nisn">NISN</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.nik">NIK</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.nama">Nama Lengkap</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.jenisKelamin">Jenis Kelamin</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.rombel">Rombel Saat Ini</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.tempatLahir">Tempat Lahir</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.tanggalLahir">Tanggal Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nik">NIK</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.agama.length">Agama</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.agama">Agama</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.alamat">Alamat</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.rt">RT</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.rw">RW</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.dusun">Dusun</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.kelurahan">Kelurahan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.kecamatan">Kecamatan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.kodepos">Kode Pos</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jenisTinggal">Jenis Tinggal</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.alatTransportasi">Alat Transportasi</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.orangtua">Nama Ayah</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.anakKe">Anak Ke</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.jumlahSaudara">Jumlah Saudara</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.beratBadan">Berat Badan</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.tinggiBadan">Tinggi Badan</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.lingkarKepala">Lingkar Kepala</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(siswa, index) in paginatedSiswaList" :key="index">
+                    <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id">
                         <th scope="row">{{ index + 1 }}</th>
-                        <td v-if="selectedFilters.NIS">{{ siswa.NIS }}</td>
-                        <td v-if="selectedFilters.nama">{{ siswa.nama }}</td>
-                        <td v-if="selectedFilters.jenisKelamin">{{ siswa.jenisKelamin }}</td>
-                        <td v-if="selectedFilters.rombel">{{ siswa.rombel }}</td>
-                        <td v-if="selectedFilters.tempatLahir">{{ siswa.tempatLahir }}</td>
-                        <td v-if="selectedFilters.tanggalLahir">{{ siswa.tanggalLahir }}</td>
-                        <td v-if="selectedFilters.nik">{{ siswa.nik }}</td>
-                        <td v-if="selectedFilters.agama.length">{{ siswa.agama }}</td>
+                        <td v-if="selectedFilters.noKk">{{ siswa.no_kk }}</td>
+                        <td v-if="selectedFilters.nisn">{{ siswa.nisn }}</td>
+                        <td v-if="selectedFilters.nik">{{ siswa.nik_siswa }}</td>
+                        <td v-if="selectedFilters.nama">{{ siswa.nama_siswa }}</td>
+                        <td v-if="selectedFilters.jenisKelamin">{{ siswa.jenis_kelamin }}</td>
+                        <td v-if="selectedFilters.tempatLahir">{{ siswa.tempat_lahir }}</td>
+                        <td v-if="selectedFilters.tanggalLahir">{{ siswa.tanggal_lahir }}</td>
+                        <td v-if="selectedFilters.agama">{{ siswa.agama }}</td>
                         <td v-if="selectedFilters.alamat">{{ siswa.alamat }}</td>
-                        <td v-if="selectedFilters.rt">{{ siswa.rt }}</td>
-                        <td v-if="selectedFilters.rw">{{ siswa.rw }}</td>
-                        <td v-if="selectedFilters.dusun">{{ siswa.dusun }}</td>
-                        <td v-if="selectedFilters.kelurahan">{{ siswa.kelurahan }}</td>
-                        <td v-if="selectedFilters.kecamatan">{{ siswa.kecamatan }}</td>
-                        <td v-if="selectedFilters.kodepos">{{ siswa.kodepos }}</td>
-                        <td v-if="selectedFilters.jenisTinggal">{{ siswa.jenisTinggal }}</td>
-                        <td v-if="selectedFilters.alatTransportasi">{{ siswa.alatTransportasi }}</td>
-                        <td v-if="selectedFilters.orangtua">{{ siswa.orangtua }}</td>
+                        <td v-if="selectedFilters.anakKe">{{ siswa.anak_ke }}</td>
+                        <td v-if="selectedFilters.jumlahSaudara">{{ siswa.jumlah_saudara }}</td>
+                        <td v-if="selectedFilters.beratBadan">{{ siswa.berat_badan }}</td>
+                        <td v-if="selectedFilters.tinggiBadan">{{ siswa.tinggi_badan }}</td>
+                        <td v-if="selectedFilters.lingkarKepala">{{ siswa.lingkar_kepala }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -186,8 +127,13 @@
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedSiswaList.length === 0">
-                        <td colspan="7" style="text-align: center">Tidak ada data</td>
+                    <tr v-if="paginatedSiswaList.length === 0" class="no-data">
+                        <td colspan="7" class="no-data-cell">
+                            <div class="no-data-content">
+                                <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
+                                <p class="no-data-text">Tidak ada data</p>
+                            </div>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -220,6 +166,12 @@
 import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Papa from "papaparse";
+import Swal from "sweetalert2";
+import axios from 'axios';
+import {
+    ref,
+    onMounted
+} from 'vue';
 
 export default {
     data() {
@@ -227,165 +179,139 @@ export default {
             rowsPerPage: 5,
             currentPage: 1,
             dropdownIndex: null,
+            showModal: false,
             searchQuery: '', // for filtering
-            isFilterPopupVisible: false, // Show/Hide filter popup
+            firstRowFilters: [{
+                    key: "noKK",
+                    label: "No KK"
+                },
+                {
+                    key: "nik",
+                    label: "NIK Siswa"
+                },
+                {
+                    key: "nisn",
+                    label: "NISN"
+                },
+                {
+                    key: "nama",
+                    label: "Nama Siswa"
+                },
+                {
+                    key: "tempatLahir",
+                    label: "Tempat Lahir"
+                },
+                {
+                    key: "tanggalLahir",
+                    label: "Tanggal Lahir"
+                },
+                {
+                    key: "jenisKelamin",
+                    label: "Jenis Kelamin"
+                },
+                {
+                    key: "agama",
+                    label: "Agama"
+                },
+                {
+                    key: "alamat",
+                    label: "Tahun Lahir Ibu"
+                },
+                {
+                    key: "anakKe",
+                    label: "Anak Ke"
+                },
+                {
+                    key: "jumlahSaudara",
+                    label: "Jumlah Saudara"
+                },
+                {
+                    key: "beratBadan",
+                    label: "Berat Badan"
+                },
+                {
+                    key: "tinggiBadan",
+                    label: "Tinggi Badan"
+                },
+                {
+                    key: "lingkarKepala",
+                    label: "Lingkar Kepala"
+                },
+            ],
             selectedFilters: {
-                NIS: true,
+                noKk: true,
+                nik: true,
+                nisn: true,
                 nama: true,
                 jenisKelamin: true,
                 agama: false,
-                nik: true,
-                rombel: true,
                 tempatLahir: false,
                 tanggalLahir: false,
                 alamat: false,
-                rt: false,
-                rw: false,
-                dusun: false,
-                kelurahan: false,
-                kecamatan: false,
-                kodepos: false,
-                jenisTinggal: false,
-                alatTransportasi: false,
-                orangtua: false,
+                anakKe: false,
+                jumlahSaudara: false,
+                beratBadan: false,
+                tinggiBadan: false,
+                lingkarKepala: false,
             },
             // Mock data for testing
-            siswaList: [{
-                    NIS: '3198261671',
-                    agama: 'Islam',
-                    nama: 'ABIDAH FADIYAH',
-                    jenisKelamin: 'Perempuan',
-                    nik: '3507226112190001',
-                    rombel: 'KELAS A1',
-                    tempatLahir: 'MALANG',
-                    tanggalLahir: '2019-12-21',
-                    alamat: 'JALAN DIENG ATAS',
-                    rt: '3',
-                    rw: '1',
-                    dusun: 'SUMBERJO',
-                    kelurahan: 'Kalisongo',
-                    kecamatan: 'Dau',
-                    kodepos: '65151',
-                    jenisTinggal: 'Bersama orang tua',
-                    alatTransportasi: 'Sepeda motor',
-                    orangtua: 'DARMAWAN'
-                },
-                {
-                    NIS: '3194836415',
-                    agama: 'Islam',
-                    nama: 'ABIDZAR OTTAH JANUAREZA',
-                    jenisKelamin: 'Laki-Laki',
-                    nik: '3573050301190004',
-                    rombel: 'KELAS B2',
-                    tempatLahir: 'MALANG',
-                    tanggalLahir: '2019-01-03',
-                    alamat: 'JALAN KERTO SENTONO 45 A',
-                    rt: '0',
-                    rw: '0',
-                    dusun: '',
-                    kelurahan: 'Ketawanggede',
-                    kecamatan: 'Kalisongo',
-                    kodepos: '',
-                    jenisTinggal: 'Bersama orang tua',
-                    alatTransportasi: 'Sepeda motor',
-                    orangtua: ''
-                },
-                {
-                    NIS: '3201515568',
-                    agama: 'Islam',
-                    nama: 'AFIFAH ZAHRA RATIFAH',
-                    jenisKelamin: 'Perempuan',
-                    nik: '3507225706200002',
-                    rombel: 'KELAS PG MENTARI',
-                    tempatLahir: 'MALANG',
-                    tanggalLahir: '2020-06-17',
-                    alamat: 'DUSUN SUMBERJO',
-                    rt: '3',
-                    rw: '2',
-                    dusun: 'SUMBERJO',
-                    kelurahan: 'Kalisongo',
-                    kecamatan: 'Dau',
-                    kodepos: '65151',
-                    jenisTinggal: 'Bersama orang tua',
-                    alatTransportasi: 'Jalan Kaki',
-                    orangtua: 'ALI MUSTOFA'
-                },
-                {
-                    NIS: '',
-                    agama: 'Islam',
-                    nama: 'AFNAN HAMIM ALGIFARI',
-                    jenisKelamin: 'Laki-Laki',
-                    nik: '3507220603200003',
-                    rombel: 'KELAS PG MATAHARI',
-                    tempatLahir: 'MALANG',
-                    tanggalLahir: '2020-03-16',
-                    alamat: 'JALAN DIENG ATAS',
-                    rt: '1',
-                    rw: '3',
-                    dusun: 'KUNCI',
-                    kelurahan: 'Kalisongo',
-                    kecamatan: 'Dau',
-                    kodepos: '65151',
-                    jenisTinggal: 'Bersama orang tua',
-                    alatTransportasi: 'Sepeda Motor',
-                    orangtua: 'EKY SANDIANA RIZAL'
-                },
-                {
-                    NIS: '3201926120',
-                    agama: 'Islam',
-                    nama: 'AGHLAN DEVANKA KALANDRA',
-                    jenisKelamin: 'Laki-Laki',
-                    nik: '3573021703200003',
-                    rombel: 'KELAS PG MATAHARI',
-                    tempatLahir: 'MALANG',
-                    tanggalLahir: '2020-03-17',
-                    alamat: 'JL. EMBONG BRANTAS GG. SD / 1A',
-                    rt: '6',
-                    rw: '7',
-                    dusun: '',
-                    kelurahan: 'Kidul Dalem',
-                    kecamatan: 'Klojen',
-                    kodepos: '65119',
-                    jenisTinggal: 'Bersama orang tua',
-                    alatTransportasi: 'Sepeda Motor',
-                    orangtua: 'AGUS SUPRIYANTO, ST',
-                },
-            ],
+            siswaList: [],
             headerMapping: {
-                NIS: 'Nomor Induk Siswa',
+                nis: 'Nomor Induk Siswa',
+                noKk: 'Nomor KK',
                 nama: 'Nama Lengkap',
                 jenisKelamin: 'Jenis Kelamin',
                 agama: 'Agama',
                 nik: 'NIK',
-                rombel: 'Rombel',
                 tempatLahir: 'Tempat Lahir',
                 tanggalLahir: 'Tanggal Lahir',
                 alamat: 'Alamat',
+                anakKe: 'Anak Ke',
+                jumlahSaudara: 'Jumlah Saudara',
+                beratBadan: 'Berat Badan',
+                tinggiBadan: 'Tinggi Badan',
+                lingkarKepala: 'Lingkar Kepala'
             }
+        };
+    },
+    //untuk menampilkan data siswa
+    setup() {
+        const siswaList = ref([]); // List siswa
+
+        const fetchSiswaList = () => {
+            axios.get('/siswa')
+                .then((res) => {
+                    console.log("Response dari API:", res.data); // Debugging
+
+                    if (res.data && Array.isArray(res.data.data)) {
+                        siswaList.value = res.data.data; // Ambil array siswa
+                    } else {
+                        console.error("Format data tidak sesuai", res.data);
+                        siswaList.value = [];
+                    }
+                })
+                .catch((error) => {
+                    console.error("Terjadi error saat fetching data:", error);
+                    siswaList.value = []; // Set array kosong jika ada error
+                });
+        };
+
+        // Panggil fetchOrtuList saat komponen di-mount
+        onMounted(() => {
+            fetchSiswaList();
+        });
+
+        return {
+            siswaList,
+            fetchSiswaList // Return supaya bisa diakses di luar setup
         };
     },
     methods: {
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
-        toggleFilterPopup() {
-            this.isFilterPopupVisible = !this.isFilterPopupVisible;
-        },
-        applyFilters() {
-            this.isFilterPopupVisible = false;
-        },
-        // Placeholder methods for edit and delete
-        prepareEditSiswa(siswa) {
-            console.log('Editing:', siswa);
-        },
-        deleteSiswa(nomorInduk) {
-            console.log('Deleting:', nomorInduk);
-            // Add delete logic here
-        },
-        handleClickOutside(event) {
-            if (this.$refs.popup && !this.$refs.popup.contains(event.target)) {
-                this.dropdownIndex = null;
-            }
+        closeModal() {
+            this.showModal = false;
         },
         changePage(page) {
             if (page > 0 && page <= this.totalPages) {
@@ -395,7 +321,9 @@ export default {
         // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
             return this.siswaList.map((siswa, index) => {
-                const filteredSiswa = { No: index + 1 }; // Menambahkan nomor urut
+                const filteredSiswa = {
+                    No: index + 1
+                }; // Menambahkan nomor urut
                 Object.keys(this.selectedFilters).forEach(key => {
                     if (this.selectedFilters[key]) {
                         filteredSiswa[key] = siswa[key];
@@ -404,7 +332,11 @@ export default {
                 return filteredSiswa;
             });
         },
-        
+
+        toggleFilterPopup() {
+            this.showModal = !this.showModal;
+        },
+
         // Fungsi ekspor data berdasarkan filter aktif
         exportData(format) {
             const filteredData = this.getFilteredData();
@@ -429,7 +361,9 @@ export default {
                 const data = [headerLabels, ...filteredData.map(siswa => headers.map(key => siswa[key] || ''))];
                 const csv = Papa.unparse(data);
 
-                const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+                const blob = new Blob([csv], {
+                    type: 'text/csv;charset=utf-8;'
+                });
                 const link = document.createElement('a');
                 link.href = URL.createObjectURL(blob);
                 link.download = 'filtered_data.csv';
@@ -440,8 +374,14 @@ export default {
     computed: {
         // Filter siswa list based on search query
         filteredSiswaList() {
+            if (!Array.isArray(this.siswaList)) {
+                return [];
+            }
+
             return this.siswaList.filter((siswa) =>
-                siswa.nama.toLowerCase().includes(this.searchQuery.toLowerCase())
+                siswa && siswa.nama_siswa ?
+                siswa.nama_siswa.toLowerCase().includes(this.searchQuery.toLowerCase()) :
+                false
             );
         },
         // Paginate daftar siswa
@@ -460,12 +400,6 @@ export default {
             return `Showing ${startRow} - ${endRow} of ${this.filteredSiswaList.length} entries`;
         },
     },
-    mounted() {
-        document.addEventListener('click', this.handleClickOutside);
-    },
-    beforeDestroy() {
-        document.removeEventListener('click', this.handleClickOutside);
-    },
 };
 </script>
 
@@ -474,6 +408,56 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+/* Modal Content */
+.modal-content-siswa {
+    background: rgb(255, 255, 255);
+    padding: 1.5rem;
+    border-radius: 10px;
+    width: 30%;
+    max-width: 250px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+/* Filter Rows */
+.filter-rows {
+    margin: 0.5rem 0;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 1rem;
+}
+
+.col {
+    display: flex;
+    margin-bottom: 0.3rem;
+    align-items: center;
+}
+
+.checkbox {
+    margin-right: 0.5rem;
+}
+
+label {
+    display: inline-block;
+    white-space: nowrap;
+    width: calc(100% - 30px);
+    color: #636364;
 }
 
 .breadcrumb-stu {
@@ -485,6 +469,32 @@ export default {
     margin: 0;
     font-weight: 800;
     color: #336C2A;
+}
+
+.btn-add-siswa {
+    text-decoration: none;
+    /* Hilangkan underline */
+    background: #61c252;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: auto;
+}
+
+.btn-add-siswa:hover {
+    color: white;
+    background: #336C2A;
+    text-decoration: none;
+}
+
+.btn-add-siswa i {
+    font-size: 1rem;
 }
 
 /* Style untuk dropdown */
@@ -714,6 +724,40 @@ export default {
 
 .popup-item:hover {
     background-color: #f5f5f5;
+}
+
+.no-data-cell {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    height: 150px;
+    /* Tinggi baris agar elemen berada di tengah */
+}
+
+.no-data-content {
+    display: flex;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    /* Pastikan isi memenuhi tinggi */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.no-data-img {
+    max-width: 100px;
+    /* Sesuaikan ukuran gambar */
+    margin-bottom: 10px;
+}
+
+.no-data-text {
+    font-size: 16px;
+    color: #6c757d;
+    /* Warna teks abu-abu */
 }
 
 .pagination-info {
