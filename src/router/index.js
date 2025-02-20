@@ -8,8 +8,10 @@ import Parents from "../layout/sidebar/parents.vue";
 import AddParents from "../layout/sidebar/add-parents.vue";
 import AddStudents from "../layout/sidebar/add-students.vue";
 import Teachers from "../layout/sidebar/teachers.vue";
+import AddTeachers from "../layout/sidebar/add-teachers.vue";
 import Classes from "../layout/sidebar/classes.vue";
-import AddClasses from "../layout/sidebar/add-classes.vue";
+// import AddClasses from "../layout/sidebar/add-classes.vue";
+import Tuition from "../layout/sidebar/tuition.vue";
 import { components } from "vuetify/dist/vuetify-labs.js";
 
 const routes = [
@@ -34,15 +36,6 @@ const routes = [
                 component: Parents,
             },
             {
-                path: "addParents/:id?",  // :id adalah parameter opsional
-                component: AddParents,
-                props: true,  // Kirim parameter id ke komponen sebagai prop
-            },
-            {
-                path: "addStudents",
-                component: AddStudents,
-            },
-            {
                 path: "teachers",
                 component: Teachers,
             },
@@ -51,9 +44,28 @@ const routes = [
                 component: Classes,
             },
             {
-                path: "addClasses",
-                component: AddClasses,
+                path: "tuition",
+                component: Tuition,
             },
+            {
+                path: "addParents/:id?",  // :id adalah parameter opsional
+                component: AddParents,
+                props: true,  // Kirim parameter id ke komponen sebagai prop
+            },
+            {
+                path: "addStudents/:id?",
+                component: AddStudents,
+                props: true
+            },
+            {
+                path: "addTeachers/:id?",
+                component: AddTeachers,
+                props: true
+            },
+            // {
+            //     path: "addClasses",
+            //     component: AddClasses,
+            // },
         ],
     },
     {

@@ -1,7 +1,7 @@
 <template>
 <div class="container">
     <section class="content-header">
-        <nav aria-label="breadcrumb" class="breadcrumb-stu">
+        <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Orangtua</li>
             </ol>
@@ -15,12 +15,11 @@
         </div>
     </section>
     <section class="content">
-        <div class="table-wrapper-ortu">
-            <!-- Filter section -->
-            <div class="filter-section">
+        <!-- Filter section -->
+        <div class="filter-section">
                 <div class="row-filter-wrapper">
                     <div class="tampil-baris">
-                        Show:
+                        Show
                         <select v-model="rowsPerPage" class="select-rows">
                             <option value="5">5</option>
                             <option value="10">10</option>
@@ -57,7 +56,7 @@
                         </div>
                     </div>
                     <div class="export-section">
-                        <button class="btn btn-primary" @click="exportData('pdf')">
+                        <button class="btn btn-danger" @click="exportData('pdf')">
                             <i class="fa fa-file-pdf" aria-hidden="true"></i>
                             PDF
                         </button>
@@ -72,6 +71,7 @@
                     <i class="fas fa-search search-icon"></i>
                 </div>
             </div>
+        <div class="table-wrapper-ortu">
             <!-- Table Section -->
             <table class="table data-table">
                 <thead>
@@ -118,7 +118,7 @@
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <div class="popup-menu" :class="{ show: dropdownIndex === index }"  v-if="dropdownIndex === index">
+                                <div class="popup-menu" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
                                     <button class="popup-item" @click="editOrtu(ortu.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deleteOrtu(ortu.id)" style="color: red">Hapus</button>
                                 </div>
@@ -141,15 +141,37 @@
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button class="page-link" @click="changePage(currentPage - 1)" aria-label="Previous" :disabled="currentPage === 1">
+                        <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
-                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                        <button class="page-link" @click="changePage(page)">{{ page }}</button>
+
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
                     </li>
+
+                    <li v-if="showLeftEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <button class="page-link" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
+
+                    <li v-if="showRightEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
+
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <button class="page-link" @click="changePage(currentPage + 1)" aria-label="Next" :disabled="currentPage === totalPages">
+                        <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
@@ -174,6 +196,7 @@ import {
 export default {
     data() {
         return {
+            maxVisiblePages: 5,
             rowsPerPage: 5,
             currentPage: 1,
             showModal: false,
@@ -305,9 +328,9 @@ export default {
         getFilteredData() {
             return this.ortuList.map((ortu, index) => {
                 const filteredOrtu = {
-                    No: index + 1
+                    No: index + 1,
                 }; // Menambahkan nomor urut
-                Object.keys(this.selectedFilters).forEach(key => {
+                Object.keys(this.selectedFilters).forEach((key) => {
                     if (this.selectedFilters[key]) {
                         filteredOrtu[key] = ortu[key];
                     }
@@ -349,13 +372,11 @@ export default {
             }
         },
         editOrtu(id) {
-            // Mengarahkan ke halaman addParents dengan ID orangtua yang ingin diedit
             this.$router.push(`/adminmainsidebar/addParents/${id}`);
         },
-        // Fungsi untuk menghapus kelas berdasarkan ID
+       
         async deleteOrtu(orangtuaId) {
             try {
-                // Konfirmasi penghapusan data
                 const confirmDelete = await Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: "Data ini akan dihapus!",
@@ -366,21 +387,43 @@ export default {
                 });
 
                 if (confirmDelete.isConfirmed) {
-                    // Kirim permintaan DELETE ke backend
                     const response = await axios.delete(`/orangtua/${orangtuaId}`);
 
-                    // Tampilkan pesan sukses
-                    Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
-
-                    // Hapus kelas dari KelasList di frontend
+                    Swal.fire('Terhapus!', 'Data orangtua berhasil dihapus.', 'success');
                     this.ortuList = this.ortuList.filter(ortu => ortu.id !== orangtuaId);
                 }
             } catch (error) {
-                Swal.fire('Error', 'Gagal menghapus data kelas!', 'error');
+                Swal.fire('Error', 'Gagal menghapus data orangtua!', 'error');
             }
         },
     },
     computed: {
+        showLeftEllipsis() {
+            return this.currentPage > 4;
+        },
+
+        showRightEllipsis() {
+            return this.currentPage < this.totalPages - 3;
+        },
+
+        middlePages() {
+            let start = Math.max(2, this.currentPage - 1);
+            let end = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+            if (this.currentPage <= 4) {
+                start = 2;
+                end = Math.min(5, this.totalPages - 1);
+            } else if (this.currentPage >= this.totalPages - 3) {
+                start = Math.max(this.totalPages - 4, 2);
+                end = this.totalPages - 1;
+            }
+
+            const pages = [];
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        },
         filteredOrtuList() {
             return this.ortuList.filter((ortu) => {
                 return ortu.nama_ayah ?.toLowerCase().includes(this.searchQuery.toLowerCase());
@@ -400,7 +443,7 @@ export default {
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
             const endRow = Math.min(this.currentPage * this.rowsPerPage, this.ortuList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.ortuList.length} entries`;
+            return `Showing ${startRow}-${endRow} of ${this.ortuList.length} entries`;
         },
     },
     mounted() {
@@ -414,8 +457,7 @@ export default {
 };
 </script>
 
-<style>
-/* Modal Overlay */
+<style scoped>
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -429,7 +471,6 @@ export default {
     z-index: 1050;
 }
 
-/* Modal Content */
 .modal-content-ortu {
     background: rgb(255, 255, 255);
     padding: 1.5rem;
@@ -440,7 +481,6 @@ export default {
     text-align: left;
 }
 
-/* Filter Rows */
 .filter-rows {
     margin: 0.5rem 0;
     flex-direction: column;
@@ -471,8 +511,8 @@ label {
     align-items: flex-start;
 }
 
-.breadcrumb-stu {
-    margin-top: 4.5rem;
+.breadcrumb {
+    margin-top: 3.5rem;
     margin-bottom: 1rem;
 }
 
@@ -484,8 +524,7 @@ label {
 
 .btn-add-ortu {
     text-decoration: none;
-    /* Hilangkan underline */
-    background: #61c252;
+    background: #46943a;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -495,12 +534,14 @@ label {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    right: 12px;
     width: auto;
 }
 
 .btn-add-ortu:hover {
     color: white;
     background: #336C2A;
+    transform: translateY(-2px);
     text-decoration: none;
 }
 
@@ -510,23 +551,39 @@ label {
 
 /* Style untuk dropdown */
 .select-rows {
-    background: white;
-    color: black;
+    color: #6E736D;
     padding: 5px;
     width: 3.4rem;
     border-radius: 10px;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     background-color: #ffffff;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
     transition: border-color 0.3s ease;
+}
+
+.tampil-baris {
+    color: #336C2A;
+    font-weight: 600;
 }
 
 .filter-section {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    flex-wrap: wrap;
-    /* Agar elemen bisa berpindah baris jika ruang sempit */
+    position: relative;
+    width: 73rem;
+    max-width: 150rem;
+    overflow-x: auto;
+    background-color: white;
+    margin-top: 1rem;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.row-filter-wrapper {
+    display: flex;
+    align-items: center;
 }
 
 .filter {
@@ -541,7 +598,8 @@ label {
 
 .filter-btn {
     background-color: white;
-    color: black;
+    color: #6E736D;
+    font-weight: 600;
     padding: 4px;
     width: 7rem;
     border-radius: 10px;
@@ -607,14 +665,6 @@ label {
     transform: rotate(45deg);
 }
 
-.btn-add-ortu {
-    right: 12px;
-}
-
-.btn-add-ortu:hover {
-    transform: translateY(-2px);
-}
-
 .material-symbols-outlined {
     font-size: 20px;
 }
@@ -629,8 +679,8 @@ label {
     margin-left: auto;
     border: 1px solid #e2e2e286;
     padding: 5px 0.5rem;
-    border-radius: 10px;
-    width: fit-content;
+    width: 10%; 
+    min-width: 150px; 
     background-color: white;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
 }
@@ -652,27 +702,22 @@ label {
 }
 
 .table-wrapper-ortu {
-    width: 100%;
-    max-width: 100%;
+    width: 73rem; 
+    max-width: 150rem;
     overflow-x: auto;
     background-color: white;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-    box-sizing: border-box;
-    /* Pastikan padding dan border tidak melebihi lebar */
 }
 
 .data-table {
     width: 100%;
-    /* Pastikan tabel mengambil 100% lebar dari wrapper */
-    min-width: 1000px;
-    /* Tentukan lebar minimum yang lebih besar dari wrapper */
     border-collapse: collapse;
-    box-sizing: border-box;
-    /* Pastikan border dan padding tidak mempengaruhi lebar */
+    min-width: 50rem;
     margin-top: 1rem;
+    table-layout: auto;
 }
 
 .data-table th,
@@ -686,10 +731,7 @@ label {
     color: #336C2A;
 }
 
-.data-table td:last-child {
-    text-align: center;
-}
-
+.data-table td:last-child,
 .data-table th:last-child {
     text-align: center;
 }
@@ -743,6 +785,51 @@ label {
 }
 
 .pagination {
-    margin: 0;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.page-item {
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
 </style>

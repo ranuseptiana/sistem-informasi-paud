@@ -3,15 +3,11 @@
     <section class="content-header">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Guru</li>
+                <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Pembayaran SPP</li>
             </ol>
         </nav>
         <div class="header-button">
-            <h3 class="header-text">Guru</h3>
-            <router-link to="/adminmainsidebar/addTeachers" class="btn-add">
-                Tambah Data
-                <i class="fa-solid fa-plus"></i>
-            </router-link>
+            <h3 class="header-text">Pembayaran SPP</h3>
         </div>
     </section>
     <section class="content">
@@ -77,38 +73,22 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nip">NIP</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.username">Username</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.password">Password</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaGuru">Nama Lengkap</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.gender">Jenis Kelamin</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tempatLahir">Tempat Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tglLahir">Tanggal Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.agama">Agama</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.alamat">Alamat</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.noTelp">No Telp</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jabatan">Jabatan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jmlHari">Jumlah Hari Mengajar</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tugasMengajar">Tugas Mengajar</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.namaSiswa">Nama Siswa</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.tglPembayaran">Tanggal Pembayaran</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.buktiPembayaran">Bukti Pembayaran</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.statusPembayaran">Status Pembayaran</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.statusRapor">Status Rapor</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(guru, index) in paginatedGuruList" :key="guru.id">
+                    <tr v-for="(pembayaranSpp, index) in paginatedPembayaranSppList" :key="pembayaranSpp.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.nip">{{ guru.nip }}</td>
-                        <td v-if="selectedFilters.username">{{ guru.username }}</td>
-                        <td v-if="selectedFilters.password">{{ guru.password }}</td>
-                        <td v-if="selectedFilters.namaGuru">{{ guru.nama_lengkap }}</td>
-                        <td v-if="selectedFilters.gender">{{ guru.gender }}</td>
-                        <td v-if="selectedFilters.tempatLahir">{{ guru.tempat_lahir }}</td>
-                        <td v-if="selectedFilters.tglLahir">{{ guru.tgl_lahir }}</td>
-                        <td v-if="selectedFilters.agama">{{ guru.agama }}</td>
-                        <td v-if="selectedFilters.alamat">{{ guru.alamat }}</td>
-                        <td v-if="selectedFilters.noTelp">{{ guru.no_telp }}</td>
-                        <td v-if="selectedFilters.jabatan">{{ guru.jabatan }}</td>
-                        <td v-if="selectedFilters.jmlHari">{{ guru.jumlah_hari_mengajar }}</td>
-                        <td v-if="selectedFilters.tugasMengajar">{{ guru.tugas_mengajar }}</td>
+                        <td v-if="selectedFilters.namaSiswa">{{ pembayaranSpp.siswa?.nama_siswa }}</td>
+                        <td v-if="selectedFilters.tglPembayaran">{{ pembayaranSpp.tanggal_pembayaran }}</td>
+                        <td v-if="selectedFilters.buktiPembayaran">{{ pembayaranSpp.bukti_pembayaran }}</td>
+                        <td v-if="selectedFilters.statusPembayaran">{{ pembayaranSpp.status_pembayaran }}</td>
+                        <td v-if="selectedFilters.statusRapor">{{ pembayaranSpp.status_rapor }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -116,13 +96,13 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
-                                    <button class="popup-item" @click="editGuru(guru.id)" style="color: #274278">Edit</button>
-                                    <button class="popup-item" @click="deleteGuru(guru.id)" style="color: red">Hapus</button>
+                                    <button class="popup-item" @click="editPembayaranSppp(pembayaranSpp.id)" style="color: #274278">Edit</button>
+                                    <button class="popup-item" @click="deletePembayaranSpp(pembayaranSpp.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedGuruList.length === 0" class="no-data">
+                    <tr v-if="paginatedPembayaranSppList.length === 0" class="no-data">
                         <td colspan="7" class="no-data-cell">
                             <div class="no-data-content">
                                 <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
@@ -157,7 +137,6 @@
 </div>
 </template>
 
-    
 <script>
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -178,101 +157,61 @@ export default {
             dropdownIndex: null,
             searchQuery: '', // for filtering
             selectedFilters: {
-                nip: true,
-                username: true,
-                password: true,
-                namaGuru: true,
-                gender: false,
-                tempatLahir: false,
-                tglLahir: false,
-                agama: false,
-                alamat: false,
-                noTelp: false,
-                jabatan: true,
-                jmlHari: true,
-                tugasMengajar: true,
+                namaSiswa: true,
+                tglPembayaran: true,
+                buktiPembayaran: true,
+                statusPembayaran: true,
+                statusRapor: true,
             },
-            guruList: [],
+            pembayaranSppList: [],
             headerMapping: {
                 noKK: 'Nomor Kartu Keluarga',
             },
             firstRowFilters: [{
-                    key: "nip",
-                    label: "NIP"
+                    key: "namaSiswa",
+                    label: "Nama Siswa"
                 },
                 {
-                    key: "username",
-                    label: "Username"
+                    key: "tglPembayaran",
+                    label: "Tanggal Pembayaran"
                 },
                 {
-                    key: "password",
-                    label: "Password"
+                    key: "buktiPembayaran",
+                    label: "Bukti Pembayaran"
                 },
                 {
-                    key: "namaGuru",
-                    label: "Nama Lengkap"
+                    key: "statusPembayaran",
+                    label: "Status Pembayaran"
                 },
                 {
-                    key: "gender",
-                    label: "Jenis Kelamin"
-                },
-                {
-                    key: "tempatLahir",
-                    label: "Tempat Lahir"
-                },
-                {
-                    key: "tglLahir",
-                    label: "Tanggal Lahir"
-                },
-                {
-                    key: "agama",
-                    label: "Agama"
-                },
-                {
-                    key: "alamat",
-                    label: "Alamat"
-                },
-                {
-                    key: "noTelp",
-                    label: "Nomor Telp"
-                },
-                {
-                    key: "jabatan",
-                    label: "Jabatan"
-                },
-                {
-                    key: "jmlHari",
-                    label: "Jumlah Hari Mengajar"
-                },
-                {
-                    key: "tugasMengajar",
-                    label: "Tugas Mengajar"
-                },
+                    key: "statusRapor",
+                    label: "Status Rapor"
+                }
             ],
         };
     },
     setup() {
-        const guruList = ref([]);
+        const pembayaranSppList = ref([]);
 
-        const fetchGuruList = () => {
+        const fetchPembayaranSppList = () => {
             axios
-                .get('/guru')
+                .get('/pembayaranspp')
                 .then((res) => {
-                    // console.log('Data yang diterima:', res.data);
-                    guruList.value = res.data.data; 
+                    console.log('Data yang diterima:', res.data);
+                    pembayaranSppList.value = res.data.data; 
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.log(error.response.data.data);
                 });
         };
 
         onMounted(() => {
-            fetchGuruList();
+            fetchPembayaranSppList();
         });
 
         return {
-            guruList,
-            fetchGuruList // Return supaya bisa diakses di luar setup
+            pembayaranSppList,
+            fetchPembayaranSppList // Return supaya bisa diakses di luar setup
         };
     },
     methods: {
@@ -289,114 +228,120 @@ export default {
         },
         // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
-            return this.guruList.map((guru, index) => {
-                const filteredGuru = {
+            return this.pembayaranSppList.map((pembayaranSpp, index) => {
+                const filteredPembayaranSpp = {
                     No: index + 1
                 }; // Menambahkan nomor urut
                 Object.keys(this.selectedFilters).forEach(key => {
                     if (this.selectedFilters[key]) {
-                        filteredGuru[key] = guru[key];
+                        filteredPembayaranSpp[key] = pembayaranSpp[key];
                     }
                 });
-                return filteredGuru;
+                return filteredPembayaranSpp;
             });
         },
         // Fungsi ekspor data berdasarkan filter aktif
-        exportData(format) {
-            const filteredData = this.getFilteredData();
+        // exportData(format) {
+        //     const filteredData = this.getFilteredData();
 
-            // Buat header sesuai mapping
-            const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
-            const headerLabels = headers.map(header => this.headerMapping[header] || header);
+        //     // Buat header sesuai mapping
+        //     const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
+        //     const headerLabels = headers.map(header => this.headerMapping[header] || header);
 
-            if (format === 'pdf') {
-                const doc = new jsPDF();
+        //     if (format === 'pdf') {
+        //         const doc = new jsPDF();
 
-                // Buat data tabel untuk PDF
-                const data = filteredData.map(guru => headers.map(key => guru[key] || ''));
+        //         // Buat data tabel untuk PDF
+        //         const data = filteredData.map(guru => headers.map(key => guru[key] || ''));
 
-                doc.autoTable({
-                    head: [headerLabels],
-                    body: data,
-                });
+        //         doc.autoTable({
+        //             head: [headerLabels],
+        //             body: data,
+        //         });
 
-                doc.save('filtered_data.pdf');
-            } else if (format === 'excel') {
-                const data = [headerLabels, ...filteredData.map(guru => headers.map(key => guru[key] || ''))];
-                const csv = Papa.unparse(data);
+        //         doc.save('filtered_data.pdf');
+        //     } else if (format === 'excel') {
+        //         const data = [headerLabels, ...filteredData.map(guru => headers.map(key => guru[key] || ''))];
+        //         const csv = Papa.unparse(data);
 
-                const blob = new Blob([csv], {
-                    type: 'text/csv;charset=utf-8;'
-                });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'filtered_data.csv';
-                link.click();
-            }
-        },
-        editGuru(id) {
-            // Mengarahkan ke halaman addParents dengan ID guru yang ingin diedit
-            console.log("Mengedit guru dengan ID:", id); // Debugging
-            this.$router.push(`/adminmainsidebar/addTeachers/${id}`);
-        },
+        //         const blob = new Blob([csv], {
+        //             type: 'text/csv;charset=utf-8;'
+        //         });
+        //         const link = document.createElement('a');
+        //         link.href = URL.createObjectURL(blob);
+        //         link.download = 'filtered_data.csv';
+        //         link.click();
+        //     }
+        // },
+        // editPembayaranSppp(id) {
+        //     // Mengarahkan ke halaman addParents dengan ID guru yang ingin diedit
+        //     this.$router.push(`/adminmainsidebar/addTeachers/${id}`);
+        // },
         // Fungsi untuk menghapus kelas berdasarkan ID
-        async deleteGuru(guruId) {
-            try {
-                // Konfirmasi penghapusan data
-                const confirmDelete = await Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data ini akan dihapus!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, Hapus',
-                    cancelButtonText: 'Batal'
-                });
+        // async deletePembayaranSpp(pembayaranSppId) {
+        //     try {
+        //         // Konfirmasi penghapusan data
+        //         const confirmDelete = await Swal.fire({
+        //             title: 'Apakah Anda yakin?',
+        //             text: "Data ini akan dihapus!",
+        //             icon: 'warning',
+        //             showCancelButton: true,
+        //             confirmButtonText: 'Ya, Hapus',
+        //             cancelButtonText: 'Batal'
+        //         });
 
-                if (confirmDelete.isConfirmed) {
-                    // Kirim permintaan DELETE ke backend
-                    const response = await axios.delete(`/guru/${guruId}`);
+        //         if (confirmDelete.isConfirmed) {
+        //             // Kirim permintaan DELETE ke backend
+        //             const response = await axios.delete(`/pembayaranspp/${pembayaransppId}`);
 
-                    // Tampilkan pesan sukses
-                    Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
+        //             // Tampilkan pesan sukses
+        //             Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
 
-                    // Hapus kelas dari KelasList di frontend
-                    this.guruList = this.guruList.filter(guru => guru.id !== guruId);
-                }
-            } catch (error) {
-                Swal.fire('Error', 'Gagal menghapus data kelas!', 'error');
-            }
-        },
+        //             this.pembayaranSppList.value = this.pembayaranSppList.value.filter(pembayaranSpp => pembayaranSpp.id !== pembayaranSppId);
+        //         }
+        //     } catch (error) {
+        //         Swal.fire('Error', 'Gagal menghapus data pembayaran spp!', 'error');
+        //     }
+        // },
     },
     computed: {
-        filteredGuruList() {
-            return this.guruList.filter((guru) => {
-                return guru.namaGuru ?.toLowerCase().includes(this.searchQuery.toLowerCase());
+        filteredPembayaranSppList() {
+            return this.pembayaranSppList.filter((pembayaranSpp) => {
+                return pembayaranSpp.siswa.namaSiswa ?.toLowerCase().includes(this.searchQuery.toLowerCase());
             });
         },
-        paginatedGuruList() {
+        // isEditMode() {
+        //     return this.editPembayaranSppp !== null;
+        // },
+        // paginatedPembayaranSppList() {
+        //     if (!this.pembayaranSppList ?.value || this.pembayaranSppList.value.length === 0) {
+        //         return [];
+        //     }
+        //     const startIndex = (this.currentPage - 1) * this.rowsPerPage;
+        //     const endIndex = startIndex + this.rowsPerPage;
+
+        //     console.log("Total Data:", this.pembayaranSppList.value.length);
+        //     console.log("Menampilkan data dari index:", startIndex, "sampai", endIndex);
+
+        //     return this.pembayaranSppList.value.slice(startIndex, endIndex);
+        // },
+        paginatedPembayaranSppList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
-            return this.guruList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
+            return this.pembayaranSppList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
         },
         totalPages() {
-            return Math.ceil(this.guruList.length / this.rowsPerPage);
+            return Math.ceil(this.pembayaranSppList.length / this.rowsPerPage);
         },
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.guruList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.guruList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.pembayaranSppList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.pembayaranSppList.length} entries`;
         },
     },
-    mounted() {
-        // console.log(this.guruList);
-        // this.guruList = this.guruList.filter(
-        //     (item, index, self) => index === self.findIndex((t) => t.id === item.id)
-        // );
-    }
 };
 </script>
 
-    
 <style scoped>
 .modal-overlay {
     position: fixed;
@@ -450,6 +395,11 @@ label {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+}
+
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
 }
 
 .breadcrumb {

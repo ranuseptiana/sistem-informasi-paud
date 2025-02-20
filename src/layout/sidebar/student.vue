@@ -1,7 +1,7 @@
 <template>
 <div class="container">
     <section class="content-header">
-        <nav aria-label="breadcrumb" class="breadcrumb-stu">
+        <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Siswa</li>
             </ol>
@@ -15,68 +15,68 @@
         </div>
     </section>
     <section class="content">
-        <div class="table-wrapper">
-            <!-- Filter section -->
-            <div class="filter-section">
-                <div class="row-filter-wrapper">
-                    <div class="tampil-baris">
-                        Show:
-                        <select v-model="rowsPerPage" class="select-rows">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="100">All</option>
-                        </select>
-                    </div>
-                    <!-- Show filter button -->
-                    <div class="filter">
-                        <button @click="toggleFilterPopup" class="filter-btn">
-                            Filter
-                            <i class="fa-solid fa-filter filter-icon"></i>
-                        </button>
-                        <!-- Filter Popup -->
-                        <div>
-                            <!-- Modal Filter -->
-                            <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
-                                <div class="modal-content-siswa">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Filter Data Siswa</h5>
-                                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
-                                    </div>
-                                    <hr>
-                                    <div class="filter-rows">
-                                        <!-- First row -->
-                                        <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
-                                            <label>
-                                                <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
-                                                {{ filter.label }}
-                                            </label>
-                                        </div>
+        <!-- Filter section -->
+        <div class="filter-section">
+            <div class="row-filter-wrapper">
+                <div class="tampil-baris">
+                    Show
+                    <select v-model="rowsPerPage" class="select-rows-student">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="100">All</option>
+                    </select>
+                </div>
+                <!-- Show filter button -->
+                <div class="filter">
+                    <button @click="toggleFilterPopup" class="filter-btn-student">
+                        Filter
+                        <i class="fa-solid fa-filter filter-icon"></i>
+                    </button>
+                    <!-- Filter Popup -->
+                    <div>
+                        <!-- Modal Filter -->
+                        <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
+                            <div class="modal-content-siswa">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Filter Data Siswa</h5>
+                                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                                </div>
+                                <hr>
+                                <div class="filter-rows">
+                                    <!-- First row -->
+                                    <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
+                                        <label>
+                                            <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
+                                            {{ filter.label }}
+                                        </label>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <!-- Export -->
-                    <div class="export-section">
-                        <button class="btn btn-primary" @click="exportData('pdf')">
-                            <i class="fa fa-file-pdf" aria-hidden="true"></i>
-                            PDF
-                        </button>
-                        <button class="btn btn-success" @click="exportData('excel')">
-                            <i class="fa fa-file-excel" aria-hidden="true"></i>
-                            Excel
-                        </button>
-                    </div>
                 </div>
-                <!-- Pencarian -->
-                <div class="search-bar-container">
-                    <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
-                    <i class="fas fa-search search-icon"></i>
+                <!-- Export -->
+                <div class="export-section">
+                    <button class="btn btn-danger" @click="exportData('pdf')">
+                        <i class="fa fa-file-pdf" aria-hidden="true"></i>
+                        PDF
+                    </button>
+                    <button class="btn btn-success" @click="exportData('excel')">
+                        <i class="fa fa-file-excel" aria-hidden="true"></i>
+                        Excel
+                    </button>
                 </div>
             </div>
+            <!-- Pencarian -->
+            <div class="search-bar-container">
+                <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
+        <div class="table-wrapper">
             <!-- Table Section -->
-            <table class="table data-table">
+            <table class="table data-table table-hover">
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
@@ -98,8 +98,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id">
-                        <th scope="row">{{ index + 1 }}</th>
+                    <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id" class="row-hover">
+                        <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
                         <td v-if="selectedFilters.noKk">{{ siswa.no_kk }}</td>
                         <td v-if="selectedFilters.nisn">{{ siswa.nisn }}</td>
                         <td v-if="selectedFilters.nik">{{ siswa.nik_siswa }}</td>
@@ -121,8 +121,8 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }">
-                                    <button class="popup-item" @click="prepareEditSiswa(siswa)" style="color: #274278">Edit</button>
-                                    <button class="popup-item" @click="deleteSiswa(siswa.nomorInduk)" style="color: red">Hapus</button>
+                                    <button class="popup-item" @click="editSiswa(siswa.id)" style="color: #274278">Edit</button>
+                                    <button class="popup-item" @click="deleteSiswa(siswa.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
                         </td>
@@ -143,15 +143,37 @@
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button class="page-link" @click="changePage(currentPage - 1)" aria-label="Previous" :disabled="currentPage === 1">
+                        <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
-                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                        <button class="page-link" @click="changePage(page)">{{ page }}</button>
+
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
                     </li>
+
+                    <li v-if="showLeftEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <button class="page-link" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
+
+                    <li v-if="showRightEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
+
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <button class="page-link" @click="changePage(currentPage + 1)" aria-label="Next" :disabled="currentPage === totalPages">
+                        <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
@@ -176,13 +198,14 @@ import {
 export default {
     data() {
         return {
+            maxVisiblePages: 5,
             rowsPerPage: 5,
             currentPage: 1,
             dropdownIndex: null,
             showModal: false,
             searchQuery: '', // for filtering
             firstRowFilters: [{
-                    key: "noKK",
+                    key: "noKk",
                     label: "No KK"
                 },
                 {
@@ -215,7 +238,7 @@ export default {
                 },
                 {
                     key: "alamat",
-                    label: "Tahun Lahir Ibu"
+                    label: "Alamat"
                 },
                 {
                     key: "anakKe",
@@ -254,7 +277,6 @@ export default {
                 tinggiBadan: false,
                 lingkarKepala: false,
             },
-            // Mock data for testing
             siswaList: [],
             headerMapping: {
                 nis: 'Nomor Induk Siswa',
@@ -370,8 +392,62 @@ export default {
                 link.click();
             }
         },
+
+        editSiswa(id) {
+            this.$router.push(`/adminmainsidebar/addStudents/${id}`);
+        },
+        async deleteSiswa(siswaId) {
+            try {
+                // Konfirmasi penghapusan data
+                const confirmDelete = await Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Data ini akan dihapus!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonText: 'Ya, Hapus',
+                    cancelButtonText: 'Batal'
+                });
+
+                if (confirmDelete.isConfirmed) {
+                    const response = await axios.delete(`/siswa/${siswaId}`);
+
+                    Swal.fire('Terhapus!', 'Data siswa berhasil dihapus.', 'success');
+
+                    this.siswaList = this.siswaList.filter(siswa => siswa.id !== siswaId);
+                }
+            } catch (error) {
+                Swal.fire('Error', 'Gagal menghapus data siswa!', 'error');
+            }
+        },
     },
     computed: {
+        showLeftEllipsis() {
+            return this.currentPage > 4;
+        },
+
+        showRightEllipsis() {
+            return this.currentPage < this.totalPages - 3;
+        },
+
+        middlePages() {
+            let start = Math.max(2, this.currentPage - 1);
+            let end = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+            if (this.currentPage <= 4) {
+                start = 2;
+                end = Math.min(5, this.totalPages - 1);
+            } else if (this.currentPage >= this.totalPages - 3) {
+                start = Math.max(this.totalPages - 4, 2);
+                end = this.totalPages - 1;
+            }
+
+            const pages = [];
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        },
+
         // Filter siswa list based on search query
         filteredSiswaList() {
             if (!Array.isArray(this.siswaList)) {
@@ -386,31 +462,30 @@ export default {
         },
         // Paginate daftar siswa
         paginatedSiswaList() {
-            const start = (this.currentPage - 1) * this.rowsPerPage;
-            const end = start + this.rowsPerPage;
-            return this.filteredSiswaList.slice(start, end);
+            const startIndex = (this.currentPage - 1) * this.rowsPerPage;
+            const endIndex = startIndex + this.rowsPerPage;
+            return this.siswaList.slice(startIndex, endIndex);
         },
         // Total halaman berdasarkan jumlah siswa
         totalPages() {
-            return Math.ceil(this.filteredSiswaList.length / this.rowsPerPage);
+            return Math.ceil(this.siswaList.length / this.rowsPerPage);
         },
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredSiswaList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.filteredSiswaList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.siswaList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.siswaList.length} entries`;
         },
     },
 };
 </script>
 
-<style>
+<style scoped>
 .container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
 }
 
-/* Modal Overlay */
 .modal-overlay {
     position: fixed;
     top: 0;
@@ -460,9 +535,8 @@ label {
     color: #636364;
 }
 
-.breadcrumb-stu {
-    margin-top: 4.5rem;
-    margin-bottom: 1rem;
+.breadcrumb {
+    margin-top: 3.5rem;
 }
 
 .header-text {
@@ -473,8 +547,7 @@ label {
 
 .btn-add-siswa {
     text-decoration: none;
-    /* Hilangkan underline */
-    background: #61c252;
+    background: #46943a;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
@@ -484,12 +557,14 @@ label {
     align-items: center;
     justify-content: center;
     gap: 0.5rem;
+    right: 12px;
     width: auto;
 }
 
 .btn-add-siswa:hover {
     color: white;
     background: #336C2A;
+    transform: translateY(-2px);
     text-decoration: none;
 }
 
@@ -497,14 +572,12 @@ label {
     font-size: 1rem;
 }
 
-/* Style untuk dropdown */
-.select-rows {
-    background: white;
-    color: black;
+.select-rows-student {
+    color: #6E736D;
     padding: 5px;
     width: 3.4rem;
     border-radius: 10px;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     background-color: #ffffff;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
     transition: border-color 0.3s ease;
@@ -515,6 +588,14 @@ label {
     justify-content: space-between;
     align-items: center;
     position: relative;
+    width: 73rem;
+    max-width: 150rem;
+    overflow-x: auto;
+    background-color: white;
+    margin-top: 1rem;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .row-filter-wrapper {
@@ -532,13 +613,13 @@ label {
     gap: 2px;
 }
 
-.filter-btn {
-    background-color: white;
-    color: black;
+.filter-btn-student {
+    font-weight: 600;
+    color: #6E736D;
     padding: 4px;
     width: 7rem;
     border-radius: 10px;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     background-color: #ffffff;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
     transition: border-color 0.3s ease;
@@ -574,21 +655,17 @@ label {
     width: 16px;
     height: 16px;
     appearance: none;
-    /* Menghilangkan tampilan default */
     border: 2px solid #ccc;
     border-radius: 4px;
     outline: none;
     cursor: pointer;
     background-color: white;
-    /* Warna dasar putih */
 }
 
 .checkbox:checked {
     text-align: center;
     background-color: #007bff;
-    /* Warna saat di-checked */
     border-color: #007bff;
-    /* Border sesuai dengan warna utama */
 }
 
 .checkbox:checked::after {
@@ -603,6 +680,11 @@ label {
     transform: rotate(45deg);
 }
 
+.tampil-baris {
+    color: #336C2A;
+    font-weight: 600;
+}
+
 .export-section {
     margin-left: 0.5rem;
 }
@@ -610,7 +692,7 @@ label {
 .search-bar-container {
     display: flex;
     align-items: center;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     padding: 5px 0.5rem;
     border-radius: 10px;
     width: fit-content;
@@ -635,7 +717,7 @@ label {
 }
 
 .table-wrapper {
-    width: 65rem;
+    width: 73rem;
     max-width: 150rem;
     overflow-x: auto;
     background-color: white;
@@ -650,12 +732,25 @@ label {
     border-collapse: collapse;
     min-width: 50rem;
     margin-top: 1rem;
+    table-layout: auto;
+}
+
+.table-hover>tbody>tr:hover {
+    font-weight: 800;
+    background-color: #6c757d;
+}
+
+.data-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 .data-table th,
 .data-table td {
     padding: 12px 8px;
-    /* Added more padding for a cleaner look */
+    min-width: 120px;
+    white-space: nowrap;
     text-align: left;
 }
 
@@ -664,52 +759,42 @@ label {
     color: #336C2A;
 }
 
-.data-table td:last-child {
+.data-table th:first-child,
+.data-table td:first-child {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
     text-align: center;
-    /* Align the 'Action' column */
 }
 
+.data-table td:last-child,
 .data-table th:last-child {
     text-align: center;
-    /* Align the 'Action' column */
 }
 
 .data-table tr:nth-child(even) {
     background-color: #f9f9f9;
-    /* Light gray background for alternating rows */
-}
-
-.data-table tr:hover {
-    background-color: #f1f1f1;
-    /* Light hover effect */
 }
 
 .popup .btn {
     box-shadow: none;
-    /* Remove the box shadow */
     border: none;
-    /* Optionally, remove any border */
     background: transparent;
-    /* If you want the background to be transparent */
     padding: 0;
-    /* Adjust padding if necessary */
 }
 
 .popup-menu {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    /* Bayangan abu-abu */
     padding: 10px;
     border-radius: 8px;
     display: none;
-    /* Awalnya tidak terlihat */
     z-index: 1000;
 }
 
 .popup-menu.show {
     display: block;
-    /* Tampilkan popup saat dropdownIndex === index */
 }
 
 .popup-item {
@@ -750,7 +835,6 @@ label {
 
 .no-data-img {
     max-width: 100px;
-    /* Sesuaikan ukuran gambar */
     margin-bottom: 10px;
 }
 
@@ -766,6 +850,7 @@ label {
     justify-content: space-between;
     width: 100%;
     margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .page-info {
@@ -773,6 +858,51 @@ label {
 }
 
 .pagination {
-    margin: 0;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.page-item {
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
 </style>

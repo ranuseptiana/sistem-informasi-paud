@@ -140,7 +140,7 @@ main {
     font-weight: 700;
     color: #336C2A;
     margin-left: 0.3rem;
-    font-family:Cambria, Cochin, Georgia, Times, 'Times New Roman', serif;
+    font-family: "Poppins", serif;
 }
 
 .nav-link {

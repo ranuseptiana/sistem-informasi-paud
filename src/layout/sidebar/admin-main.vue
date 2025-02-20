@@ -31,7 +31,7 @@
                     <router-link to="/adminmainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
                         Kelas
                     </router-link>
-                    <router-link to="/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition')">
+                    <router-link to="/adminmainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition')">
                         Pembayaran SPP
                     </router-link>
                 </ul>
@@ -140,7 +140,7 @@ export default {
 }
 
 .navbar-brand {
-    margin-left: 3rem;
+    margin-left: 3.8rem;
 }
 
 .container-fluid {
@@ -153,7 +153,7 @@ export default {
     display: flex;
     align-items: center;
     margin-top: 12px;
-    margin-right: 2rem;
+    margin-right: 3.5rem;
     gap: 15px;
 }
 

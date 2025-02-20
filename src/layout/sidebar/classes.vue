@@ -1,7 +1,7 @@
 <template>
 <div class="container">
     <section class="content-header">
-        <nav aria-label="breadcrumb" class="breadcrumb-stu">
+        <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Kelas</li>
             </ol>
@@ -14,12 +14,11 @@
         </div>
     </section>
     <section class="content">
-        <div class="table-wrapper">
-            <!-- Filter section -->
-            <div class="filter-section">
+        <!-- Filter section -->
+        <div class="filter-section">
                 <div class="row-filter-wrapper">
                     <div class="tampil-baris">
-                        Show:
+                        Show
                         <select v-model="rowsPerPage" class="select-rows">
                             <option value="5">5</option>
                             <option value="10">10</option>
@@ -66,19 +65,22 @@
                     <i class="fas fa-search search-icon"></i>
                 </div>
             </div>
+        <div class="table-wrapper">
             <!-- Table Section -->
             <table class="table data-table">
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.namaKelas">Nama Kelas</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.jumlahSiswa">Jumlah Siswa</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(kelas, index) in paginatedKelasList" :key="kelas.id">
+                    <tr v-for="(kelas, index) in KelasList" :key="kelas.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
                         <td v-if="selectedFilters.namaKelas">{{ kelas['nama_kelas'] }}</td>
+                        <td v-if="selectedFilters.jumlahSiswa">{{ kelas['siswa_count'] }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -103,20 +105,42 @@
                 </tbody>
             </table>
         </div>
-        <div class="pagination-info">
+        <div class="pagination-info-ortu">
             <p class="page-info">{{ pageInfo }}</p>
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button class="page-link" @click="changePage(currentPage - 1)" aria-label="Previous" :disabled="currentPage === 1">
+                        <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
-                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                        <button class="page-link" @click="changePage(page)">{{ page }}</button>
+
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
                     </li>
+
+                    <li v-if="showLeftEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <button class="page-link" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
+
+                    <li v-if="showRightEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
+
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <button class="page-link" @click="changePage(currentPage + 1)" aria-label="Next" :disabled="currentPage === totalPages">
+                        <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
@@ -141,6 +165,7 @@ import {
 export default {
     data() {
         return {
+            maxVisiblePages: 5,
             rowsPerPage: 5,
             currentPage: 1,
             openModal: false,
@@ -152,12 +177,14 @@ export default {
             KelasList: [],
             selectedFilters: {
                 namaKelas: true,
+                jumlahSiswa: true
             },
             headerMapping: {
-                namaKelas: 'Nama Kelas'
+                namaKelas: 'Nama Kelas',
+                jumlahSiswa: 'Jumlah Siswa'
             },
-            resetForm: {
-                namaKelas: '',
+            newKelas: {
+                nama_kelas: ''
             },
             form: {
                 nama_kelas: '',
@@ -173,8 +200,8 @@ export default {
             try {
                 // Kirim data ke backend
                 const response = await axios.post('/kelas', payload);
-
                 Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success');
+
                 this.form.nama_kelas = '';
                 this.showModal = false;
                 this.fetchKelasList();
@@ -233,32 +260,6 @@ export default {
                 return filteredKelas;
             });
         },
-        // Fungsi ekspor data berdasarkan filter aktif
-        exportData(format) {
-            const filteredData = this.getFilteredData();
-            const headers = ['No', ...Object.keys(this.selectedFilters).filter((key) => this.selectedFilters[key])];
-            const headerLabels = headers.map((header) => this.headerMapping[header] || header);
-
-            if (format === 'pdf') {
-                const doc = new jsPDF();
-                const data = filteredData.map((kelas) => headers.map((key) => kelas[key] || ''));
-                doc.autoTable({
-                    head: [headerLabels],
-                    body: data,
-                });
-                doc.save('filtered_data.pdf');
-            } else if (format === 'excel') {
-                const data = [headerLabels, ...filteredData.map((kelas) => headers.map((key) => kelas[key] || ''))];
-                const csv = Papa.unparse(data);
-                const blob = new Blob([csv], {
-                    type: 'text/csv;charset=utf-8;'
-                });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'filtered_data.csv';
-                link.click();
-            }
-        },
         closeModal() {
             this.showModal = false;
             this.newKelas.nama_kelas = '';
@@ -271,7 +272,6 @@ export default {
             this.newKelas = {
                 nama_kelas: "",
             };
-            this.editIndex = null;
         },
     },
     //untuk menampilkan data kelas
@@ -283,13 +283,19 @@ export default {
             axios
                 .get('/kelas')
                 .then((res) => {
-                    KelasList.value = res.data.data; // Perbarui data kelas
+                    console.log("Response dari backend:", res);
+
+                    if (res.data && res.data.data && Array.isArray(res.data.data.data)) {
+                        KelasList.value = res.data.data.data; // Mengambil array kelas dengan benar
+                    } else {
+                        console.error("Data tidak sesuai:", res.data);
+                        KelasList.value = [];
+                    }
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    console.error("Gagal mengambil data kelas:", error);
                 });
         };
-
         // Panggil fetchKelasList saat komponen di-mount
         onMounted(() => {
             fetchKelasList();
@@ -302,6 +308,32 @@ export default {
         };
     },
     computed: {
+        showLeftEllipsis() {
+            return this.currentPage > 4;
+        },
+
+        showRightEllipsis() {
+            return this.currentPage < this.totalPages - 3;
+        },
+
+        middlePages() {
+            let start = Math.max(2, this.currentPage - 1);
+            let end = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+            if (this.currentPage <= 4) {
+                start = 2;
+                end = Math.min(5, this.totalPages - 1);
+            } else if (this.currentPage >= this.totalPages - 3) {
+                start = Math.max(this.totalPages - 4, 2);
+                end = this.totalPages - 1;
+            }
+
+            const pages = [];
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        },
         filteredKelasList() {
             if (!this.KelasList) return []; // Return empty if KelasList is undefined or null
 
@@ -313,13 +345,12 @@ export default {
         isEditMode() {
             return this.editKelas !== null;
         },
-        // Paginate daftar siswa
         paginatedKelasList() {
-            const start = (this.currentPage - 1) * this.rowsPerPage;
-            const end = start + this.rowsPerPage;
-            return this.KelasList.slice(start, end);
+            if (!Array.isArray(this.KelasList.value)) {
+                return [];
+            }
+            return this.KelasList.value.slice((this.currentPage - 1) * this.rowsPerPage, this.currentPage * this.rowsPerPage);
         },
-        // Total halaman berdasarkan jumlah siswa
         totalPages() {
             return Math.ceil(this.filteredKelasList.length / this.rowsPerPage);
         },
@@ -342,14 +373,19 @@ export default {
 </script>
 
 <style>
+.breadcrumb {
+    margin-top: 3.5rem;
+    margin-bottom: 1rem;
+}
+
 .content-header {
     width: 100%;
 }
 
 .header-button {
     display: flex;
-    align-items: center; /* Pastikan semua elemen sejajar secara vertikal */
-    justify-content: space-between; /* Teks di kiri, tombol di kanan */
+    align-items: center; 
+    justify-content: space-between; 
     width: 100%;
 }
 
@@ -358,36 +394,49 @@ export default {
     color: #336C2A;
 }
 
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
 .btn-add-class {
-    background: #61c252;
+    text-decoration: none;
+    background: #46943a;
     color: white;
     border: none;
     padding: 0.5rem 1rem;
     border-radius: 20px;
     cursor: pointer;
-    display: flex; 
-    align-items: center; 
-    justify-content: center; 
-    gap: 0.5rem; 
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    right: 12px;
     width: auto;
 }
 
 .btn-add-class i {
-    font-size: 1rem; /* Ukuran ikon */
+    font-size: 1rem;
 }
 
 .btn-add-class:hover {
+    color: white;
     background: #336C2A;
+    transform: translateY(-2px);
+    text-decoration: none;
 }
 
-/* Style untuk dropdown */
+.tampil-baris {
+    color: #336C2A;
+    font-weight: 600;
+}
+
 .select-rows {
-    background: white;
-    color: black;
+    color: #6E736D;
     padding: 5px;
     width: 3.4rem;
     border-radius: 10px;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     background-color: #ffffff;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
     transition: border-color 0.3s ease;
@@ -399,6 +448,26 @@ export default {
 
 .export-section {
     margin-left: 0.5rem;
+}
+
+.filter-section {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: 73rem;
+    max-width: 150rem;
+    overflow-x: auto;
+    background-color: white;
+    margin-top: 1rem;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.row-filter-wrapper {
+    display: flex;
+    align-items: center;
 }
 
 .search-bar-container {
@@ -430,7 +499,7 @@ export default {
 }
 
 .table-wrapper {
-    width: 140%;
+    width: 100%;
     max-width: 100rem;
     overflow-x: auto;
     background-color: white;
@@ -445,6 +514,7 @@ export default {
     border-collapse: collapse;
     min-width: 50rem;
     margin-top: 1rem;
+    table-layout: auto;
 }
 
 .data-table th,
@@ -630,5 +700,67 @@ label {
     background-color: white;
     border: 1px solid #636364;
     border-radius: 20px;
+}
+
+.pagination-info-ortu {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
+
+.page-info {
+    margin: 0;
+}
+
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.page-item {
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
 </style>

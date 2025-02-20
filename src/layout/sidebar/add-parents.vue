@@ -9,7 +9,7 @@
                 <li class="breadcrumb-item active" aria-current="page">{{ isEdit ? 'Edit Data' : 'Tambah Data' }}</li>
             </ol>
         </nav>
-        <h4 class="header-text">{{ isEdit ? 'Edit Data Orangtua' : 'Tambah Data Orangtua' }}a</h4>
+        <h4 class="header-text">{{ isEdit ? 'Edit Data Orangtua' : 'Tambah Data Orangtua' }}</h4>
     </section>
 
     <section class="content-1">
@@ -266,11 +266,7 @@ export default {
 };
 </script>
 
-<style>
-.content-header-add {
-    margin-top: 4rem;
-}
-
+<style scoped>
 .container {
     display: flex;
     flex-direction: column;
