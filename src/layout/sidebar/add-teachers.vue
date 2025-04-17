@@ -95,6 +95,10 @@
                             <input v-model="form.jabatan" type="text" id="jabatan" placeholder="Masukkan jabatan guru" required />
                         </div>
                         <div class="form-group">
+                            <label for="tugasMengajar">Tugas Mengajar dan Tambahan</label>
+                            <input v-model="form.tugas_mengajar" type="text" id="tugasMengajar" placeholder="Masukkan tugas mengajar dan tambahan" />
+                        </div>
+                        <div class="form-group">
                             <label for="jumlahHari">Jumlah Hari Mengajar</label>
                             <input v-model="form.jumlah_hari_mengajar" type="number" id="jumlahHari" placeholder="Masukkan jumlah hari mengajar" />
                         </div>

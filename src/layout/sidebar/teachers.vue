@@ -73,7 +73,7 @@
         </div>
         <div class="table-wrapper">
             <!-- Table Section -->
-            <table class="table data-table">
+            <table class="table data-table table-hover">
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
@@ -88,6 +88,7 @@
                         <th scope="col" class="table-head" v-if="selectedFilters.alamat">Alamat</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.noTelp">No Telp</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.jabatan">Jabatan</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.kelas">Kelas Yang Diajar</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.jmlHari">Jumlah Hari Mengajar</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.tugasMengajar">Tugas Mengajar</th>
                         <th scope="col" class="table-head">Action</th>
@@ -107,6 +108,7 @@
                         <td v-if="selectedFilters.alamat">{{ guru.alamat }}</td>
                         <td v-if="selectedFilters.noTelp">{{ guru.no_telp }}</td>
                         <td v-if="selectedFilters.jabatan">{{ guru.jabatan }}</td>
+                        <td v-if="selectedFilters.kelas">{{ guru.kelasDiampu }}</td>
                         <td v-if="selectedFilters.jmlHari">{{ guru.jumlah_hari_mengajar }}</td>
                         <td v-if="selectedFilters.tugasMengajar">{{ guru.tugas_mengajar }}</td>
                         <td>
@@ -157,7 +159,6 @@
 </div>
 </template>
 
-    
 <script>
 import jsPDF from "jspdf";
 import "jspdf-autotable";
@@ -166,6 +167,7 @@ import Papa from "papaparse";
 import axios from 'axios';
 import {
     ref,
+    computed,
     onMounted
 } from 'vue';
 
@@ -189,10 +191,12 @@ export default {
                 alamat: false,
                 noTelp: false,
                 jabatan: true,
+                kelas: true,
                 jmlHari: true,
                 tugasMengajar: true,
             },
             guruList: [],
+            kelasList: [],
             headerMapping: {
                 noKK: 'Nomor Kartu Keluarga',
             },
@@ -241,6 +245,10 @@ export default {
                     label: "Jabatan"
                 },
                 {
+                    key: "kelas",
+                    label: "Kelas Yang Diajar"
+                },
+                {
                     key: "jmlHari",
                     label: "Jumlah Hari Mengajar"
                 },
@@ -253,26 +261,63 @@ export default {
     },
     setup() {
         const guruList = ref([]);
+        const kelasList = ref([]);
+        const relasiKelasList = ref([]);
 
         const fetchGuruList = () => {
-            axios
-                .get('/guru')
+            axios.get("/guru", { withCredentials: true })
                 .then((res) => {
-                    // console.log('Data yang diterima:', res.data);
-                    guruList.value = res.data.data; 
+                    guruList.value = res.data.data;
                 })
-                .catch((error) => {
-                    console.log(error.response.data);
-                });
+                .catch((error) => console.log(error.response.data));
         };
+
+        const fetchKelasList = () => {
+            axios.get("/kelas")
+                .then((res) => {
+                    if (res.data && Array.isArray(res.data.data)) {
+                        kelasList.value = res.data.data;
+                    } else {
+                        console.error("Format data kelas tidak sesuai", res.data);
+                        kelasList.value = [];
+                    }
+                })
+                .catch(error => console.error("Error fetching kelas:", error));
+        };
+
+        const fetchRelasiKelasList = () => {
+            axios.get("/relasikelas")
+                .then((res) => {
+                    relasiKelasList.value = res.data.data;
+                })
+                .catch(error => console.error("Error fetching relasi kelas:", error));
+        };
+
+        // Mengelompokkan kelas yang diampu oleh guru
+        const guruWithKelas = computed(() => {
+            return guruList.value.map(guru => {
+                const kelasDiampu = relasiKelasList.value
+                    .filter(relasi => relasi.guru_id === guru.id) // Cari kelas berdasarkan guru_id
+                    .map(relasi => {
+                        const kelas = kelasList.value.find(k => k.id === relasi.kelas_id);
+                        return kelas ? kelas.nama_kelas : "Tidak Diketahui"; // Pastikan nama kelas ada
+                    });
+
+                return {
+                    ...guru,
+                    kelasDiampu: kelasDiampu.join(", ") // Gabungkan kelas dalam satu string
+                };
+            });
+        });
 
         onMounted(() => {
             fetchGuruList();
+            fetchKelasList();
+            fetchRelasiKelasList();
         });
 
         return {
-            guruList,
-            fetchGuruList // Return supaya bisa diakses di luar setup
+            guruWithKelas, // Gunakan ini untuk menampilkan data di template
         };
     },
     methods: {
@@ -335,8 +380,8 @@ export default {
             }
         },
         editGuru(id) {
-            // Mengarahkan ke halaman addParents dengan ID guru yang ingin diedit
-            console.log("Mengedit guru dengan ID:", id); // Debugging
+            this.dropdownIndex = null;
+            
             this.$router.push(`/adminmainsidebar/addTeachers/${id}`);
         },
         // Fungsi untuk menghapus kelas berdasarkan ID
@@ -368,23 +413,41 @@ export default {
         },
     },
     computed: {
-        filteredGuruList() {
-            return this.guruList.filter((guru) => {
-                return guru.namaGuru ?.toLowerCase().includes(this.searchQuery.toLowerCase());
+        guruWithKelas() {
+            return this.guruList.map(guru => {
+                const kelasDiampu = this.relasiKelasList
+                    .filter(relasi => relasi.guru_id === guru.id) // Cari relasi kelas berdasarkan guru_id
+                    .map(relasi => {
+                        const kelas = this.kelasList.find(k => k.id === relasi.kelas_id);
+                        return kelas ? kelas.nama_kelas : "Tidak Diketahui";
+                    });
+
+                return {
+                    ...guru,
+                    kelasDiampu: kelasDiampu.join(", ") // Gabungkan kelas dalam satu string
+                };
             });
         },
         paginatedGuruList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
-            return this.guruList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
+            return this.filteredGuruList.slice(startIndex, endIndex);
+        },
+        filteredGuruList() {
+            const query = this.searchQuery.toLowerCase();
+            return this.guruWithKelas.filter(guru => {
+                return Object.keys(guru).some(key => {
+                    return guru[key] && String(guru[key]).toLowerCase().includes(query);
+                });
+            });
         },
         totalPages() {
-            return Math.ceil(this.guruList.length / this.rowsPerPage);
+            return Math.ceil(this.guruWithKelas.length / this.rowsPerPage);
         },
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.guruList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.guruList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.guruWithKelas.length);
+            return `Showing ${startRow} - ${endRow} of ${this.guruWithKelas.length} entries`;
         },
     },
     mounted() {
@@ -396,7 +459,6 @@ export default {
 };
 </script>
 
-    
 <style scoped>
 .modal-overlay {
     position: fixed;
@@ -515,7 +577,7 @@ label {
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .filter {
@@ -608,8 +670,7 @@ label {
 .search-bar-container {
     display: flex;
     align-items: center;
-    margin-left: auto;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     padding: 5px 0.5rem;
     border-radius: 10px;
     width: fit-content;
@@ -633,6 +694,10 @@ label {
     border-color: #636364;
 }
 
+.search-bar-container:focus-within {
+    border-color: #636364;
+}
+
 .table-wrapper {
     width: 73rem;
     max-width: 150rem;
@@ -641,7 +706,12 @@ label {
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.table-hover>tbody>tr:hover {
+    font-weight: 800;
+    background-color: #6c757d;
 }
 
 .data-table {

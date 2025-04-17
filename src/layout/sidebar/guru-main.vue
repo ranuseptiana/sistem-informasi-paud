@@ -18,13 +18,25 @@
             </button>
             <!-- Profile icon aligned to right -->
             <div class="collapse navbar-collapse">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-user" aria-hidden="true"></i>
-                        </a>
-                    </li>
-                </ul>
+                <!-- Profile icon -->
+                <div class="navbar-nav ms-auto">
+                    <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleDropdown">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <!-- Popup dropdown -->
+                    <div v-if="isDropdownVisible" class="profile-dropdown">
+                        <ul>
+                            <span class="dropdown-item-text">
+                                <i class="fa-regular fa-user"></i>Guru
+                            </span>
+                            <li>
+                                <router-link to="/" class="dropdown-item" :class="{ active: activeMenu === 'logout' }" @click="setActive('logout')" style="color: red">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
+                                </router-link>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
         <!-- Container wrapper -->
@@ -34,20 +46,16 @@
     <!-- Sidebar -->
     <nav id="sidebarMenu" :class="{ show: sidebarOpen }" class="sidebar collapse d-lg-block">
         <div class="position-sticky mt-5" style="text-align: left;">
-            <router-link to="/adminmainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
-                <span class="material-symbols-outlined">dashboard</span> Dashboard
+            <router-link to="/gurumainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
+                <span class="material-symbols-outlined">dashboard</span> Beranda
             </router-link>
 
-            <router-link to="/adminmainsidebar/student" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'student' }" @click="setActive('student')">
-                <span class="material-symbols-outlined">local_library</span> Siswa
-            </router-link>
-
-            <router-link to="/adminmainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
+            <router-link to="/gurumainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
                 <span class="material-symbols-outlined">diversity_2</span> Kelas
             </router-link>
 
-            <router-link to="/" class="w3-bar-item w3-button logout-button" :class="{ active: activeMenu === 'logout' }" @click="setActive('logout')" style="color: red">
-                <span class="material-symbols-outlined" style="color: red">logout</span> Logout
+            <router-link to="/gurumainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'payment' }" @click="setActive('payment')">
+                <span class="material-symbols-outlined"> payments </span> Pembayaran SPP
             </router-link>
         </div>
     </nav>
@@ -55,7 +63,7 @@
 </header>
 
 <!--Main layout-->
-<main :style="{ marginLeft: sidebarOpen ? '15rem' : '0' }">
+<main :style="{ marginLeft: sidebarOpen ? '17rem' : '0' }">
     <div class="container">
         <router-view></router-view>
     </div>
@@ -70,6 +78,7 @@ export default {
         return {
             sidebarOpen: true,
             activeMenu: '',
+            isDropdownVisible: false,
         };
     },
     methods: {
@@ -86,23 +95,37 @@ export default {
             const currentPath = route.path;
             if (currentPath.includes('dashboard')) {
                 this.activeMenu = 'dashboard';
-            } else if (currentPath.includes('student')) {
-                this.activeMenu = 'student';
-            } else if (currentPath.includes('parents')) {
-                this.activeMenu = 'parents';
-            } else if (currentPath.includes('teacher')) {
-                this.activeMenu = 'teacher';
             } else if (currentPath.includes('class')) {
                 this.activeMenu = 'class';
-            } else if (currentPath.includes('tuition')) {
-                this.activeMenu = 'tuition';
+            } else if (currentPath.includes('payment')) {
+                this.activeMenu = 'payment';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
             }
-        }
+        },
+        toggleDropdown() {
+            this.isDropdownVisible = !this.isDropdownVisible;
+        },
+        closeDropdown() {
+            this.isDropdownVisible = false;
+        },
+        logout() {
+            console.log("Logout clicked");
+        },
+        handleOutsideClick(event) {
+            const dropdown = document.getElementById("profileDropdown");
+            if (!dropdown || !dropdown.contains(event.target)) {
+                this.closeDropdown();
+            }
+        },
     },
     mounted() {
         this.updateActiveMenu(this.$route);
+
+        document.addEventListener("click", this.handleOutsideClick);
+    },
+    beforeUnmount() {
+        document.removeEventListener("click", this.handleOutsideClick);
     },
     watch: {
         $route(to) {
@@ -111,23 +134,27 @@ export default {
     }
 };
 </script>
-
     
-<style>
+<style scoped>
 main {
     transition: margin-left 0.3s ease;
+}
+
+.navbar-brand {
+    margin-left: 0.2rem;
+}
+
+.container {
+    margin-top: -1.5rem;
 }
 
 /* Navbar styling */
 .navbar {
     background-color: white;
-    /* Ensure it has a background */
-    z-index: 1000;
-    position: sticky;
+    position: fixed;
     top: 0;
     z-index: 1000;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
-    /* Optional shadow for visibility */
 }
 
 .main-logo {
@@ -151,7 +178,6 @@ main {
     width: 40px;
     height: 40px;
     background-color: #336C2A;
-    /* Example background color */
     border-radius: 50%;
     display: flex;
     justify-content: center;
@@ -163,36 +189,28 @@ main {
     font-size: 2rem;
     margin-top: 0.8rem;
     color: #fff;
-    /* Icon color */
 }
 
 .nav-link:hover {
     color: green;
 }
 
-/* Sidebar */
 .sidebar {
     background-color: rgb(255, 255, 255);
-    box-shadow: 0 10px 15px rgba(218, 218, 218, 0.3);
+    box-shadow: 0 10px 15px rgba(218, 218, 218, 0.5);
     position: fixed;
     top: 0;
     bottom: 0;
     left: 0;
     padding-top: 2.5rem;
-    width: 250px;
-    z-index: 600;
-    /* transition: left 0.3s ease;
-        left: -250px; */
-    /* Sidebar tersembunyi */
+    width: 240px;
+    z-index: 0;
     transform: translateX(-100%);
-    /* Sembunyikan sidebar */
     transition: transform 0.3s ease;
-    /* Animasi smooth */
 }
 
 .sidebar.show {
     transform: translateX(0);
-    /* Tampilkan sidebar */
 }
 
 /* Sidebar styling */
@@ -237,9 +255,7 @@ main {
 .w3-bar-item .material-symbols-outlined,
 .w3-bar-item i {
     font-size: 24px;
-    /* Consistent icon size */
     color: #336C2A;
-    /* Inherit color for hover and active states */
 }
 
 /* Active menu item */
@@ -288,6 +304,74 @@ main {
     margin-top: 10rem;
 }
 
+.profile-link {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    margin-right: 0rem;
+}
+
+.profile-link i {
+    font-size: 2rem;
+    color: #336C2A;
+}
+
+.profile-dropdown {
+    position: absolute;
+    top: 105%;
+    right: 75px;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 1050;
+    width: 130px;
+    text-align: left;
+}
+
+.profile-dropdown ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.profile-dropdown li {
+    padding: 0.5rem 1rem;
+}
+
+.profile-dropdown li:hover {
+    background-color: rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+
+.dropdown-item-text {
+    font-weight: 600;
+    color: #797c7e !important;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.dropdown-item-text i {
+    margin-left: 2rem;
+    margin-right: 0.5rem;
+}
+
+.dropdown-item {
+    display: flex;
+    align-items: center;
+    font-weight: 800 !important;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+}
+
+.dropdown-item i {
+    margin-left: 1rem;
+    margin-right: 0.5rem;
+}
+
 /* Responsive adjustments */
 @media (max-width: 991.98px) {
     .navbar-toggler {
@@ -303,5 +387,9 @@ main {
     .navbar-toggler {
         display: none;
     }
+
+    /* .navbar {
+        width: 500px;
+    } */
 }
 </style>

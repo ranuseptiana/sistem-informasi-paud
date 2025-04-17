@@ -8,7 +8,7 @@
         </nav>
         <div class="header-button">
             <h3 class="header-text">Kelas</h3>
-            <button class="btn-add-class" @click="showModal = true">Tambah Data
+            <button class="btn-add-class" @click="prepareTambahKelas">Tambah Data
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
@@ -16,71 +16,73 @@
     <section class="content">
         <!-- Filter section -->
         <div class="filter-section">
-                <div class="row-filter-wrapper">
-                    <div class="tampil-baris">
-                        Show
-                        <select v-model="rowsPerPage" class="select-rows">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="100">All</option>
-                        </select>
-                    </div>
-                    <div class="export-section">
-                        <button class="btn btn-danger" @click="exportData('pdf')">
-                            <i class="fa fa-file-pdf" aria-hidden="true"></i>
-                            PDF
-                        </button>
-                        <button class="btn btn-success" @click="exportData('excel')">
-                            <i class="fa fa-file-excel" aria-hidden="true"></i>
-                            Excel
-                        </button>
-                    </div>
+            <div class="row-filter-wrapper">
+                <div class="tampil-baris">
+                    Show
+                    <select v-model="rowsPerPage" class="select-rows">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="100">All</option>
+                    </select>
                 </div>
-                <!-- Modal -->
-                <div class="custom-modal" v-if="showModal">
-                    <div class="custom-modal-dialog">
-                        <div class="custom-modal-content">
-                            <div class="custom-modal-header">
-                                <h5 class="custom-modal-title">Tambah Data Kelas</h5>
-                                <button type="button" class="close-btn" @click="closeModal">&times;</button>
-                            </div>
-                            <form @submit.prevent="simpanKelas">
-                                <div class="custom-modal-body">
-                                    <div class="form-group-kelas">
-                                        <label for="namaKelas">Nama Kelas</label>
-                                        <input type="text" id="namaKelas" v-model="form.nama_kelas" class="form-input" />
-                                    </div>
-                                </div>
-                                <div class="custom-modal-footer">
-                                    <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
-                                    <button type="submit" class="btn-save">Simpan Data</button>
-                                </div>
-                            </form>
-                        </div>
-                    </div>
-                </div>
-                <div class="search-bar-container">
-                    <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
-                    <i class="fas fa-search search-icon"></i>
+                <div class="export-section">
+                    <button class="btn btn-danger" @click="exportData('pdf')">
+                        <i class="fa fa-file-pdf" aria-hidden="true"></i>
+                        PDF
+                    </button>
+                    <button class="btn btn-success" @click="exportData('excel')">
+                        <i class="fa fa-file-excel" aria-hidden="true"></i>
+                        Excel
+                    </button>
                 </div>
             </div>
+            <!-- Modal -->
+            <div class="custom-modal" v-if="showModal">
+                <div class="custom-modal-dialog">
+                    <div class="custom-modal-content">
+                        <div class="custom-modal-header">
+                            <h5 class="custom-modal-title">{{ isEditing ? 'Edit Data Kelas' : 'Tambah Data Kelas' }}</h5>
+                            <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                        </div>
+                        <form @submit.prevent="simpanKelas">
+                            <div class="custom-modal-body">
+                                <div class="form-group-kelas">
+                                    <label for="namaKelas">Nama Kelas</label>
+                                    <input type="text" id="namaKelas" v-model="form.nama_kelas" class="form-input" />
+                                </div>
+                            </div>
+                            <div class="custom-modal-footer">
+                                <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
+                                <button type="submit" class="btn-save">{{ isEditing ? 'Simpan Perubahan' : 'Simpan Data' }}</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="search-bar-container">
+                <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
         <div class="table-wrapper">
             <!-- Table Section -->
-            <table class="table data-table">
+            <table class="table data-table table-hover">
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.namaKelas">Nama Kelas</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.jumlahSiswa">Jumlah Siswa</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.namaGuru">Guru Pengajar</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(kelas, index) in KelasList" :key="kelas.id">
+                    <tr v-for="(kelas, index) in paginatedKelasList" :key="kelas.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
                         <td v-if="selectedFilters.namaKelas">{{ kelas['nama_kelas'] }}</td>
-                        <td v-if="selectedFilters.jumlahSiswa">{{ kelas['siswa_count'] }}</td>
+                        <td v-if="selectedFilters.jumlahSiswa">{{ kelas['jumlah_siswa'] }}</td>
+                        <td v-if="selectedFilters.namaGuru">{{ kelas['nama_guru'] }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -94,7 +96,7 @@
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedKelasList.length === 0" class="no-data">
+                    <tr v-if="KelasList.length === 0" class="no-data">
                         <td colspan="7" class="no-data-cell">
                             <div class="no-data-content">
                                 <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
@@ -169,52 +171,78 @@ export default {
             rowsPerPage: 5,
             currentPage: 1,
             openModal: false,
-            editKelas: null,
+            isEditing: false,
             dropdownIndex: null,
             searchQuery: '',
             showModal: false,
             isFilterPopupVisible: false,
-            KelasList: [],
             selectedFilters: {
                 namaKelas: true,
-                jumlahSiswa: true
+                jumlahSiswa: true,
+                namaGuru: true
             },
             headerMapping: {
                 namaKelas: 'Nama Kelas',
-                jumlahSiswa: 'Jumlah Siswa'
+                jumlahSiswa: 'Jumlah Siswa',
+                namaGuru: 'Nama Guru'
             },
             newKelas: {
                 nama_kelas: ''
             },
             form: {
                 nama_kelas: '',
-            }
+            },
+            errors: {},
         };
     },
     methods: {
+        prepareTambahKelas() {
+            this.form = {
+                id: null,
+                nama_kelas: ""
+            }; 
+            this.isEditing = false;
+            this.showModal = true; 
+        },
+        prepareEditKelas(id) {
+            this.dropdownIndex = null;
+            
+            const kelas = this.KelasList.find(k => k.id === id); 
+            if (kelas) {
+                this.form = {
+                    ...kelas
+                }; 
+                this.isEditing = true; 
+                this.showModal = true; 
+            }
+        },
         async simpanKelas() {
             const payload = {
                 nama_kelas: this.form.nama_kelas,
             };
 
             try {
-                // Kirim data ke backend
-                const response = await axios.post('/kelas', payload);
-                Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success');
+                if (this.isEditing) {
+                    // Mode Edit (Update Data)
+                    await axios.put(`/kelas/${this.form.id}`, payload);
+                    Swal.fire('Berhasil', 'Data kelas berhasil diperbarui!', 'success');
+                } else {
+                    // Mode Tambah Data Baru
+                    await axios.post('/kelas', payload);
+                    Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success');
+                }
 
-                this.form.nama_kelas = '';
-                this.showModal = false;
-                this.fetchKelasList();
+                this.closeModal(); 
+                this.fetchKelasList(); 
             } catch (error) {
                 if (error.response && error.response.status === 422) {
-                    this.errors = error.response.data.errors; // Tampilkan error validasi
+                    this.errors = error.response.data.errors;
                 } else {
                     console.error(error);
                     Swal.fire('Error', 'Gagal menyimpan data kelas!', 'error');
                 }
             }
         },
-        // Fungsi untuk menghapus kelas berdasarkan ID
         async deleteKelas(kelasId) {
             try {
                 // Konfirmasi penghapusan data
@@ -280,13 +308,11 @@ export default {
         const KelasList = ref([]); // List kelas
 
         const fetchKelasList = () => {
-            axios
-                .get('/kelas')
+            axios.get('/kelas')
                 .then((res) => {
-                    console.log("Response dari backend:", res);
-
-                    if (res.data && res.data.data && Array.isArray(res.data.data.data)) {
-                        KelasList.value = res.data.data.data; // Mengambil array kelas dengan benar
+                    console.log("Response dari backend:", res.data);
+                    if (res.data && Array.isArray(res.data.data)) {
+                        KelasList.value = res.data.data;
                     } else {
                         console.error("Data tidak sesuai:", res.data);
                         KelasList.value = [];
@@ -296,6 +322,7 @@ export default {
                     console.error("Gagal mengambil data kelas:", error);
                 });
         };
+
         // Panggil fetchKelasList saat komponen di-mount
         onMounted(() => {
             fetchKelasList();
@@ -304,18 +331,16 @@ export default {
         return {
             kelas,
             KelasList,
-            fetchKelasList // Return supaya bisa diakses di luar setup
+            fetchKelasList // Return supaya bisa diakses di template
         };
     },
     computed: {
         showLeftEllipsis() {
             return this.currentPage > 4;
         },
-
         showRightEllipsis() {
             return this.currentPage < this.totalPages - 3;
         },
-
         middlePages() {
             let start = Math.max(2, this.currentPage - 1);
             let end = Math.min(this.totalPages - 1, this.currentPage + 1);
@@ -335,24 +360,19 @@ export default {
             return pages;
         },
         filteredKelasList() {
-            if (!this.KelasList) return []; // Return empty if KelasList is undefined or null
-
+            const query = this.searchQuery.toLowerCase();
             return this.KelasList.filter(kelas => {
-                const kelasNama = kelas.namaKelas ? kelas.namaKelas.toLowerCase() : '';
-                return kelasNama.includes(this.searchQuery.toLowerCase());
+                return Object.keys(kelas).some(key => {
+                    return kelas[key] && String(kelas[key]).toLowerCase().includes(query);
+                });
             });
         },
-        isEditMode() {
-            return this.editKelas !== null;
-        },
         paginatedKelasList() {
-            if (!Array.isArray(this.KelasList.value)) {
-                return [];
-            }
-            return this.KelasList.value.slice((this.currentPage - 1) * this.rowsPerPage, this.currentPage * this.rowsPerPage);
+            let start = (this.currentPage - 1) * this.rowsPerPage;
+            return this.filteredKelasList.slice(start, start + this.rowsPerPage);
         },
         totalPages() {
-            return Math.ceil(this.filteredKelasList.length / this.rowsPerPage);
+            return Math.ceil(this.KelasList.length / this.rowsPerPage);
         },
         pageInfo() {
             if (this.filteredKelasList.length === 0) {
@@ -384,8 +404,8 @@ export default {
 
 .header-button {
     display: flex;
-    align-items: center; 
-    justify-content: space-between; 
+    align-items: center;
+    justify-content: space-between;
     width: 100%;
 }
 
@@ -507,6 +527,11 @@ export default {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.table-hover>tbody>tr:hover {
+    font-weight: 800;
+    background-color: #6c757d;
 }
 
 .data-table {

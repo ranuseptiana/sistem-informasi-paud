@@ -98,7 +98,7 @@
                         </div>
                         <div class="form-group">
                             <label for="rombel">Rombel Saat Ini</label>
-                            <select v-model="selectedKelas">
+                            <select v-model="form.kelas_id">
                                 <option value="" disabled>Pilih Kelas</option>
                                 <option v-for="kelas in kelasList" :key="kelas.id" :value="kelas.id">
                                     {{ kelas.nama_kelas }}
@@ -165,17 +165,17 @@ export default {
     },
     methods: {
         async getKelasList() {
-    try {
-        const response = await axios.get('http://localhost:8000/api/kelas');
-        console.log("Response API Kelas:", response.data); // Debugging
+            try {
+                const response = await axios.get('http://localhost:8000/api/kelas');
+                console.log("Response API Kelas:", response.data); // Debugging
 
-        // Karena daftar kelas ada di response.data.data.data
-        this.kelasList = response.data.data.data;
-    } catch (error) {
-        console.error("Gagal mengambil daftar kelas:", error);
-        this.kelasList = []; // Pastikan tetap array agar tidak error
-    }
-},
+                // Karena daftar kelas ada di response.data.data.data
+                this.kelasList = response.data.data.data;
+            } catch (error) {
+                console.error("Gagal mengambil daftar kelas:", error);
+                this.kelasList = []; // Pastikan tetap array agar tidak error
+            }
+        },
         async simpanSiswa() {
             if (!this.form.no_kk) {
                 Swal.fire("Peringatan", "Harap lengkapi semua data siswa!", "Warning");
@@ -185,6 +185,7 @@ export default {
                 const payload = {
                     ...this.form
                 };
+                console.log("Payload yang dikirim:", payload);
 
                 let response;
 
@@ -197,7 +198,7 @@ export default {
                 Swal.fire("Sukses", this.isEdit ? "Data siswa berhasil diperbarui!" : "Data siswa berhasil disimpan!", "success");
 
                 this.resetForm();
-                // this.$router.push('/adminmainsidebar/students');
+                this.$router.push('/adminmainsidebar/student');
             } catch (error) {
                 Swal.fire("Gagal", error.response ?.data ?.message || "Terjadi kesalahan", "error");
                 console.log("Error:", )
@@ -220,6 +221,7 @@ export default {
 
                 // Simpan data siswa ke form
                 this.form = siswa;
+                console.log('Data Siswa setelah diproses:', this.form);
                 this.isEdit = true;
             } catch (error) {
                 this.isEdit = false;

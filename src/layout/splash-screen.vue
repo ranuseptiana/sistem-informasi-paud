@@ -1,207 +1,107 @@
 <template>
-<header>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
-        <div class="container-fluid">
-            <!-- Brand -->
-            <a class="navbar-brand" href="#">
-                <img src="/src/assets/paud.png" alt="Logo" class="main-logo">
-                <span class="main-brand-text">PAUD Al Ummah</span>
-            </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <!-- navbar content -->
-            <div class="collapse navbar-collapse" id="navbarContent">
-                <!-- navbar links -->
-                <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-menu">
-                    <!-- <router-link to="/adminmainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
-                        Beranda
-                    </router-link> -->
-                    <router-link to="/adminmainsidebar/student" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'student' }" @click="setActive('student')">
-                        Tentang Kami
-                    </router-link>
-                    <router-link to="/adminmainsidebar/parents" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'parents' }" @click="setActive('parents')">
-                        Galeri Kegiatan
-                    </router-link>
-                    <router-link to="/adminmainsidebar/parents" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'parents' }" @click="setActive('parents')">
-                        Agenda
-                    </router-link>
-                    <router-link to="/adminmainsidebar/teachers" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'teacher' }" @click="setActive('teacher')">
-                        Informasi
-                    </router-link>
-                    <router-link to="/adminmainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
-                        Kontak
-                    </router-link>
-                </ul>
-                <!-- Profile icon -->
-                <div class="navbar-nav ms-auto">
-                    <button type="button" class="login-button" @click="showModal = true">Login</button>
-                </div>
-            </div>
-        </div>
-    </nav>
-</header>
+<Navbar />
 <div>
+    <router-view></router-view>
     <!-- Main Content -->
     <div class="container">
         <div class="content">
-            <h2>Provide the best Foundation for the future of Your child</h2>
-            <p>Unlock your child's potential with our nurturing environment, fostering creativity, critical thinking, and a lifelong love of learning.</p>
-            <!-- <div class="button-group">
-                <p class="contact-us">Hubungi kami</p>
-            </div> -->
+            <h2>Berikan Pondasi <span class="highlight"> Terbaik</span> untuk Masa Depan Anak Anda</h2>
+            <p>
+                Temukan potensi luar biasa si kecil dalam lingkungan yang penuh kasih untu mengembangkan kreativitas, rasa peduli, dan semangat belajar yang besar.
+            </p>
         </div>
-        <img src="../assets/images/temp.png" alt="Education Image">
+        <img src="../assets/images/temp.png" alt="Education Image" class="foto-depan">
     </div>
-
-    <!-- modal login -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal">
-        <div class="modal-content" @click.stop>
-            <h5>Login sebagai</h5>
-            <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Pilih salah satu untuk melanjutkan</p>
-            <div class="user-buttons">
-                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Admin'}" @click="selectedUser = 'Admin'">
-                    Admin
-                </button>
-                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Guru' }" @click="selectedUser = 'Guru'">
-                    Guru
-                </button>
-                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Orangtua' }" @click="selectedUser = 'Orangtua'">Orangtua</button>
-            </div>
-            <input type="text" class="input-login" placeholder="Email" />
-            <input type="passwordFieldType" style="margin-bottom: 2.5rem;" class="input-login" placeholder="Password" />
-            <i class="passwordFieldIcon" @click="togglePasswordVisibility">
-            </i>
-            <button type="button" class="login-button-2" @click="navigateToDashboard">Login</button>
-        </div>
-    </div>
-    <!-- modal login -->
 
     <!-- keunggulan -->
-    <div class="keunggulan-container" data-aos="fade-up">
+    <div class="keunggulan-wrapper" data-aos="fade-up">
         <div class="container">
             <div class="keunggulan">
-                <div class="icon"></div>
+                <img src="../assets/images/idea.png" alt="" class="icon">
                 <div class="text">
-                    <h3>KEUNGGULAN 1</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <h3>Membentuk Generasi Cerdas Berakhlak Mulia</h3>
+                    <p>Menanamkan nilai-nilai agama dalam setiap pembelajaran yang diterapkan setiap hari</p>
                 </div>
             </div>
             <div class="keunggulan">
-                <div class="icon"></div>
+                <img src="../assets/images/puzzle.png" alt="" class="icon">
                 <div class="text">
-                    <h3>KEUNGGULAN 2</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <h3>Pengembangan Potensi Bakat yang Maksimal</h3>
+                    <p>Membimbing serta memberikan pengasuhan penuh kasih sayang untuk pengembangan potensi</p>
                 </div>
             </div>
             <div class="keunggulan">
-                <div class="icon"></div>
+                <img src="../assets/images/sun.png" alt="" class="icon">
                 <div class="text">
-                    <h3>KEUNGGULAN 3</h3>
-                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+                    <h3>Lingkungan yang Nyaman dan Hangat</h3>
+                    <p>Lingkungan islami yang nyaman dan hangat mendukung anak berkembang dengan bahagia</p>
                 </div>
             </div>
         </div>
     </div>
     <!-- keunggulan -->
-
-    <div class="container">
-        <div class="tentang-kami">
-            <!-- tentang kami -->
-            <div class="tentang-kami-head" data-aos="fade-down">
-                <h4 class="judul">TENTANG KAMI</h4>
-                <a href="#" class="selengkapnya">
-                    Selengkapnya <span class="material-symbols-outlined">chevron_right</span>
-                </a>
-            </div>
-
-            <div class="tentang-kami-title" data-aos="zoom-in">
-                <h3>PAUD AL-UMMAH</h3>
-                <h3>PP MAMBAUL IRSYAD</h3>
-            </div>
-
-            <p data-aos="fade-up">
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.
-            </p>
-
-            <div class="visi-misi">
-                <div class="visi" data-aos="fade-right">
-                    <h4>VISI</h4>
-                    <ul>
-                        <li>Lorem ipsum dolor sit amet,</li>
-                        <li>consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
-                        <li>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
-                    </ul>
-                </div>
-                <div class="misi" data-aos="fade-left">
-                    <h4>MISI</h4>
-                    <ul>
-                        <li>Lorem ipsum dolor sit amet,</li>
-                        <li>consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</li>
-                        <li>Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</li>
-                    </ul>
-                </div>
-            </div>
-            <!-- tentang kami -->
-
-            <!-- bagian paud -->
-            <div class="bagian" data-aos="fade-up">
-                <h3>MENJADI BAGIAN DARI PAUD AL UMMAH</h3>
-                <div class="list-kelas">
-                    <div class="kelas" data-aos="flip-left">
-                        <p class="nama-kelas">Playground / PG</p>
-                        <p class="usia">(usia 4 tahun)</p>
-                        <p class="jumlah-anak">20</p>
-                        <p class="anak">anak</p>
-                    </div>
-                    <div class="kelas" data-aos="flip-left" data-aos-delay="200">
-                        <p class="nama-kelas">TK A</p>
-                        <p class="usia">(usia 4-6 tahun)</p>
-                        <p class="jumlah-anak">5</p>
-                        <p class="anak">anak</p>
-                    </div>
-                    <div class="kelas" data-aos="flip-left" data-aos-delay="400">
-                        <p class="nama-kelas">TK B</p>
-                        <p class="usia">(usia 5-7 tahun)</p>
-                        <p class="jumlah-anak">5</p>
-                        <p class="anak">anak</p>
-                    </div>
-                </div>
-            </div>
-            <!-- bagian paud -->
-
-            <!-- galeri -->
-            <div class="galeri-container">
-                <div class="galeri-header" data-aos="fade-down">
-                    <h4 class="judul-galeri">GALERI KEGIATAN</h4>
-                    <a href="#" class="selengkapnya">
+        <div class="container">
+            <div class="tentang-kami">
+                <!-- tentang kami -->
+                <div class="tentang-kami-head" data-aos="fade-down">
+                    <h4 class="judul">TENTANG KAMI</h4>
+                    <a href="http://localhost:5173/about" class="selengkapnya">
                         Selengkapnya <span class="material-symbols-outlined">chevron_right</span>
                     </a>
                 </div>
-                <div class="galeri">
-                    <div class="item-galeri" data-aos="zoom-in">
-                        <div class="gambar"></div>
-                        <p class="nama-kegiatan">Nama Kegiatan</p>
+
+                <div class="tentang-kami-title" data-aos="zoom-in">
+                    <h3>PAUD AL-UMMAH</h3>
+                    <h3>PP MAMBAUL IRSYAD</h3>
+                </div>
+
+                <p class="deskripsi" data-aos="fade-up">
+                    PAUD AL Ummah merupakan paud yang berbasis pesantren yang menekankan pembelajaran dan pengasuhan berpusat pada anak dengan pedoman keimanan yang kokoh.
+                </p>
+
+                <div class="visi-misi">
+                    <div class="visi" data-aos="fade-right">
+                        <h4>VISI</h4>
+                        <p>Terwujudnya generasi sholeh, cemerlang, dan bermanfaat</p>
                     </div>
-                    <div class="item-galeri" data-aos="zoom-in" data-aos-delay="200">
-                        <div class="gambar"></div>
-                        <p class="nama-kegiatan">Nama Kegiatan</p>
-                    </div>
-                    <div class="item-galeri" data-aos="zoom-in" data-aos-delay="400">
-                        <div class="gambar"></div>
-                        <p class="nama-kegiatan">Nama Kegiatan</p>
+                    <div class="misi" data-aos="fade-left">
+                        <h4>MISI</h4>
+                        <ul>
+                            <li>Melaksanakan pembelajaran dan pengasuhan yang berpusat pada anak dengan pedoman keimanan berbasis pesantren yang kokoh</li>
+                            <li>Melakukan pembimbingan dan pengasuhan yang maksimal sebagai upaya pencapaian pembelajaran yang baik</li>
+                            <li>Melaksanakan dan menjaga silaturahmi dengan lingkungan sekolah</li>
+                        </ul>
                     </div>
                 </div>
+                <!-- tentang kami -->
+
+                <!-- bagian paud -->
+                <div class="bagian" data-aos="fade-up">
+                    <h3>MENJADI BAGIAN DARI PAUD AL UMMAH</h3>
+                    <div class="list-kelas">
+                        <div class="kelas" data-aos="flip-left">
+                            <p class="nama-kelas">Playground / PG</p>
+                            <p class="usia">(usia 4-5 tahun)</p>
+                            <p class="jumlah-anak">20</p>
+                            <p class="anak">anak</p>
+                        </div>
+                        <div class="kelas" data-aos="flip-left" data-aos-delay="200">
+                            <p class="nama-kelas">TK </p>
+                            <p class="usia">(usia 6-7 tahun)</p>
+                            <p class="jumlah-anak">5</p>
+                            <p class="anak">anak</p>
+                        </div>
+                    </div>
+                </div>
+                <!-- bagian paud -->
             </div>
-            <!-- galeri -->
         </div>
-    </div>
 
     <!-- Agenda -->
     <div class="agenda-section">
         <div class="container">
             <div class="agenda-header" data-aos="fade-down">
-                <h4 class="agenda-title">AGENDA</h4>
+                <h4 class="agenda-title">Galeri Kegiatan</h4>
                 <a href="#" class="selengkapnya-agenda">
                     Selengkapnya <span class="material-symbols-outlined">chevron_right</span>
                 </a>
@@ -210,16 +110,16 @@
         <div class="container">
             <div class="agenda-list">
                 <div class="agenda-item" data-aos="zoom-in">
-                    <div class="gambar-agenda"></div>
-                    <p class="nama-agenda">Nama Kegiatan <br> Tempat kegiatan, dd mm yyyy</p>
+                    <img src="/src/assets/images/milkindo.jpg" alt="Kegiatan" class="gambar" />
+                    <p class="nama-agenda">Family Gathering Goes To Milkindo <br> MILKINDO, 24 02 2025</p>
                 </div>
                 <div class="agenda-item" data-aos="zoom-in" data-aos-delay="200">
-                    <div class="gambar-agenda"></div>
-                    <p class="nama-agenda">Nama Kegiatan <br> Tempat kegiatan, dd mm yyyy</p>
+                    <img src="/src/assets/images/macito.jpg" alt="kegiatan" class="gambar">
+                    <p class="nama-agenda">Outing Class "Keliling Kota Malang Naik MaCiTo" <br> Malang, 06 02 2025</p>
                 </div>
                 <div class="agenda-item" data-aos="zoom-in" data-aos-delay="400">
-                    <div class="gambar-agenda"></div>
-                    <p class="nama-agenda">Nama Kegiatan <br> Tempat kegiatan, dd mm yyyy</p>
+                    <img src="/src/assets/images/berbagi.jpg" alt="kegiatan" class="gambar">
+                    <p class="nama-agenda">Sebar 1000 Kebaikan Ramadhan Bersama Indomaret <br> Malang, 28 03 2024</p>
                 </div>
             </div>
         </div>
@@ -227,277 +127,66 @@
 
     <div class="container">
         <div class="sambutan-footer">
-            <div class="sambutan-section">
-                <div class="sambutan-header" data-aos="fade-down">
-                    <h3>VIDEO SAMBUTAN KEPALA PAUD AL-UMMAH</h3>
+            <div>
+                <div class="sambutan-header">
+                    <h3>ALAMAT KAMI</h3>
                 </div>
-                <div class="video-sambutan"></div>
-            </div>
-            <div class="maps">
-                <div id="mapid" style="width: 100%; height: 400px;"></div>
+                <div class="maps">
+                    <l-map ref="map" v-model:zoom="zoom" :center="center">
+                        <l-tile-layer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" layer-type="base" name="OpenStreetMap"></l-tile-layer>
+
+                        <l-marker :lat-lng="center">
+                            <l-popup>
+                                <strong>Lokasi Paud Al Ummah</strong><br />
+                                Jl. Dieng Atas No.16, Sumberjo, Kalisongo, Kec. Dau, <br />
+                                Kabupaten Malang, Jawa Timur 65151<br />
+                                <a href="https://maps.app.goo.gl/CjiFaBooMdGzmSan6" target="_blank">
+                                    Lihat peta lebih besar
+                                </a>
+                            </l-popup>
+                        </l-marker>
+                    </l-map>
+                </div>
             </div>
         </div>
     </div>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-column">
-                <h3>PAUD Al-Ummah</h3>
-                <p>Jl. Dieng Atas No.16, Sumberjo, Kalisongo, Kec. Dau, Kabupaten Malang, Jawa Timur 65151</p>
-                <p>081335305234</p>
-                <p>paudalmummah.x9dau@gmail.com</p>
-            </div>
-            <div class="footer-column">
-                <h3>Tentang Kami</h3>
-                <ul>
-                    <li><a href="#">Tentang PAUD Al-Ummah</a></li>
-                    <li><a href="#">Visi dan Misi</a></li>
-                    <li><a href="#">Rencana Pembelajaran</a></li>
-                    <li><a href="#">Fasilitas</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Layanan</h3>
-                <ul>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Pendaftaran</a></li>
-                    <li><a href="#">Informasi Program</a></li>
-                    <li><a href="#">Pengumuman</a></li>
-                </ul>
-            </div>
-            <hr>
-        </div>
-        <div class="footer-bottom">
-            <p>© 2024 PAUD Al-Ummah</p>
-        </div>
-    </footer>
-
+    <Footer />
 </div>
 </template>
 
 <script>
-import L from 'leaflet';
-import 'leaflet/dist/leaflet.css';
+import Navbar from "./navbar.vue";
+import Footer from "./footer.vue";
+
+import "leaflet/dist/leaflet.css";
 import {
-    onMounted
-} from "vue";
+    LMap,
+    LTileLayer,
+    LMarker,
+    LPopup
+} from "@vue-leaflet/vue-leaflet";
 
 export default {
+    components: {
+        LMap,
+        LTileLayer,
+        LMarker,
+        LPopup,
+        Navbar,
+        Footer
+    },
     data() {
         return {
-            showModal: false,
-            isClosing: false,
-            map: null,
-            selectedUser: 'Admin',
-            passwordFieldType: 'password',
-            passwordFieldIcon: 'fas fa-eye',
+            zoom: 16,
+            center: [-7.968347788109535, 112.59701987933059],
         };
     },
-    methods: {
-        openModal() {
-            this.selectedUser = 'Admin';
-            this.showModal = true;
-        },
-        closeModal() {
-            this.isClosing = true;
-            setTimeout(() => {
-                this.showModal = false;
-                this.isClosing = false;
-            }, 300);
-        },
-        togglePasswordVisibility() {
-            if (this.passwordFieldType === 'password') {
-                this.passwordFieldType = 'text';
-                this.passwordFieldIcon = 'fas fa-eye-slash';
-            } else {
-                this.passwordFieldType = 'password';
-                this.passwordFieldIcon = 'fas fa-eye';
-            }
-        },
-        navigateToDashboard() {
-            let route = '/';
-            if (this.selectedUser === 'Admin') {
-                route = '/adminmainsidebar/dashboard';
-            } else if (this.selectedUser === 'Guru') {
-                route = '/gurumainsidebar/dashboard';
-            } else if (this.selectedUser === 'Orangtua') {
-                route = '/parents/dashboard'; // Ubah rute ini sesuai kebutuhan Anda.
-            }
-            this.$router.push(route); // Menggunakan Vue Router untuk navigasi.
-        },
-        initializeMap() {
-            if (this.map) return; // Cegah inisialisasi ulang
-
-            this.map = L.map('mapid').setView([-7.968443564062927, 112.59706529324475], 15);
-
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors',
-            }).addTo(this.map);
-
-            L.marker([-7.968443564062927, 112.59706529324475]).addTo(this.map)
-                .bindPopup("<b>PAUD AL-UMMAH</b><br>Deskripsi lokasi")
-                .openPopup();
-        }
-    },
-    mounted() {
-        this.$nextTick(() => {
-            this.initializeMap();
-        });
-
-        console.log(document.getElementById('mapid')); // Cek apakah elemen ditemukan
-
-        // Pastikan elemen dengan ID "mapid" sudah ada di dalam DOM
-        this.map = L.map('mapid').setView([-7.250445, 112.768845], 15); // Sesuaikan koordinatnya
-
-        // Tambahkan tile layer dari OpenStreetMap
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(this.map);
-
-        // Tambahkan marker
-        L.marker([-7.250445, 112.768845]).addTo(this.map)
-            .bindPopup('<b>PAUD AL-UMMAH</b><br>Deskripsi lokasi')
-            .openPopup();
-
-        onMounted(() => {
-            setTimeout(() => {
-                map.invalidateSize();
-            }, 500);
-        });
-    },
-
 };
 </script>
 
 <style scoped>
-#mapid {
-    width: 100%;
-    height: 400px;
-    /* Sesuaikan sesuai kebutuhan */
-}
-
 html {
     scroll-behavior: smooth;
-}
-
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-    backdrop-filter: blur(2px);
-    /* Blur effect */
-}
-
-.user-buttons {
-    display: flex;
-    gap: 8px;
-    margin-right: auto;
-    margin-bottom: 1rem;
-}
-
-.modal-content {
-    background-color: white;
-    padding: 60px;
-    border-radius: 6px;
-    width: 585px;
-    height: 480px;
-    position: relative;
-}
-
-.close-button {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    background: none;
-    border: none;
-    font-size: 16px;
-    cursor: pointer;
-    color: #336C2A;
-}
-
-/* Navbar styling */
-.navbar {
-    background-color: white !important;
-    z-index: 1000;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    display: flex;
-    box-shadow: none;
-    align-items: center;
-}
-
-.navbar-brand {
-    margin-left: 3.8rem;
-}
-
-.container-fluid {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-
-.navbar-nav {
-    display: flex;
-    align-items: center;
-    margin-top: 12px;
-    margin-right: 3.5rem;
-    gap: 15px;
-}
-
-.nav-menu {
-    display: flex;
-    align-items: center;
-    margin-top: 15px;
-    margin-left: 8rem;
-    gap: 15px;
-}
-
-.main-logo {
-    width: auto;
-}
-
-.main-brand-text {
-    font-size: 1.2rem;
-    font-weight: 700;
-    color: #336C2A;
-}
-
-.nav-link {
-    color: black;
-}
-
-.nav-link:hover {
-    color: green;
-}
-
-/* Styling for menu items */
-.w3-bar-item {
-    display: flex;
-    padding: 10px;
-    color: #6c757d !important;
-    font-size: 18px !important;
-    justify-content: flex-start;
-    gap: 10px;
-    margin-bottom: 15px;
-    transition: color 0.3s ease;
-    font-size: 24px;
-    color: #336C2A;
-}
-
-/* Active menu item */
-.w3-bar-item.active,
-.w3-bar-item:hover {
-    color: #336C2A;
-    font-weight: 800;
-    background: none !important;
 }
 
 .container {
@@ -515,10 +204,49 @@ html {
     text-align: left;
 }
 
-h2 {
-    color: black;
-    font-size: 64px;
-    font-weight: 600;
+.content h2 {
+    font-size: 36px;
+    font-weight: bold;
+    line-height: 1.3;
+    color: #000;
+    position: relative;
+    display: inline-block;
+}
+
+.highlight {
+    position: relative;
+    display: inline-block;
+    z-index: 1;
+    padding: 0 5px;
+}
+
+.highlight::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    left: 3;
+    bottom: -6px;
+    width: 110%;
+    height: 10px;
+    background-color: #bfff11;
+    z-index: -1;
+    border-radius: 50px;
+    opacity: 0.5;
+    transform: rotate(-5deg);
+}
+
+.highlight::after {
+    content: "";
+    position: absolute;
+    right: 1;
+    left: 0;
+    bottom: 1px;
+    width: 104%;
+    height: 10px;
+    background-color: #A4DE02;
+    z-index: -1;
+    border-radius: 10px;
+    transform: rotate(-5deg);
 }
 
 p {
@@ -542,70 +270,8 @@ p {
     text-align: left;
 }
 
-.button-user {
-    background-color: white;
-    width: 5rem;
-    height: 2rem;
-    font-weight: 400;
-    font-size: 0.9rem;
-    border-radius: 100px;
-    border: 1px solid black;
-    color: black;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-}
-
-.button-user.active-user {
-    background-color: #C3EAA3;
-    color: #336C2A;
-    transform: translateY(-3px);
-    border: #C3EAA3;
-}
-
-.button-user:hover {
-    background-color: #C3EAA3;
-    color: #336C2A;
-    transform: translateY(-3px);
-    border: #C3EAA3;
-}
-
-/* login */
-.input-login {
-    border: 1px solid #C3EAA3;
-    background-color: white;
-    height: 4rem;
-    width: 29rem;
-    color: #000000;
-    padding: 0.7rem;
-    border-radius: 10px;
-    margin-top: 0.5rem;
-    padding-left: 2rem;
-}
-
-.login-button-2 {
-    color: #336C2A;
-    font-weight: 600;
-    background: #C3EAA3;
-    border-radius: 10px;
-    width: 18rem;
-    border: #C3EAA3;
-    height: 4rem;
-    display: block;
-    margin: 0 auto;
-}
-
-.login-button-2:hover {
-    border: #C3EAA3;
-    transform: translateY(-5px);
-    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-}
-
-/* login */
-
 /* section keunggulan */
-.keunggulan-container {
+.keunggulan-wrapper {
     margin-top: 3rem;
     display: flex;
     justify-content: space-around;
@@ -624,8 +290,6 @@ p {
 .icon {
     width: 60px;
     height: 60px;
-    background-color: lightgray;
-    border-radius: 50%;
     margin-right: 15px;
 }
 
@@ -678,7 +342,6 @@ p {
 .tentang-kami-title {
     display: flex;
     gap: 20px;
-    /* justify-content: space-between; */
     align-items: center;
     font-weight: 800;
     margin-top: 10px;
@@ -724,19 +387,19 @@ ul {
 .usia {
     font-size: 14px;
     color: #555;
-    text-align: center
+    text-align: center;
 }
 
 .jumlah-anak {
     font-size: 24px;
     font-weight: bold;
-    text-align: center
+    text-align: center;
 }
 
 .anak {
     font-size: 16px;
     font-weight: bold;
-    text-align: center
+    text-align: center;
 }
 
 .bagian h3 {
@@ -749,13 +412,13 @@ ul {
 
 .list-kelas {
     display: flex;
+    flex-direction: row;
     justify-content: center;
-    gap: 10rem;
+    margin-left: 5rem;
     margin-top: 2rem;
     padding: 0;
 }
 
-/* galeri */
 .galeri-header {
     display: flex;
     justify-content: space-between;
@@ -769,8 +432,8 @@ ul {
     font-size: 20px;
 }
 
-.galeri,
-.agenda-list {
+.agenda-list,
+.galeri {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -786,12 +449,15 @@ ul {
 
 .gambar {
     width: 100%;
-    height: 120px;
-    background-color: #ddd;
+    max-width: 300px;
+    margin-left: 0rem;
+    height: auto;
+    background-color: transparent;
+    /* Hilangkan warna abu-abu */
     display: flex;
     justify-content: center;
     align-items: center;
-    border: 1px solid #ccc;
+    overflow: hidden;
 }
 
 .nama-kegiatan,
@@ -858,12 +524,6 @@ ul {
     padding: 20px;
 }
 
-.gambar-agenda {
-    background: #d3d3d3;
-    height: 100px;
-    margin-bottom: 10px;
-}
-
 .nama-agenda {
     font-weight: bold;
     color: white;
@@ -877,9 +537,11 @@ ul {
 
 .sambutan-footer {
     margin-top: 2rem;
+    gap: 50px;
     margin-bottom: 2rem;
     width: 100%;
     display: flex;
+    flex-direction: column;
     justify-content: center;
 }
 
@@ -914,6 +576,18 @@ ul {
     /* Memastikan elemen tetap di tengah */
 }
 
+.maps {
+    height: 400px;
+    margin-left: 21px;
+    width: 1080px;
+    text-align: center;
+}
+
+[data-aos] {
+    transform: none !important;
+    opacity: 1 !important;
+}
+
 @media (min-width: 768px) {
     .container {
         flex-direction: row;
@@ -943,94 +617,92 @@ ul {
     }
 }
 
-.login-button {
-    padding: 10px 20px;
-    width: 120px;
-    height: 40px;
-    font-size: 16px;
-    font-weight: 800;
-    font-family: "Nunito Sans", sans-serif;
-    color: #336C2A;
-    background-color: #C3EAA3;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    line-height: 10px;
-}
+@media (min-width: 361px) and (max-width: 480px) {
+    .foto-depan {
+        display: none;
+    }
 
-.button-group {
-    display: flex;
-    align-items: center;
-}
+    .container {
+        max-width: 480px;
+    }
 
-.contact-us {
-    margin-left: 25px;
-    font-size: 16px;
-    font-weight: 800;
-    color: #000000;
-    cursor: pointer;
-    font-family: "Nunito Sans", sans-serif;
-    padding-top: 20px;
-}
+    .content h2 {
+        margin-bottom: 2rem;
+    }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+    .keunggulan-wrapper {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        padding: 10px;
+    }
 
-.footer {
-  background-color: #336C2A;
-  color: white;
-  padding: 20px 0;
-}
+    .keunggulan-wrapper .container {
+        display: flex;
+        flex-wrap: nowrap;
+        gap: 15px;
+        margin-left: 1rem;
+        flex-direction: row;
+    }
 
-.footer-column {
-  flex: 2;
-  margin: 0 0px 0 25px;
-}
+    .keunggulan {
+        flex: 0 0 auto;
+        width: 300px;
+        display: flex;
+        align-items: center;
+    }
 
-.footer-column h3 {
-  font-size: 18px;
-  margin-bottom: 10px;
-}
+    .visi-misi {
+        display: flex;
+        flex-direction: row;
+    }
 
-.footer-column p {
-  font-size: 14px;
-  line-height: 1.5;
-}
+    .tentang-kami {
+        padding: 20px;
+        max-width: 390px;
+    }
 
-.footer-column ul {
-  list-style: none;
-  padding: 0;
-}
+    .tentang-kami-head h4,
+    .selengkapnya {
+        font-size: 10px;
+    }
 
-.footer-column ul li {
-  margin-bottom: 8px;
-}
+    .tentang-kami-title h3{
+        font-size: 15px;
+    }
 
-.footer-column ul li a {
-  color: white;
-  text-decoration: none;
-  font-size: 14px;
-}
+    .nama-kegiatan,
+    .nama-agenda {
+        margin-top: 8px;
+        font-size: 8px;
+        font-weight: bold;
+        width: 100%; 
+        max-width: 100%; 
+        word-wrap: break-word; 
+        white-space: normal;
+        text-align: left; 
+    }
 
-.footer-column ul li a:hover {
-  text-decoration: underline;
-}
+    .list-kelas p {
+        font-size: 8px;
+    }
 
-.footer-bottom {
-  text-align: center;
-  border-top: 1px solid rgba(255, 255, 255, 0.5); /* Garis abu-abu */
-  padding-top: 10px;
-  margin-top: 10px;
-  font-size: 14px;
-  max-width: 1070px; /* Sesuai container */
-  margin-left: auto;
-  margin-right: auto;
-}
+    .list-kelas {
+        justify-content: center; 
+        gap: 10px; 
+        width: 100%; 
+        max-width: 100%; 
+        word-wrap: break-word; 
+        white-space: normal;
+        display: flex;
+        flex-wrap: wrap;
+        flex-direction: row;
+    }
 
-.footer-bottom p {
-    text-align: right;
+    .maps {
+        height: 180px;
+        margin-left: 21px;
+        width: 350px;
+        text-align: center;
+    }
 }
 </style>

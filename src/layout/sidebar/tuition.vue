@@ -31,15 +31,14 @@
                     <!-- Filter Popup -->
                     <div>
                         <!-- Modal Filter -->
-                        <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
+                        <div v-if="showModal" class="modal-overlay modal-overlay-filter" @click.self="toggleFilterPopup">
                             <div class="modal-content-ortu">
                                 <div class="modal-header">
-                                    <h5 class="modal-title">Filter Data Guru</h5>
+                                    <h5 class="modal-title">Filter Data SPP</h5>
                                     <button type="button" class="close-btn" @click="closeModal">&times;</button>
                                 </div>
                                 <hr>
                                 <div class="filter-rows">
-                                    <!-- First row -->
                                     <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
                                         <label>
                                             <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
@@ -69,12 +68,13 @@
         </div>
         <div class="table-wrapper">
             <!-- Table Section -->
-            <table class="table data-table">
+            <table class="table data-table table-hover">
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.namaSiswa">Nama Siswa</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.tglPembayaran">Tanggal Pembayaran</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.nominal">Nominal Pembayaran</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.buktiPembayaran">Bukti Pembayaran</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.statusPembayaran">Status Pembayaran</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.statusRapor">Status Rapor</th>
@@ -85,8 +85,9 @@
                     <tr v-for="(pembayaranSpp, index) in paginatedPembayaranSppList" :key="pembayaranSpp.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
                         <td v-if="selectedFilters.namaSiswa">{{ pembayaranSpp.siswa?.nama_siswa }}</td>
-                        <td v-if="selectedFilters.tglPembayaran">{{ pembayaranSpp.tanggal_pembayaran }}</td>
-                        <td v-if="selectedFilters.buktiPembayaran">{{ pembayaranSpp.bukti_pembayaran }}</td>
+                        <td v-if="selectedFilters.tglPembayaran">{{ pembayaranSpp.tanggal_pembayaran ? pembayaranSpp.tanggal_pembayaran : 'Tanggal Tidak Ditemukan' }}</td>
+                        <td v-if="selectedFilters.nominal"> {{ pembayaranSpp.nominal ? formatRupiah(pembayaranSpp.nominal) : 'Nominal Belum Ditambahkan' }}</td>
+                        <td v-if="selectedFilters.buktiPembayaran">{{ pembayaranSpp.bukti_pembayaran ? pembayaranSpp.bukti_pembayaran : 'Bukti Belum Ditambahkan' }}</td>
                         <td v-if="selectedFilters.statusPembayaran">{{ pembayaranSpp.status_pembayaran }}</td>
                         <td v-if="selectedFilters.statusRapor">{{ pembayaranSpp.status_rapor }}</td>
                         <td>
@@ -96,7 +97,7 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
-                                    <button class="popup-item" @click="editPembayaranSppp(pembayaranSpp.id)" style="color: #274278">Edit</button>
+                                    <button class="popup-item" @click="prepareEditPembayaran(pembayaranSpp.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deletePembayaranSpp(pembayaranSpp.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
@@ -113,6 +114,55 @@
                 </tbody>
             </table>
         </div>
+        <div class="custom-modal" v-if="tampilModal">
+        <div class="custom-modal-dialog">
+            <div class="custom-modal-content">
+                <div class="custom-modal-header">
+                    <h5 class="custom-modal-title">Edit Data SPP</h5>
+                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                </div>
+                <form @submit.prevent="simpanSpp">
+                    <div class="custom-modal-body">
+                        <div class="form-group-spp">
+                            <label for="namaSiswa">Nama Siswa</label>
+                            <input 
+                                type="text" 
+                                id="namaSiswa" 
+                                v-model="form.nama_siswa" 
+                                class="form-input" 
+                                disabled 
+                            />
+
+                            <label for="nominal">Nominal:</label>
+                            <input type="text" v-model="form.nominal" @input="formatNominal" />
+
+                            <label for="tanggalPembayaran">Tanggal Pembayaran:</label>
+                            <input type="date" v-model="form.tanggal_pembayaran">
+
+                            <label for="buktiPembayaran">Bukti Pembayaran:</label>
+                            <input type="text" v-model="form.bukti_pembayaran">
+
+                            <label for="statusPembayaran">Status Pembayaran:</label>
+                            <select v-model="form.status_pembayaran">
+                                <option value="Lunas">Lunas</option>
+                                <option value="Belum Lunas">Belum Lunas</option>
+                            </select>
+
+                            <label for="statusRapor">Status Rapor:</label>
+                            <select v-model="form.status_rapor">
+                                <option value="Dapat Diterima">Dapat Diterima</option>
+                                <option value="Belum Dapat Diterima">Belum Dapat Diterima</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="custom-modal-footer">
+                        <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
+                        <button type="submit" class="btn-save">Simpan Perubahan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
         <div class="pagination-info-ortu">
             <p class="page-info">{{ pageInfo }}</p>
             <nav aria-label="Page navigation" class="pagination-nav">
@@ -154,11 +204,13 @@ export default {
             rowsPerPage: 5,
             currentPage: 1,
             showModal: false,
+            tampilModal: false,
             dropdownIndex: null,
             searchQuery: '', // for filtering
             selectedFilters: {
                 namaSiswa: true,
                 tglPembayaran: true,
+                nominal: true,
                 buktiPembayaran: true,
                 statusPembayaran: true,
                 statusRapor: true,
@@ -176,6 +228,10 @@ export default {
                     label: "Tanggal Pembayaran"
                 },
                 {
+                    key: "nominal",
+                    label: "Nominal"
+                },
+                {
                     key: "buktiPembayaran",
                     label: "Bukti Pembayaran"
                 },
@@ -188,6 +244,14 @@ export default {
                     label: "Status Rapor"
                 }
             ],
+            form: {
+                nama_siswa: '',
+                tanggal_pembayaran: '',
+                nominal: '',
+                bukti_pembayaran: '',
+                status_pembayaran: '',
+                status_rapor: '',
+            }
         };
     },
     setup() {
@@ -198,7 +262,7 @@ export default {
                 .get('/pembayaranspp')
                 .then((res) => {
                     console.log('Data yang diterima:', res.data);
-                    pembayaranSppList.value = res.data.data; 
+                    pembayaranSppList.value = res.data.data;
                 })
                 .catch((error) => {
                     console.log(error.response.data.data);
@@ -215,11 +279,29 @@ export default {
         };
     },
     methods: {
+        prepareEditPembayaran(id) {
+            this.dropdownIndex = null;
+            
+            const pembayaranSpp = this.pembayaranSppList.find(k => k.id === id);
+            if (pembayaranSpp) {
+                this.form = { 
+                    id: pembayaranSpp.id,
+                    nama_siswa: pembayaranSpp.siswa?.nama_siswa || '', // Ambil dari objek siswa
+                    tanggal_pembayaran: pembayaranSpp.tanggal_pembayaran || '',
+                    nominal: pembayaranSpp.nominal || '',
+                    bukti_pembayaran: pembayaranSpp.bukti_pembayaran || '',
+                    status_pembayaran: pembayaranSpp.status_pembayaran || '',
+                    status_rapor: pembayaranSpp.status_rapor || '',
+                };
+                this.tampilModal = true;
+            }
+        },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
         closeModal() {
             this.showModal = false;
+            this.tampilModal = false;
         },
         changePage(page) {
             if (page >= 1 && page <= this.totalPages) {
@@ -240,95 +322,102 @@ export default {
                 return filteredPembayaranSpp;
             });
         },
-        // Fungsi ekspor data berdasarkan filter aktif
-        // exportData(format) {
-        //     const filteredData = this.getFilteredData();
+        async simpanSpp() {
+            if (!this.form.id) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'ID tidak ditemukan, gagal menyimpan data',
+                });
+                return;
+            }
 
-        //     // Buat header sesuai mapping
-        //     const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
-        //     const headerLabels = headers.map(header => this.headerMapping[header] || header);
+            try {
+                await axios.put(`/pembayaranspp/${this.form.id}`, this.form);
+                this.tampilModal = false;
+                this.fetchPembayaranSppList();
 
-        //     if (format === 'pdf') {
-        //         const doc = new jsPDF();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil!',
+                    text: 'Data SPP telah diperbarui',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                console.error('Gagal menyimpan data:', error);
 
-        //         // Buat data tabel untuk PDF
-        //         const data = filteredData.map(guru => headers.map(key => guru[key] || ''));
-
-        //         doc.autoTable({
-        //             head: [headerLabels],
-        //             body: data,
-        //         });
-
-        //         doc.save('filtered_data.pdf');
-        //     } else if (format === 'excel') {
-        //         const data = [headerLabels, ...filteredData.map(guru => headers.map(key => guru[key] || ''))];
-        //         const csv = Papa.unparse(data);
-
-        //         const blob = new Blob([csv], {
-        //             type: 'text/csv;charset=utf-8;'
-        //         });
-        //         const link = document.createElement('a');
-        //         link.href = URL.createObjectURL(blob);
-        //         link.download = 'filtered_data.csv';
-        //         link.click();
-        //     }
-        // },
-        // editPembayaranSppp(id) {
-        //     // Mengarahkan ke halaman addParents dengan ID guru yang ingin diedit
-        //     this.$router.push(`/adminmainsidebar/addTeachers/${id}`);
-        // },
-        // Fungsi untuk menghapus kelas berdasarkan ID
-        // async deletePembayaranSpp(pembayaranSppId) {
-        //     try {
-        //         // Konfirmasi penghapusan data
-        //         const confirmDelete = await Swal.fire({
-        //             title: 'Apakah Anda yakin?',
-        //             text: "Data ini akan dihapus!",
-        //             icon: 'warning',
-        //             showCancelButton: true,
-        //             confirmButtonText: 'Ya, Hapus',
-        //             cancelButtonText: 'Batal'
-        //         });
-
-        //         if (confirmDelete.isConfirmed) {
-        //             // Kirim permintaan DELETE ke backend
-        //             const response = await axios.delete(`/pembayaranspp/${pembayaransppId}`);
-
-        //             // Tampilkan pesan sukses
-        //             Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
-
-        //             this.pembayaranSppList.value = this.pembayaranSppList.value.filter(pembayaranSpp => pembayaranSpp.id !== pembayaranSppId);
-        //         }
-        //     } catch (error) {
-        //         Swal.fire('Error', 'Gagal menghapus data pembayaran spp!', 'error');
-        //     }
-        // },
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal!',
+                    text: 'Terjadi kesalahan saat menyimpan data',
+                });
+            }
+        },
+        formatRupiah(angka) {
+            return new Intl.NumberFormat('id-ID').format(angka);
+        }
     },
     computed: {
         filteredPembayaranSppList() {
-            return this.pembayaranSppList.filter((pembayaranSpp) => {
-                return pembayaranSpp.siswa.namaSiswa ?.toLowerCase().includes(this.searchQuery.toLowerCase());
+            if (!this.searchQuery) {
+                return this.pembayaranSppList;
+            }
+            const query = this.searchQuery.toLowerCase();
+
+            return this.pembayaranSppList.filter(pembayaranSpp => {
+                return Object.keys(pembayaranSpp).some(key => {
+                    let value = pembayaranSpp[key];
+
+                    // 🔍 Cek jika properti siswa.nama_siswa cocok dengan pencarian
+                    if (key === "siswa" && pembayaranSpp.siswa?.nama_siswa) {
+                        if (pembayaranSpp.siswa.nama_siswa.toLowerCase().includes(query)) {
+                            return true;
+                        }
+                    }
+
+                    // 🔍 Cek status pembayaran
+                    if (key === "status_pembayaran" && pembayaranSpp.status_pembayaran) {
+                        if (pembayaranSpp.status_pembayaran.toLowerCase().includes(query)) {
+                            return true;
+                        }
+                    }
+
+                    // 🔍 Cek tanggal pembayaran (formatkan ke string)
+                    if (key === "tanggal_pembayaran" && pembayaranSpp.tanggal_pembayaran) {
+                        if (String(pembayaranSpp.tanggal_pembayaran).toLowerCase().includes(query)) {
+                            return true;
+                        }
+                    }
+
+                    // 🔍 Cek nominal pembayaran (konversi ke string agar bisa dicari)
+                    if (key === "nominal" && pembayaranSpp.nominal) {
+                        if (String(pembayaranSpp.nominal).toLowerCase().includes(query)) {
+                            return true;
+                        }
+                    }
+
+                    // 🔍 Cek status rapor
+                    if (key === "status_rapor" && pembayaranSpp.status_rapor) {
+                        if (pembayaranSpp.status_rapor.toLowerCase().includes(query)) {
+                            return true;
+                        }
+                    }
+
+                    // 🔍 Cek properti lain yang bertipe string
+                    if (value !== null && value !== undefined) {
+                        return String(value).toLowerCase().includes(query);
+                    }
+
+                    return false;
+                });
             });
         },
-        // isEditMode() {
-        //     return this.editPembayaranSppp !== null;
-        // },
-        // paginatedPembayaranSppList() {
-        //     if (!this.pembayaranSppList ?.value || this.pembayaranSppList.value.length === 0) {
-        //         return [];
-        //     }
-        //     const startIndex = (this.currentPage - 1) * this.rowsPerPage;
-        //     const endIndex = startIndex + this.rowsPerPage;
 
-        //     console.log("Total Data:", this.pembayaranSppList.value.length);
-        //     console.log("Menampilkan data dari index:", startIndex, "sampai", endIndex);
-
-        //     return this.pembayaranSppList.value.slice(startIndex, endIndex);
-        // },
         paginatedPembayaranSppList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
-            return this.pembayaranSppList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
+            return this.filteredPembayaranSppList.slice(startIndex, endIndex);
         },
         totalPages() {
             return Math.ceil(this.pembayaranSppList.length / this.rowsPerPage);
@@ -389,6 +478,61 @@ label {
     white-space: nowrap;
     width: calc(100% - 30px);
     color: #636364;
+}
+
+/* Modal Filter */
+.modal-overlay-filter {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
+.modal-content-ortu {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 10px;
+    width: 30%;
+    max-width: 250px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
+}
+
+/* Modal Edit Pembayaran */
+.modal {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 400px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Pastikan tidak ada display: none */
+.modal-overlay-edit {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex; /* Jangan pakai display: none */
+    justify-content: center;
+    align-items: center;
+    z-index: 1051;
+}
+
+/* Tombol Modal */
+.modal-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
 }
 
 .container {
@@ -612,6 +756,11 @@ label {
 .data-table .table-head {
     font-weight: 800;
     color: #336C2A;
+}
+
+.table-hover>tbody>tr:hover {
+    font-weight: 800;
+    background-color: #6c757d;
 }
 
 .data-table td:last-child {

@@ -1,7 +1,10 @@
 import { createWebHistory, createRouter } from "vue-router";
 import LandingPage from "../layout/splash-screen.vue";
+import AboutUs from "../layout/utama/about.vue";
+import Information from "../layout/utama/information.vue";
+import Gallery from "../layout/utama/gallery.vue";
+// bagian admin
 import AdminMainSidebar from "../layout/sidebar/admin-main.vue";
-import GuruMainSidebar from "../layout/sidebar/guru-main.vue";
 import Dashboard from "../layout/sidebar/dashboard.vue";
 import Student from "../layout/sidebar/student.vue";
 import Parents from "../layout/sidebar/parents.vue";
@@ -10,14 +13,31 @@ import AddStudents from "../layout/sidebar/add-students.vue";
 import Teachers from "../layout/sidebar/teachers.vue";
 import AddTeachers from "../layout/sidebar/add-teachers.vue";
 import Classes from "../layout/sidebar/classes.vue";
-// import AddClasses from "../layout/sidebar/add-classes.vue";
 import Tuition from "../layout/sidebar/tuition.vue";
+// bagian guru
+import GuruMainSidebar from "../layout/sidebar/guru-main.vue";
+import GuruDashboard from "../layout/sidebar/guru-dashboard.vue";
+import GuruClasses from "../layout/sidebar/guru-class.vue";
+import GuruTuition from "../layout/sidebar/guru-spp.vue";
+
 import { components } from "vuetify/dist/vuetify-labs.js";
 
 const routes = [
     {
         path: "/",
         component: LandingPage,
+    },
+    {
+        path: "/about",
+        component: AboutUs,
+    },
+    {
+        path: "/information",
+        component: Information,
+    },
+    {
+        path: "/gallery",
+        component: Gallery,
     },
     {
         path: "/adminmainsidebar",
@@ -62,10 +82,6 @@ const routes = [
                 component: AddTeachers,
                 props: true
             },
-            // {
-            //     path: "addClasses",
-            //     component: AddClasses,
-            // },
         ],
     },
     {
@@ -74,24 +90,16 @@ const routes = [
         children:[
             {
                 path: "dashboard",
-                component: Dashboard,
-            },
-            {
-                path: "student",
-                component: Student,
-            },
-            {
-                path: "addParents",
-                component: AddParents,
-            },
-            {
-                path: "addStudents",
-                component: AddStudents,
+                component: GuruDashboard,
             },
             {
                 path: "classes",
-                component: Classes,
+                component: GuruClasses,
             },
+            {
+                path: "tuition",
+                component: GuruTuition,
+            }
         ],
     },
 ];

@@ -33,28 +33,62 @@
                         Filter
                         <i class="fa-solid fa-filter filter-icon"></i>
                     </button>
-                    <!-- Filter Popup -->
-                    <div>
-                        <!-- Modal Filter -->
-                        <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
-                            <div class="modal-content-siswa">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Filter Data Siswa</h5>
-                                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
-                                </div>
-                                <hr>
-                                <div class="filter-rows">
-                                    <!-- First row -->
-                                    <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
+                    <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
+                        <div class="modal-content">
+                            <!-- Header -->
+                            <div class="modal-header">
+                                <h5 class="modal-title">Filter Data Siswa</h5>
+                                <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                            </div>
+                            <hr>
+
+                            <!-- Filter Checkbox dalam Dua Kolom -->
+                            <div class="filter-container">
+                                <div class="column">
+                                    <div v-for="(filter, index) in firstRowFilters" :key="index">
                                         <label>
-                                            <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
+                                            <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
+                                            {{ filter.label }}
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="column">
+                                    <div v-for="(filter, index) in secondRowFilters" :key="index">
+                                        <label>
+                                            <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
                                             {{ filter.label }}
                                         </label>
                                     </div>
                                 </div>
                             </div>
+
+                            <hr>
+
+                            <!-- Tahun Ajaran -->
+                            <div class="tahun-ajaran">
+                                <label>
+                                    <input type="checkbox" v-model="showTahunAjaran" class="checkbox" />
+                                    Tahun Ajaran
+                                </label>
+                                <div v-if="showTahunAjaran" class="tahun-ajaran-dropdown">
+                                    <select v-model="tahunAwal">
+                                        <option value="2023/2024">2023/2024</option>
+                                        <option value="2024/2025">2024/2025</option>
+                                    </select>
+                                    <span>-</span>
+                                    <select v-model="tahunAkhir">
+                                        <option value="2024/2025">2024/2025</option>
+                                        <option value="2025/2026">2025/2026</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- Tombol Save -->
+                            <div class="modal-footer">
+                                <button class="save-btn" @click="saveFilter">Save</button>
+                            </div>
                         </div>
                     </div>
+
                 </div>
                 <!-- Export -->
                 <div class="export-section">
@@ -94,14 +128,17 @@
                         <th scope="col" class="table-head" v-if="selectedFilters.beratBadan">Berat Badan</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.tinggiBadan">Tinggi Badan</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.lingkarKepala">Lingkar Kepala</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.rombel">Kelas Saat Ini</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.status">Status Siswa</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.tahunAjar">Tahun Ajaran</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id" class="row-hover">
-                        <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.noKk">{{ siswa.no_kk }}</td>
-                        <td v-if="selectedFilters.nisn">{{ siswa.nisn }}</td>
+                        <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
+                        <td v-if="selectedFilters.noKk">{{ siswa.no_kk ? siswa.no_kk : 'Data tidak ditemukan' }}</td>
+                        <td v-if="selectedFilters.nisn">{{ siswa.nisn ? siswa.nisn : 'Data tidak ditemukan' }}</td>
                         <td v-if="selectedFilters.nik">{{ siswa.nik_siswa }}</td>
                         <td v-if="selectedFilters.nama">{{ siswa.nama_siswa }}</td>
                         <td v-if="selectedFilters.jenisKelamin">{{ siswa.jenis_kelamin }}</td>
@@ -114,6 +151,9 @@
                         <td v-if="selectedFilters.beratBadan">{{ siswa.berat_badan }}</td>
                         <td v-if="selectedFilters.tinggiBadan">{{ siswa.tinggi_badan }}</td>
                         <td v-if="selectedFilters.lingkarKepala">{{ siswa.lingkar_kepala }}</td>
+                        <td v-if="selectedFilters.rombel">{{ getKelasNama(siswa.kelas_id) }}</td>
+                        <td v-if="selectedFilters.status">{{ siswa.status ? siswa.status : 'Data tidak ditemukan' }}</td>
+                        <td v-if="selectedFilters.tahunAjar">{{ getTahunAjar(siswa.tahun_ajaran_id) }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -128,7 +168,7 @@
                         </td>
                     </tr>
                     <tr v-if="paginatedSiswaList.length === 0" class="no-data">
-                        <td colspan="7" class="no-data-cell">
+                        <td colspan="9" class="no-data-cell">
                             <div class="no-data-content">
                                 <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
                                 <p class="no-data-text">Tidak ada data</p>
@@ -192,6 +232,7 @@ import Swal from "sweetalert2";
 import axios from 'axios';
 import {
     ref,
+    computed,
     onMounted
 } from 'vue';
 
@@ -204,6 +245,7 @@ export default {
             dropdownIndex: null,
             showModal: false,
             searchQuery: '', // for filtering
+            siswaList: [],
             firstRowFilters: [{
                     key: "noKk",
                     label: "No KK"
@@ -236,7 +278,8 @@ export default {
                     key: "agama",
                     label: "Agama"
                 },
-                {
+            ],
+            secondRowFilters: [{
                     key: "alamat",
                     label: "Alamat"
                 },
@@ -260,6 +303,14 @@ export default {
                     key: "lingkarKepala",
                     label: "Lingkar Kepala"
                 },
+                {
+                    key: "rombel",
+                    label: "Kelas Saat Ini"
+                },
+                {
+                    key: "status",
+                    label: "Status Siswa"
+                },
             ],
             selectedFilters: {
                 noKk: true,
@@ -276,8 +327,13 @@ export default {
                 beratBadan: false,
                 tinggiBadan: false,
                 lingkarKepala: false,
+                rombel: true,
+                status: false,
+                tahunAjar: true,
             },
-            siswaList: [],
+            showTahunAjaran: true,
+            tahunAwal: "2023/2024",
+            tahunAkhir: "2024/2025",
             headerMapping: {
                 nis: 'Nomor Induk Siswa',
                 noKk: 'Nomor KK',
@@ -292,43 +348,93 @@ export default {
                 jumlahSaudara: 'Jumlah Saudara',
                 beratBadan: 'Berat Badan',
                 tinggiBadan: 'Tinggi Badan',
-                lingkarKepala: 'Lingkar Kepala'
+                lingkarKepala: 'Lingkar Kepala',
+                rombel: 'Kelas Saat Ini',
+                status: 'Status Siswa',
+                tahunAjar: 'Tahun Ajaran',
             }
         };
     },
     //untuk menampilkan data siswa
     setup() {
-        const siswaList = ref([]); // List siswa
+        const siswaList = ref([]);
+        const kelasList = ref([]);
+        const tahunAjaranList = ref([]);
 
         const fetchSiswaList = () => {
             axios.get('/siswa')
                 .then((res) => {
-                    console.log("Response dari API:", res.data); // Debugging
-
+                    console.log("Response dari API Siswa:", res.data); // Debugging
                     if (res.data && Array.isArray(res.data.data)) {
-                        siswaList.value = res.data.data; // Ambil array siswa
+                        siswaList.value = res.data.data;
+                        console.log("Siswa List:", siswaList.value); // Cek apakah datanya tersimpan
                     } else {
-                        console.error("Format data tidak sesuai", res.data);
+                        console.error("Format data siswa tidak sesuai", res.data);
                         siswaList.value = [];
                     }
                 })
                 .catch((error) => {
-                    console.error("Terjadi error saat fetching data:", error);
-                    siswaList.value = []; // Set array kosong jika ada error
+                    console.error("Terjadi error saat fetching data siswa:", error);
+                    siswaList.value = [];
                 });
         };
 
-        // Panggil fetchOrtuList saat komponen di-mount
+        const fetchKelasList = () => {
+            axios.get('/kelas')
+                .then(res => {
+                    // console.log("Response dari API Kelas:", res.data); // Debugging
+                    if (res.data && Array.isArray(res.data.data)) {
+                        kelasList.value = res.data.data;
+                        // console.log("Kelas List:", kelasList.value); 
+                    } else {
+                        console.error("Format data kelas tidak sesuai", res.data);
+                        kelasList.value = [];
+                    }
+                })
+                .catch(error => console.error("Error fetching kelas:", error));
+        };
+
+        const fetchTahunAjaranList = async () => {
+            try {
+                const response = await axios.get('/tahunajaran');
+                tahunAjaranList.value = response.data;
+                console.log("Tahun Ajar List:", tahunAjaranList.value);
+            } catch (error) {
+                console.error('Gagal mengambil data tahun ajaran', error);
+            }
+        };
+
+        const getTahunAjar = (id) => {
+            const tahunAjar = tahunAjaranList.value.find(item => item.id === id);
+        
+            return tahunAjar ? tahunAjar.tahun : 'Tidak ditemukan';
+        };
+
         onMounted(() => {
             fetchSiswaList();
+            fetchKelasList();
+            fetchTahunAjaranList();
+        });
+
+        const sortedSiswaList = computed(() => {
+            return [...siswaList.value].sort((a, b) => a.id - b.id);
         });
 
         return {
             siswaList,
-            fetchSiswaList // Return supaya bisa diakses di luar setup
+            kelasList,
+            tahunAjaranList,
+            fetchSiswaList,
+            fetchKelasList,
+            fetchTahunAjaranList,
+            getTahunAjar,
+            sortedSiswaList
         };
     },
     methods: {
+        saveFilter() {
+            console.log("Filter disimpan:", this.selectedFilters, this.tahunAwal, this.tahunAkhir);
+        },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
@@ -371,11 +477,13 @@ export default {
                 const doc = new jsPDF();
 
                 // Buat data tabel untuk PDF
-                const data = filteredData.map(siswa => headers.map(key => siswa[key] || ''));
+                const data = filteredData.map(siswa => headers.map(key => siswa[key] !== undefined ? siswa[key] : ''));
 
                 doc.autoTable({
                     head: [headerLabels],
                     body: data,
+                    styles: { cellWidth: 'auto' }, // Biarkan auto atau sesuaikan
+                    theme: 'grid'
                 });
 
                 doc.save('filtered_data.pdf');
@@ -392,8 +500,9 @@ export default {
                 link.click();
             }
         },
-
         editSiswa(id) {
+            this.dropdownIndex = null;
+            
             this.$router.push(`/adminmainsidebar/addStudents/${id}`);
         },
         async deleteSiswa(siswaId) {
@@ -424,11 +533,9 @@ export default {
         showLeftEllipsis() {
             return this.currentPage > 4;
         },
-
         showRightEllipsis() {
             return this.currentPage < this.totalPages - 3;
         },
-
         middlePages() {
             let start = Math.max(2, this.currentPage - 1);
             let end = Math.min(this.totalPages - 1, this.currentPage + 1);
@@ -447,24 +554,22 @@ export default {
             }
             return pages;
         },
-
-        // Filter siswa list based on search query
         filteredSiswaList() {
-            if (!Array.isArray(this.siswaList)) {
-                return [];
+            if (!this.searchQuery) {
+                return this.siswaList; // Jika tidak ada pencarian, tampilkan semua data
             }
 
-            return this.siswaList.filter((siswa) =>
-                siswa && siswa.nama_siswa ?
-                siswa.nama_siswa.toLowerCase().includes(this.searchQuery.toLowerCase()) :
-                false
-            );
+            const query = this.searchQuery.toLowerCase();
+            return this.siswaList.filter(siswa => {
+                return Object.keys(siswa).some(key => {
+                    return String(siswa[key]).toLowerCase().includes(query);
+                });
+            });
         },
-        // Paginate daftar siswa
         paginatedSiswaList() {
-            const startIndex = (this.currentPage - 1) * this.rowsPerPage;
-            const endIndex = startIndex + this.rowsPerPage;
-            return this.siswaList.slice(startIndex, endIndex);
+            const start = (this.currentPage - 1) * this.rowsPerPage;
+            const end = start + this.rowsPerPage;
+            return this.filteredSiswaList.slice(start, end);
         },
         // Total halaman berdasarkan jumlah siswa
         totalPages() {
@@ -474,6 +579,12 @@ export default {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
             const endRow = Math.min(this.currentPage * this.rowsPerPage, this.siswaList.length);
             return `Showing ${startRow} - ${endRow} of ${this.siswaList.length} entries`;
+        },
+        getKelasNama() {
+            return (kelas_id) => {
+                const kelas = this.kelasList.find(k => k.id === kelas_id);
+                return kelas ? kelas.nama_kelas : 'Tidak ada kelas';
+            };
         },
     },
 };
@@ -486,28 +597,81 @@ export default {
     align-items: flex-start;
 }
 
+/* Overlay modal */
 .modal-overlay {
     position: fixed;
+    z-index: 1200;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1050;
 }
 
-/* Modal Content */
-.modal-content-siswa {
-    background: rgb(255, 255, 255);
-    padding: 1.5rem;
-    border-radius: 10px;
-    width: 30%;
-    max-width: 250px;
+/* Konten modal */
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: left;
+}
+
+/* Header modal */
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+}
+
+/* Tombol close */
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+}
+
+/* Layout dua kolom */
+.filter-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.column {
+    width: 48%;
+}
+
+/* Tahun ajaran dropdown */
+.tahun-ajaran {
+    margin-top: 15px;
+}
+
+.tahun-ajaran-dropdown {
+    display: flex;
+    gap: 10px;
+    margin-top: 5px;
+}
+
+/* Footer modal */
+.modal-footer {
+    text-align: right;
+    margin-top: 15px;
+}
+
+/* Tombol save */
+.save-btn {
+    background: blue;
+    color: white;
+    padding: 8px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
 /* Filter Rows */
@@ -516,16 +680,16 @@ export default {
     flex-direction: column;
     align-items: flex-start;
     margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .col {
     display: flex;
     margin-bottom: 0.3rem;
     align-items: center;
-}
-
-.checkbox {
-    margin-right: 0.5rem;
+    width: calc(50% - 0.5rem);
 }
 
 label {
@@ -533,43 +697,6 @@ label {
     white-space: nowrap;
     width: calc(100% - 30px);
     color: #636364;
-}
-
-.breadcrumb {
-    margin-top: 3.5rem;
-}
-
-.header-text {
-    margin: 0;
-    font-weight: 800;
-    color: #336C2A;
-}
-
-.btn-add-siswa {
-    text-decoration: none;
-    background: #46943a;
-    color: white;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    right: 12px;
-    width: auto;
-}
-
-.btn-add-siswa:hover {
-    color: white;
-    background: #336C2A;
-    transform: translateY(-2px);
-    text-decoration: none;
-}
-
-.btn-add-siswa i {
-    font-size: 1rem;
 }
 
 .select-rows-student {
@@ -591,11 +718,11 @@ label {
     width: 73rem;
     max-width: 150rem;
     overflow-x: auto;
-    background-color: white;
+    background-color: #ffffff;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .row-filter-wrapper {
@@ -651,6 +778,7 @@ label {
 }
 
 .checkbox {
+    margin-right: 0.5rem;
     position: relative;
     width: 16px;
     height: 16px;
@@ -678,6 +806,43 @@ label {
     border: solid white;
     border-width: 0 2px 2px 0;
     transform: rotate(45deg);
+}
+
+.breadcrumb {
+    margin-top: 3.5rem;
+}
+
+.header-text {
+    margin: 0;
+    font-weight: 800;
+    color: #336C2A;
+}
+
+.btn-add-siswa {
+    text-decoration: none;
+    background: #46943a;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    right: 12px;
+    width: auto;
+}
+
+.btn-add-siswa:hover {
+    color: white;
+    background: #336C2A;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
+.btn-add-siswa i {
+    font-size: 1rem;
 }
 
 .tampil-baris {
@@ -724,7 +889,7 @@ label {
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .data-table {
@@ -816,7 +981,6 @@ label {
     padding: 20px;
     position: relative;
     height: 150px;
-    /* Tinggi baris agar elemen berada di tengah */
 }
 
 .no-data-content {
@@ -826,7 +990,6 @@ label {
     align-items: center;
     justify-content: center;
     height: 100%;
-    /* Pastikan isi memenuhi tinggi */
     position: absolute;
     top: 0;
     left: 0;

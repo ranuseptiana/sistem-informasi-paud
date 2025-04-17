@@ -1,15 +1,15 @@
 <template>
 <!--Main Navigation-->
 <header>
-    <nav class="navbar navbar-expand-lg bg-body-tertiary fixed-top">
+    <nav class="navbar navbar-expand-lg fixed-top">
         <div class="container-fluid">
             <!-- Brand -->
             <a class="navbar-brand" href="#">
                 <img src="/src/assets/paud.png" alt="Logo" class="main-logo">
                 <span class="main-brand-text">PAUD Al Ummah</span>
             </a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
-            data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
+            <!-- Button Offcanvas -->
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false" aria-label="Toggle navigation">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <!-- navbar content -->
@@ -17,7 +17,7 @@
                 <!-- navbar links -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-menu">
                     <router-link to="/adminmainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
-                        Dashboard
+                        Beranda
                     </router-link>
                     <router-link to="/adminmainsidebar/student" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'student' }" @click="setActive('student')">
                         Siswa
@@ -127,20 +127,31 @@ export default {
 </script>
 
 <style>
+main {
+    transition: margin-left 0.3s ease;
+}
+
 /* Navbar styling */
 .navbar {
-    background-color: white;
     z-index: 1000;
     position: sticky;
     top: 0;
-    z-index: 1000;
+    width: 100%;
+    max-width: 100%;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
     display: flex;
     align-items: center;
+    position: sticky;
+    font-family: "Nunito Sans", sans-serif;
+}
+
+.fixed-top {
+    background-color: #fff;
 }
 
 .navbar-brand {
-    margin-left: 3.8rem;
+    margin-left: 5rem;
+    font-family: "Poppins", sans-serif;
 }
 
 .container-fluid {
@@ -180,7 +191,7 @@ export default {
 }
 
 .nav-link:hover {
-    color: green;
+    color: green !important;
 }
 
 /* Styling for menu items */
@@ -194,13 +205,23 @@ export default {
     margin-bottom: 15px;
     transition: color 0.3s ease;
     font-size: 24px;
-    color: #336C2A;
+}
+
+.w3-bar-item {
+    display: flex;
+    padding: 10px;
+    color: #6c757d;
+    font-size: 16px;
+    justify-content: flex-start;
+    gap: 10px;
+    margin-bottom: 15px;
+    transition: color 0.3s ease;
 }
 
 /* Active menu item */
 .w3-bar-item.active,
 .w3-bar-item:hover {
-    color: #336C2A;
+    color: #336C2A !important;
     font-weight: 800;
     background: none !important;
 }
@@ -274,6 +295,25 @@ export default {
 }
 
 /* Responsive adjustments */
+@media (max-width: 768px) {
+    .navbar-brand {
+        margin-left: 1rem;
+    }
+    .main-logo {
+        height: 30px; /* Lebih kecil untuk HP */
+    }
+    .main-brand-text {
+        font-size: 1rem;
+    }
+    .profile-link {
+        margin-right: 1rem;
+    }
+    .profile-dropdown {
+        right: 10px;
+        width: auto;
+    }
+}
+
 @media (max-width: 991.98px) {
     .navbar-toggler {
         display: inline-block;
@@ -289,4 +329,19 @@ export default {
         display: none;
     }
 }
+
+@media (min-width: 361px) and (max-width: 480px) {
+    .navbar-collapse {
+        width: 100%;
+    }
+    .nav-menu {
+        flex-direction: column;
+        margin-left: 0;
+        text-align: center;
+        gap: 10px;
+    }
+    .navbar-nav {
+        margin-right: 0;
+    }
+ }
 </style>

@@ -73,7 +73,7 @@
             </div>
         <div class="table-wrapper-ortu">
             <!-- Table Section -->
-            <table class="table data-table">
+            <table class="table data-table table-hover">
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
@@ -98,20 +98,20 @@
                 <tbody>
                     <tr v-for="(ortu, index) in paginatedOrtuList" :key="ortu.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.noKK">{{ ortu.no_kk }}</td>
-                        <td v-if="selectedFilters.nikAyah">{{ ortu.nik_ayah }}</td>
-                        <td v-if="selectedFilters.namaAyah">{{ ortu.nama_ayah }}</td>
+                        <td v-if="selectedFilters.noKK">{{ ortu.no_kk ? ortu.no_kk : 'Data tidak ditemukan' }}</td>
+                        <td v-if="selectedFilters.nikAyah">{{ ortu.nik_ayah ? ortu.nik_ayah : 'Data tidak ditemukan' }}</td>
+                        <td v-if="selectedFilters.namaAyah">{{ ortu.nama_ayah ? ortu.nama_ayah : 'Data tidak ditemukan' }}</td>
                         <td v-if="selectedFilters.tahunLahirAyah">{{ ortu.tahun_lahir_ayah }}</td>
                         <td v-if="selectedFilters.pendidikanAyah">{{ ortu.pendidikan_ayah }}</td>
                         <td v-if="selectedFilters.pekerjaanAyah">{{ ortu.pekerjaan_ayah }}</td>
                         <td v-if="selectedFilters.penghasilanAyah">{{ ortu.penghasilan_ayah }}</td>
-                        <td v-if="selectedFilters.nikIbu">{{ ortu.nik_ibu }}</td>
-                        <td v-if="selectedFilters.namaIbu">{{ ortu.nama_ibu }}</td>
+                        <td v-if="selectedFilters.nikIbu">{{ ortu.nik_ibu ? ortu.nik_ibu : 'Data tidak ditemukan' }}</td>
+                        <td v-if="selectedFilters.namaIbu">{{ ortu.nama_ibu ? ortu.nama_ibu : 'Data tidak ditemukan' }}</td>
                         <td v-if="selectedFilters.tahunLahirIbu">{{ ortu.tahun_lahir_ibu }}</td>
                         <td v-if="selectedFilters.pendidikanIbu">{{ ortu.pendidikan_ibu }}</td>
                         <td v-if="selectedFilters.pekerjaanIbu">{{ ortu.pekerjaan_ibu }}</td>
                         <td v-if="selectedFilters.penghasilanIbu">{{ ortu.penghasilan_ibu }}</td>
-                        <td v-if="selectedFilters.noHp">{{ ortu.no_telp }}</td>
+                        <td v-if="selectedFilters.noHp">{{ ortu.no_telp ? ortu.no_telp : 'Data tidak ditemukan'}}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -126,7 +126,7 @@
                         </td>
                     </tr>
                     <tr v-if="paginatedOrtuList.length === 0" class="no-data">
-                        <td colspan="7" class="no-data-cell">
+                        <td colspan="9" class="no-data-cell">
                             <div class="no-data-content">
                                 <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
                                 <p class="no-data-text">Tidak ada data</p>
@@ -372,9 +372,10 @@ export default {
             }
         },
         editOrtu(id) {
+            this.dropdownIndex = null;
+            
             this.$router.push(`/adminmainsidebar/addParents/${id}`);
         },
-       
         async deleteOrtu(orangtuaId) {
             try {
                 const confirmDelete = await Swal.fire({
@@ -425,17 +426,21 @@ export default {
             return pages;
         },
         filteredOrtuList() {
-            return this.ortuList.filter((ortu) => {
-                return ortu.nama_ayah ?.toLowerCase().includes(this.searchQuery.toLowerCase());
+            if (!this.searchQuery) {
+                return this.ortuList; // Jika tidak ada pencarian, tampilkan semua data
+            }
+
+            const query = this.searchQuery.toLowerCase();
+            return this.ortuList.filter(ortu => {
+                return Object.keys(ortu).some(key => {
+                    return ortu[key] && String(ortu[key]).toLowerCase().includes(query);
+                });
             });
-        },
-        isEditMode() {
-            return this.editOrtu !== null;
         },
         paginatedOrtuList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
-            return this.ortuList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
+            return this.filteredOrtuList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
         },
         totalPages() {
             return Math.ceil(this.ortuList.length / this.rowsPerPage);
@@ -574,11 +579,11 @@ label {
     width: 73rem;
     max-width: 150rem;
     overflow-x: auto;
-    background-color: white;
+    background-color: #ffffff;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .row-filter-wrapper {
@@ -597,13 +602,12 @@ label {
 }
 
 .filter-btn {
-    background-color: white;
     color: #6E736D;
     font-weight: 600;
     padding: 4px;
     width: 7rem;
     border-radius: 10px;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     background-color: #ffffff;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
     transition: border-color 0.3s ease;
@@ -676,11 +680,10 @@ label {
 .search-bar-container {
     display: flex;
     align-items: center;
-    margin-left: auto;
-    border: 1px solid #e2e2e286;
+    border: 1px solid #d6d6d686;
     padding: 5px 0.5rem;
-    width: 10%; 
-    min-width: 150px; 
+    border-radius: 10px;
+    width: fit-content;
     background-color: white;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
 }
@@ -701,6 +704,10 @@ label {
     border-color: #636364;
 }
 
+.search-bar-container:focus-within {
+    border-color: #636364;
+}
+
 .table-wrapper-ortu {
     width: 73rem; 
     max-width: 150rem;
@@ -709,7 +716,7 @@ label {
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .data-table {
@@ -720,15 +727,36 @@ label {
     table-layout: auto;
 }
 
+.table-hover>tbody>tr:hover {
+    font-weight: 800;
+    background-color: #6c757d;
+}
+
+.data-table td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
 .data-table th,
 .data-table td {
     padding: 12px 8px;
+    min-width: 120px;
+    white-space: nowrap;
     text-align: left;
 }
 
 .data-table .table-head {
     font-weight: 800;
     color: #336C2A;
+}
+
+.data-table th:first-child,
+.data-table td:first-child {
+    width: 50px;
+    min-width: 50px;
+    max-width: 50px;
+    text-align: center;
 }
 
 .data-table td:last-child,
@@ -831,5 +859,65 @@ label {
     z-index: 3;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
+}
+
+.no-data-cell {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    height: 150px;
+}
+
+.no-data-content {
+    display: flex;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
+.no-data-text {
+    font-size: 16px;
+    color: #6c757d;
+    /* Warna teks abu-abu */
+}.no-data-cell {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    height: 150px;
+}
+
+.no-data-content {
+    display: flex;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
+.no-data-text {
+    font-size: 16px;
+    color: #6c757d;
+    /* Warna teks abu-abu */
 }
 </style>
