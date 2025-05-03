@@ -265,7 +265,9 @@ export default {
         const relasiKelasList = ref([]);
 
         const fetchGuruList = () => {
-            axios.get("/guru", { withCredentials: true })
+            axios.get("/guru", {
+                    withCredentials: true
+                })
                 .then((res) => {
                     guruList.value = res.data.data;
                 })
@@ -317,7 +319,8 @@ export default {
         });
 
         return {
-            guruWithKelas, // Gunakan ini untuk menampilkan data di template
+            guruWithKelas,
+            fetchGuruList,
         };
     },
     methods: {
@@ -381,7 +384,7 @@ export default {
         },
         editGuru(id) {
             this.dropdownIndex = null;
-            
+
             this.$router.push(`/adminmainsidebar/addTeachers/${id}`);
         },
         // Fungsi untuk menghapus kelas berdasarkan ID
@@ -398,17 +401,14 @@ export default {
                 });
 
                 if (confirmDelete.isConfirmed) {
-                    // Kirim permintaan DELETE ke backend
                     const response = await axios.delete(`/guru/${guruId}`);
 
-                    // Tampilkan pesan sukses
-                    Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
+                    Swal.fire('Terhapus!', 'Data guru berhasil dihapus.', 'success');
 
-                    // Hapus kelas dari KelasList di frontend
-                    this.guruList = this.guruList.filter(guru => guru.id !== guruId);
+                    this.fetchGuruList();
                 }
             } catch (error) {
-                Swal.fire('Error', 'Gagal menghapus data kelas!', 'error');
+                Swal.fire('Error', 'Gagal menghapus data guru!', 'error');
             }
         },
     },
@@ -450,12 +450,6 @@ export default {
             return `Showing ${startRow} - ${endRow} of ${this.guruWithKelas.length} entries`;
         },
     },
-    mounted() {
-        // console.log(this.guruList);
-        // this.guruList = this.guruList.filter(
-        //     (item, index, self) => index === self.findIndex((t) => t.id === item.id)
-        // );
-    }
 };
 </script>
 
@@ -758,6 +752,7 @@ label {
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     padding: 10px;
+    transform: translateX(-30px);    
     border-radius: 8px;
     display: none;
     z-index: 1000;

@@ -22,7 +22,12 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="noKK">No KK</label>
-                            <input type="text" v-model="form.no_kk" id="noKK" placeholder="Masukkan nomor KK" required :disabled="isEdit" />
+                            <select v-model="form.no_kk">
+                                <option value="" disabled>No KK</option>
+                                <option v-for="orangtua in nomorKartuList" :key="orangtua.id" :value="orangtua.no_kk" required :disabled="isEdit">
+                                        {{ orangtua.no_kk }}
+                                </option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="nik">NIK</label>
@@ -106,7 +111,7 @@
                             </select>
                         </div>
                     </div>
-                    <div class="row" style="margin-bottom: 1rem;">
+                    <div class="row">
                         <div class="form-group">
                             <label for="beratBadan">Berat Badan</label>
                             <input type="number" v-model="form.berat_badan" id="beratBadan" />
@@ -117,7 +122,23 @@
                         </div>
                         <div class="form-group">
                             <label for="lingkarKepala">Lingkar Kepala</label>
-                            <input type="number" v-model="form.lingkar_kepala" id="tinggiBadan" />
+                            <input type="number" v-model="form.lingkar_kepala" id="lingkarKepala" />
+                        </div>
+                    </div>
+                    <div class="row" style="margin-bottom: 1rem;">
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <input type="text" v-model="form.status" id="status" />
+                        </div>
+                        <div class="form-group">
+                            <label for="tahunAjaran">Tahun Ajaran</label>
+                            <select v-model="form.tahun_ajaran_id">
+                                <option value="" disabled>Pilih Tahun Ajaran</option>
+                                <option v-for="tahun_ajaran in tahunAjaranList" :key="tahun_ajaran.id" :value="tahun_ajaran.id">
+                                    {{ tahun_ajaran.tahun }}
+                                </option>
+                            </select>
+
                         </div>
                     </div>
                 </form>
@@ -153,10 +174,14 @@ export default {
                 jumlah_saudara: '',
                 berat_badan: '',
                 lingkar_kepala: '',
-                kelas_id: ''
+                kelas_id: '',
+                tahun_ajaran_id: '',
+                status: '',
             },
             siswaList: [],
+            nomorKartuList: [],
             kelasList: [],
+            tahunAjaranList: [],
             jenisKelamin: "",
             anakKe: "",
             jumlahSaudara: "",
@@ -164,16 +189,65 @@ export default {
         }
     },
     methods: {
+        async getSiswaData() {
+            try {
+                const response = await axios.get(`http://localhost:8000/api/siswa/${this.$route.params.id}`);
+                console.log('Data Siswa:', response.data);
+
+                let siswa = response.data.data;
+
+                // Periksa apakah tanggal_lahir ada dan ubah formatnya ke yyyy-MM-dd
+                if (siswa.tanggal_lahir) {
+                    let tanggalLahirArray = siswa.tanggal_lahir.split('-'); // ["21", "12", "2019"]
+                    siswa.tanggal_lahir = `${tanggalLahirArray[2]}-${tanggalLahirArray[1]}-${tanggalLahirArray[0]}`; // "2019-12-21"
+                }
+
+                this.form = siswa;
+                this.isEdit = true;
+            } catch (error) {
+                this.isEdit = false;
+                Swal.fire("Gagal", "Data siswa tidak ditemukan.", "error");
+            }
+        },
+        async getNomorKartuList() {
+            try {
+                const response = await axios.get(`http://localhost:8000/api/orangtua/${this.$route.params.id}`);
+                console.log('Data No KK:', response.data);
+
+                if (response.data && response.data.data) {
+                    this.nomorKartuList = response.data.data;
+                } else {
+                    console.error("Data kk tidak ditemukan dalam respons API.");
+                }
+            } catch (error) {
+                console.error("Gagal mengambil daftar kk:", error);
+                this.nomorKartuList = [];
+            }
+        },
         async getKelasList() {
             try {
                 const response = await axios.get('http://localhost:8000/api/kelas');
-                console.log("Response API Kelas:", response.data); // Debugging
+                console.log("Response API Kelas:", response.data);
 
-                // Karena daftar kelas ada di response.data.data.data
-                this.kelasList = response.data.data.data;
+                this.kelasList = response.data.data;
             } catch (error) {
                 console.error("Gagal mengambil daftar kelas:", error);
-                this.kelasList = []; // Pastikan tetap array agar tidak error
+                this.kelasList = [];
+            }
+        },
+        async getTahunAjaranList() {
+            try {
+                const response = await axios.get('http://localhost:8000/api/tahunajaran');
+                console.log("Response API Tahun Ajaran:", response.data);
+
+                if (response.data && response.data) {
+                    this.tahunAjaranList = response.data;
+                } else {
+                    console.error("Data tahun ajaran tidak ditemukan dalam respons API.");
+                }
+            } catch (error) {
+                console.error("Gagal mengambil daftar tahun ajaran:", error);
+                this.tahunAjaranList = [];
             }
         },
         async simpanSiswa() {
@@ -183,7 +257,12 @@ export default {
             }
             try {
                 const payload = {
-                    ...this.form
+                    ...this.form,
+                    anak_ke: Number(this.form.anak_ke),
+                    jumlah_saudara: Number(this.form.jumlah_saudara),
+                    berat_badan: Number(this.form.berat_badan),
+                    lingkar_kepala: Number(this.form.lingkar_kepala),
+                    kelas_id: Number(this.form.kelas_id),
                 };
                 console.log("Payload yang dikirim:", payload);
 
@@ -201,31 +280,7 @@ export default {
                 this.$router.push('/adminmainsidebar/student');
             } catch (error) {
                 Swal.fire("Gagal", error.response ?.data ?.message || "Terjadi kesalahan", "error");
-                console.log("Error:", )
-            }
-        },
-
-        async getSiswaData() {
-            try {
-                const response = await axios.get(`http://localhost:8000/api/siswa/${this.$route.params.id}`);
-                console.log('Data Siswa:', response.data);
-
-                // Ambil data siswa dari respons API
-                let siswa = response.data.data;
-
-                // Periksa apakah tanggal_lahir ada dan ubah formatnya ke yyyy-MM-dd
-                if (siswa.tanggal_lahir) {
-                    let tanggalLahirArray = siswa.tanggal_lahir.split('-'); // ["21", "12", "2019"]
-                    siswa.tanggal_lahir = `${tanggalLahirArray[2]}-${tanggalLahirArray[1]}-${tanggalLahirArray[0]}`; // "2019-12-21"
-                }
-
-                // Simpan data siswa ke form
-                this.form = siswa;
-                console.log('Data Siswa setelah diproses:', this.form);
-                this.isEdit = true;
-            } catch (error) {
-                this.isEdit = false;
-                Swal.fire("Gagal", "Data siswa tidak ditemukan.", "error");
+                console.log("Error:", error.response ?.data);
             }
         },
         resetForm() {
@@ -243,12 +298,16 @@ export default {
                 jumlah_saudara: '',
                 berat_badan: '',
                 lingkar_kepala: '',
-                kelas_id: ''
+                kelas_id: '',
+                tahun_ajaran_id: '', // ini tambahan
+                status: '',
             };
         }
     },
     mounted() {
         this.getKelasList();
+        this.getTahunAjaranList();
+        this.getNomorKartuList();
 
         if (this.$route.params.id) {
             console.log('ID Siswa:', this.$route.params.id);

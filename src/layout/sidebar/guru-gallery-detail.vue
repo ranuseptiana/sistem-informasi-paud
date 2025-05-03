@@ -3,12 +3,15 @@
     <section class="content-header">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Kelas</li>
+                <li class="breadcrumb-item">
+                    <router-link to="/adminmainsidebar/gallery">Galeri</router-link>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Detail Galeri</li>
             </ol>
         </nav>
         <div class="header-button">
-            <h3 class="header-text">Kelas</h3>
-            <button class="btn-add-class" @click="prepareTambahKelas">Tambah Data
+            <h3 class="header-text">Detail Galeri</h3>
+            <button class="btn-add-class" @click="prepareTambahFoto">Tambah Data
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
@@ -26,44 +29,29 @@
                         <option value="100">All</option>
                     </select>
                 </div>
-                <div class="export-section">
-                    <button class="btn btn-danger" @click="exportData('pdf')">
-                        <i class="fa fa-file-pdf" aria-hidden="true"></i>
-                        PDF
-                    </button>
-                    <button class="btn btn-success" @click="exportData('excel')">
-                        <i class="fa fa-file-excel" aria-hidden="true"></i>
-                        Excel
-                    </button>
-                </div>
             </div>
             <!-- Modal -->
             <div class="custom-modal" v-if="showModal">
                 <div class="custom-modal-dialog">
                     <div class="custom-modal-content">
                         <div class="custom-modal-header">
-                            <h5 class="custom-modal-title">{{ isEditing ? 'Edit Data Kelas' : 'Tambah Data Kelas' }}</h5>
+                            <h5 class="custom-modal-title">Tambah Foto</h5>
                             <button type="button" class="close-btn" @click="closeModal">&times;</button>
                         </div>
-                        <form @submit.prevent="simpanKelas">
+                        <form @submit.prevent="simpanFoto">
                             <div class="custom-modal-body">
                                 <div class="form-group-kelas">
-                                    <label for="namaKelas">Nama Kelas</label>
-                                    <input type="text" id="namaKelas" v-model="form.nama_kelas" class="form-input" />
+                                    <label for="pathFoto">Foto</label>
+                                    <input type="file" id="pathFoto" @change="handleFileChange" class="form-input" />
                                 </div>
                                 <div class="form-group-kelas">
-                                    <label for="namaKelas">Guru Pengajar</label>
-                                    <select v-model="form.guru_id">
-                                        <option value="" disabled>Pilih Guru</option>
-                                        <option v-for="guru in GuruList" :key="guru.id" :value="guru.id">
-                                            {{ guru.nama_lengkap }}
-                                        </option>
-                                    </select>
+                                    <label for="caption">Caption</label>
+                                    <input type="text" id="caption" v-model="form.caption" class="form-input" />
                                 </div>
                             </div>
                             <div class="custom-modal-footer">
                                 <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
-                                <button type="submit" class="btn-save">{{ isEditing ? 'Simpan Perubahan' : 'Simpan Data' }}</button>
+                                <button type="submit" class="btn-save">Tambah Data</button>
                             </div>
                         </form>
                     </div>
@@ -80,18 +68,18 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaKelas">Nama Kelas</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jumlahSiswa">Jumlah Siswa</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaGuru">Guru Pengajar</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.pathFoto">Foto</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.caption">Caption</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(kelas, index) in paginatedKelasList" :key="kelas.id">
+                    <tr v-for="(foto, index) in paginatedFotoList" :key="foto.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.namaKelas">{{ kelas['nama_kelas'] }}</td>
-                        <td v-if="selectedFilters.jumlahSiswa">{{ kelas['jumlah_siswa'] }}</td>
-                        <td v-if="selectedFilters.namaGuru">{{ kelas['nama_guru'] }}</td>
+                        <td v-if="selectedFilters.pathFoto">
+                            <img :src="`http://localhost:8000/${foto['path_foto']}`" alt="Foto Album" style="width: 100px; height: auto;" />
+                        </td>
+                        <td v-if="selectedFilters.caption">{{ foto['caption'] }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -99,13 +87,12 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }">
-                                    <button class="popup-item" @click="prepareEditKelas(kelas.id)" style="color: #274278">Edit</button>
-                                    <button class="popup-item" @click="deleteKelas(kelas.id)" style="color: red">Hapus</button>
+                                    <button class="popup-item" @click="deleteFoto(foto.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="KelasList.length === 0" class="no-data">
+                    <tr v-if="FotoList.length === 0" class="no-data">
                         <td colspan="7" class="no-data-cell">
                             <div class="no-data-content">
                                 <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
@@ -162,14 +149,11 @@
 </div>
 </template>
 
+    
 <script>
 import "jspdf-autotable";
 import Swal from "sweetalert2";
 import axios from 'axios';
-import {
-    ref,
-    onMounted
-} from 'vue';
 
 export default {
     data() {
@@ -178,84 +162,83 @@ export default {
             rowsPerPage: 5,
             currentPage: 1,
             openModal: false,
-            isEditing: false,
             dropdownIndex: null,
             searchQuery: '',
-            GuruList: [],
             showModal: false,
+            albumId: null,
+            FotoList: [],
             isFilterPopupVisible: false,
             selectedFilters: {
-                namaKelas: true,
-                jumlahSiswa: true,
-                namaGuru: true
+                pathFoto: true,
+                caption: true,
             },
-            headerMapping: {
-                namaKelas: 'Nama Kelas',
-                jumlahSiswa: 'Jumlah Siswa',
-                namaGuru: 'Nama Guru'
-            },
-            newKelas: {
-                nama_kelas: '',
-                guru_id: '',
+            newFoto: {
+                path_foto: '',
+                caption: '',
             },
             form: {
-                nama_kelas: '',
-                guru_id: '',
+                file: null,
+                caption: '',
             },
             errors: {},
         };
     },
     methods: {
-        prepareTambahKelas() {
+        handleFileChange(event) {
+            const file = event.target.files[0];
+            if (file) {
+                this.form.file = file; // Simpan file ke dalam form
+            } else {
+                console.error("Tidak ada file yang dipilih!");
+            }
+        },
+        fetchFotoList() {
+            axios.get('/foto')
+                .then((res) => {
+                    console.log("Response dari backend:", res.data);
+                    if (res.data && Array.isArray(res.data.data)) {
+                        this.FotoList = res.data.data;
+                    } else {
+                        console.error("Data tidak sesuai:", res.data);
+                        this.FotoList = [];
+                    }
+                })
+                .catch((error) => {
+                    console.error("Gagal mengambil data foto:", error);
+                });
+        },
+        prepareTambahFoto() {
             this.form = {
                 id: null,
-                nama_kelas: "",
-                guru_id: '',
-            }; 
-            this.isEditing = false;
-            this.showModal = true; 
-        },
-        prepareEditKelas(id) {
-            this.dropdownIndex = null;
-            
-            const kelas = this.KelasList.find(k => k.id === id); 
-            if (kelas) {
-                this.form = {
-                    ...kelas
-                }; 
-                this.isEditing = true; 
-                this.showModal = true; 
-            }
-        },
-        async simpanKelas() {
-            const payload = {
-                nama_kelas: this.form.nama_kelas,
-                guru_id: this.form.guru_id
+                path_foto: '',
+                caption: '',
             };
+            this.isEditing = false;
+            this.showModal = true;
+        },
+        async simpanFoto() {
+            const formData = new FormData();
+            formData.append('file', this.form.file); // Kirim file
+            formData.append('caption', this.form.caption); // Kirim caption
+
+            console.log("FormData:", formData); // Cek formData
 
             try {
-                if (this.isEditing) {
-                    // Mode Edit (Update Data)
-                    await axios.put(`/kelas/${this.form.id}`, payload);
-                    Swal.fire('Berhasil', 'Data kelas berhasil diperbarui!', 'success');
-                } else {
-                    // Mode Tambah Data Baru
-                    await axios.post('/kelas', payload);
-                    Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success');
-                }
+                const response = await axios.post('http://localhost:8000/api/foto', formData, {
+                    headers: {
+                        'Content-Type': 'multipart/form-data', // Pastikan header ini sesuai
+                    },
+                });
 
-                this.closeModal(); 
-                this.fetchKelasList(); 
+                Swal.fire('Berhasil', 'Data foto berhasil disimpan!', 'success');
+                this.closeModal();
+                this.fetchFotoList();
             } catch (error) {
-                if (error.response && error.response.status === 422) {
-                    this.errors = error.response.data.errors;
-                } else {
-                    console.error(error);
-                    Swal.fire('Error', 'Gagal menyimpan data kelas!', 'error');
-                }
+                console.error(error);
+                Swal.fire('Error', 'Gagal menyimpan data foto!', 'error');
             }
         },
-        async deleteKelas(kelasId) {
+        async deleteFoto(fotoId) {
             try {
                 // Konfirmasi penghapusan data
                 const confirmDelete = await Swal.fire({
@@ -268,17 +251,12 @@ export default {
                 });
 
                 if (confirmDelete.isConfirmed) {
-                    // Kirim permintaan DELETE ke backend
-                    const response = await axios.delete(`/kelas/${kelasId}`);
-
-                    // Tampilkan pesan sukses
-                    Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
-
-                    // Hapus kelas dari KelasList di frontend
-                    this.KelasList = this.KelasList.filter(kelas => kelas.id !== kelasId);
+                    const response = await axios.delete(`/foto/${fotoId}`);
+                    Swal.fire('Terhapus!', 'Data foto berhasil dihapus.', 'success');
+                    this.FotoList = this.FotoList.filter(foto => foto.id !== fotoId);
                 }
             } catch (error) {
-                Swal.fire('Error', 'Gagal menghapus data kelas!', 'error');
+                Swal.fire('Error', 'Gagal menghapus data foto!', 'error');
             }
         },
         changePage(page) {
@@ -286,86 +264,34 @@ export default {
                 this.currentPage = page;
             }
         },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
-            return this.KelasList.map((kelas, index) => {
-                const filteredKelas = {
+            return this.FotoList.map((foto, index) => {
+                const filteredFoto = {
                     No: index + 1,
                 };
                 Object.keys(this.selectedFilters).forEach((key) => {
                     if (this.selectedFilters[key]) {
-                        filteredKelas[key] = kelas[key];
+                        filteredFoto[key] = foto[key];
                     }
                 });
-                return filteredKelas;
+                return filteredFoto;
             });
         },
         closeModal() {
             this.showModal = false;
-            this.newKelas.nama_kelas = '';
+            this.newFoto.path_foto = '';
+            this.newFoto.caption = '';
             this.resetForm();
         },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
         resetForm() {
-            this.newKelas = {
-                nama_kelas: "",
+            this.newFoto = {
+                path_foto: "",
+                caption: ""
             };
         },
-    },
-    //untuk menampilkan data kelas
-    setup() {
-        const kelas = ref([]);
-        const KelasList = ref([]); 
-        const guru = ref([]);
-        const GuruList = ref([]);
-
-        const fetchKelasList = () => {
-            axios.get('/kelas')
-                .then((res) => {
-                    console.log("Response dari backend:", res.data);
-                    if (res.data && Array.isArray(res.data.data)) {
-                        KelasList.value = res.data.data;
-                    } else {
-                        console.error("Data tidak sesuai:", res.data);
-                        KelasList.value = [];
-                    }
-                })
-                .catch((error) => {
-                    console.error("Gagal mengambil data kelas:", error);
-                });
-        };
-
-        const fetchGuruList = () => {
-            axios.get('/guru')
-                .then((res) => {
-                    console.log("Response dari backend:", res.data);
-                    if (res.data && Array.isArray(res.data.data)) {
-                        GuruList.value = res.data.data;
-                    } else {
-                        console.error("Data tidak sesuai:", res.data);
-                        GuruList.value = [];
-                    }
-                })
-                .catch((error) => {
-                    console.error("Gagal mengambil data guru:", error);
-                });
-        };
-
-        onMounted(() => {
-            fetchKelasList();
-            fetchGuruList();
-        });
-
-        return {
-            kelas,
-            KelasList,
-            guru,
-            GuruList,
-            fetchKelasList,
-            fetchGuruList
-        };
     },
     computed: {
         showLeftEllipsis() {
@@ -392,32 +318,39 @@ export default {
             }
             return pages;
         },
-        filteredKelasList() {
+        filteredFotoList() {
             const query = this.searchQuery.toLowerCase();
-            return this.KelasList.filter(kelas => {
-                return Object.keys(kelas).some(key => {
-                    return kelas[key] && String(kelas[key]).toLowerCase().includes(query);
+            return this.FotoList
+                .filter(foto => foto.album_id === this.albumId)
+                .filter(foto => {
+                    return Object.keys(foto).some(key => {
+                        return foto[key] && String(foto[key]).toLowerCase().includes(query);
+                    });
                 });
-            });
         },
-        paginatedKelasList() {
+        paginatedFotoList() {
             let start = (this.currentPage - 1) * this.rowsPerPage;
-            return this.filteredKelasList.slice(start, start + this.rowsPerPage);
+            return this.filteredFotoList.slice(start, start + this.rowsPerPage);
         },
         totalPages() {
-            return Math.ceil(this.KelasList.length / this.rowsPerPage);
+            return Math.ceil(this.filteredFotoList.length / this.rowsPerPage);
         },
         pageInfo() {
-            if (this.filteredKelasList.length === 0) {
+            if (this.filteredFotoList.length === 0) {
                 return 'Tidak ada data';
             }
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredKelasList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.filteredKelasList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredFotoList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.filteredFotoList.length} entries`;
         },
     },
     mounted() {
         document.addEventListener('click', this.handleClickOutside);
+
+        this.albumId = parseInt(this.$route.params.id);
+        console.log('Album ID:', this.albumId);
+
+        this.fetchFotoList();
     },
     beforeDestroy() {
         document.removeEventListener('click', this.handleClickOutside);
@@ -607,7 +540,6 @@ export default {
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     padding: 10px;
-    transform: translateX(-30px);    
     border-radius: 8px;
     display: none;
     z-index: 1000;
@@ -738,36 +670,12 @@ export default {
 .btn-cancel:hover {
     background: #e4e3e3;
 }
+
 .form-group-kelas {
     display: flex;
-    flex-direction: column;
-    flex: 1;
-}
-
-.form-group-kelas label {
-    font-weight: 800;
-    width: 100%;
-    color: #272727;
-    margin-bottom: 0.5rem;
-    margin-top: 0.5rem;
-}
-
-.form-group-kelas input {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    width: 100%;
-    color: black;
-}
-
-.form-group-kelas select {
-    padding: 0.5rem;
-    border: 1px solid #ccc;
-    border-radius: 4px;
-    background-color: white;
-    width: 100%;
-    color: black;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 5px;
 }
 
 label {

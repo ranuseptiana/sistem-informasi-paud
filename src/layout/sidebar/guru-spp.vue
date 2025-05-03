@@ -212,7 +212,7 @@ export default {
 
         return {
             pembayaranSppList,
-            fetchPembayaranSppList // Return supaya bisa diakses di luar setup
+            fetchPembayaranSppList 
         };
     },
     methods: {
@@ -223,7 +223,7 @@ export default {
             if (pembayaranSpp) {
                 this.form = {
                     id: pembayaranSpp.id,
-                    nama_siswa: pembayaranSpp.siswa ?.nama_siswa || '', // Ambil dari objek siswa
+                    nama_siswa: pembayaranSpp.siswa ?.nama_siswa || '', 
                     tanggal_pembayaran: pembayaranSpp.tanggal_pembayaran || '',
                     nominal: pembayaranSpp.nominal || '',
                     bukti_pembayaran: pembayaranSpp.bukti_pembayaran || '',
@@ -414,7 +414,6 @@ label {
     height: 100%;
     background-color: rgba(0, 0, 0, 0.5);
     display: flex;
-    /* Jangan pakai display: none */
     justify-content: center;
     align-items: center;
     z-index: 1051;

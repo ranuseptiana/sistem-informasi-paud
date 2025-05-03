@@ -27,7 +27,7 @@
                     <div v-if="isDropdownVisible" class="profile-dropdown">
                         <ul>
                             <span class="dropdown-item-text">
-                                <i class="fa-regular fa-user"></i>Guru
+                                <i class="fa-regular fa-user"></i>Siswa
                             </span>
                         </ul>
                     </div>
@@ -41,7 +41,7 @@
     <!-- Sidebar -->
     <nav id="sidebarMenu" :class="{ show: sidebarOpen }" class="sidebar collapse d-lg-block">
         <div class="position-sticky mt-5" style="text-align: left;">
-            <router-link to="/gurumainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
+            <router-link to="/siswamainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
                 <span class="material-symbols-outlined">dashboard</span> Beranda
             </router-link>
 
@@ -51,10 +51,6 @@
 
             <router-link to="/gurumainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'payment' }" @click="setActive('payment')">
                 <span class="material-symbols-outlined"> payments </span> Pembayaran SPP
-            </router-link>
-
-            <router-link to="/gurumainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery')">
-                <span class="material-symbols-outlined"> photo_library </span> Galeri
             </router-link>
 
             <a href="#" class="w3-bar-item-logout w3-button-logout" :class="{ active: activeMenu === 'logout' }" @click.prevent="logout" style="text-decoration: none;">
@@ -76,7 +72,6 @@
 <!--Main layout-->
 </template>
 
-    
 <script>
 import Swal from 'sweetalert2';
 
@@ -106,8 +101,6 @@ export default {
                 this.activeMenu = 'class';
             } else if (currentPath.includes('payment')) {
                 this.activeMenu = 'payment';
-            } else if (currentPath.includes('gallery')) {
-                this.activeMenu = 'gallery';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
             }
@@ -156,7 +149,7 @@ export default {
     }
 };
 </script>
-    
+
 <style scoped>
 main {
     transition: margin-left 0.3s ease;
@@ -164,6 +157,10 @@ main {
 
 .navbar-brand {
     margin-left: 0.2rem;
+}
+
+.container {
+    margin-top: -1.5rem;
 }
 
 /* Navbar styling */
@@ -231,7 +228,6 @@ main {
     transform: translateX(0);
 }
 
-/* Sidebar styling */
 /* Sidebar styling */
 .w3-sidebar {
     width: 200px;
@@ -388,7 +384,7 @@ main {
     }
 
     /* .navbar {
-        width: 500px;
-    } */
+            width: 500px;
+        } */
 }
 </style>

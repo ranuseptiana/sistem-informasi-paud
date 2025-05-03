@@ -8,6 +8,9 @@
         </nav>
         <div class="header-button">
             <h3 class="header-text">Pembayaran SPP</h3>
+            <button class="btn-add-class" @click="prepareTambahPembayaran">Tambah Data
+                <i class="fa-solid fa-plus"></i>
+            </button>
         </div>
     </section>
     <section class="content">
@@ -32,7 +35,7 @@
                     <div>
                         <!-- Modal Filter -->
                         <div v-if="showModal" class="modal-overlay modal-overlay-filter" @click.self="toggleFilterPopup">
-                            <div class="modal-content-ortu">
+                            <div class="modal-content-spp">
                                 <div class="modal-header">
                                     <h5 class="modal-title">Filter Data SPP</h5>
                                     <button type="button" class="close-btn" @click="closeModal">&times;</button>
@@ -73,6 +76,7 @@
                     <tr>
                         <th scope="col" class="table-head">No</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.namaSiswa">Nama Siswa</th>
+                        <th scope="col" class="table-head" v-if="selectedFilters.namaKelas">Kelas Siswa</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.tglPembayaran">Tanggal Pembayaran</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.nominal">Nominal Pembayaran</th>
                         <th scope="col" class="table-head" v-if="selectedFilters.buktiPembayaran">Bukti Pembayaran</th>
@@ -85,6 +89,7 @@
                     <tr v-for="(pembayaranSpp, index) in paginatedPembayaranSppList" :key="pembayaranSpp.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
                         <td v-if="selectedFilters.namaSiswa">{{ pembayaranSpp.siswa?.nama_siswa }}</td>
+                        <td v-if="selectedFilters.namaKelas">{{ getNamaKelasBySiswaId(pembayaranSpp.siswa_id) }}</td>
                         <td v-if="selectedFilters.tglPembayaran">{{ pembayaranSpp.tanggal_pembayaran ? pembayaranSpp.tanggal_pembayaran : 'Tanggal Tidak Ditemukan' }}</td>
                         <td v-if="selectedFilters.nominal"> {{ pembayaranSpp.nominal ? formatRupiah(pembayaranSpp.nominal) : 'Nominal Belum Ditambahkan' }}</td>
                         <td v-if="selectedFilters.buktiPembayaran">{{ pembayaranSpp.bukti_pembayaran ? pembayaranSpp.bukti_pembayaran : 'Bukti Belum Ditambahkan' }}</td>
@@ -97,6 +102,7 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
+                                    <button class="popup-item" @click="prepareEditPembayaran(pembayaranSpp.id)" style="color: #274278">Detail</button>
                                     <button class="popup-item" @click="prepareEditPembayaran(pembayaranSpp.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deletePembayaranSpp(pembayaranSpp.id)" style="color: red">Hapus</button>
                                 </div>
@@ -115,54 +121,56 @@
             </table>
         </div>
         <div class="custom-modal" v-if="tampilModal">
-        <div class="custom-modal-dialog">
-            <div class="custom-modal-content">
-                <div class="custom-modal-header">
-                    <h5 class="custom-modal-title">Edit Data SPP</h5>
-                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
-                </div>
-                <form @submit.prevent="simpanSpp">
-                    <div class="custom-modal-body">
-                        <div class="form-group-spp">
-                            <label for="namaSiswa">Nama Siswa</label>
-                            <input 
-                                type="text" 
-                                id="namaSiswa" 
-                                v-model="form.nama_siswa" 
-                                class="form-input" 
-                                disabled 
-                            />
+            <div class="custom-modal-dialog">
+                <div class="custom-modal-content">
+                    <div class="custom-modal-header">
+                        <h5 class="custom-modal-title">{{ isEdit ? 'Edit Data SPP' : 'Tambah Data SPP' }}</h5>
+                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                    </div>
+                    <form @submit.prevent="simpanSpp">
+                        <div class="custom-modal-body">
+                            <div class="form-group-spp">
+                                <label for="idSiswa" style="font-weight: 700;">Nama Siswa</label>
+                                <select id="idSiswa" v-model="form.siswa_id" class="form-input" :disabled="isEdit">
+                                    <option disabled value="">-- Pilih Siswa --</option>
+                                    <option v-for="siswa in siswaList" :key="siswa.id" :value="siswa.id">
+                                        {{ siswa.nama_siswa }}
+                                    </option>
+                                </select>
 
-                            <label for="nominal">Nominal:</label>
-                            <input type="text" v-model="form.nominal" @input="formatNominal" />
+                                <div class="satu-row">
+                                    <label for="nominal">Nominal:</label>
+                                    <input type="text" v-model="form.nominal" @input="formatNominal" class="form-input" />
 
-                            <label for="tanggalPembayaran">Tanggal Pembayaran:</label>
-                            <input type="date" v-model="form.tanggal_pembayaran">
+                                    <label for="tanggalPembayaran">Tanggal Pembayaran:</label>
+                                    <input type="date" v-model="form.tanggal_pembayaran" class="form-input">
+                                </div>
 
-                            <label for="buktiPembayaran">Bukti Pembayaran:</label>
-                            <input type="text" v-model="form.bukti_pembayaran">
+                                <label for="buktiPembayaran" style="font-weight: 700;">Bukti Pembayaran:</label>
+                                <input type="text" v-model="form.bukti_pembayaran" class="form-input">
+                                <div class="satu-row">
+                                    <label for="statusPembayaran">Status Pembayaran:</label>
+                                    <select v-model="form.status_pembayaran" class="form-input">
+                                        <option value="Lunas">Lunas</option>
+                                        <option value="Belum Lunas">Belum Lunas</option>
+                                    </select>
 
-                            <label for="statusPembayaran">Status Pembayaran:</label>
-                            <select v-model="form.status_pembayaran">
-                                <option value="Lunas">Lunas</option>
-                                <option value="Belum Lunas">Belum Lunas</option>
-                            </select>
-
-                            <label for="statusRapor">Status Rapor:</label>
-                            <select v-model="form.status_rapor">
-                                <option value="Dapat Diterima">Dapat Diterima</option>
-                                <option value="Belum Dapat Diterima">Belum Dapat Diterima</option>
-                            </select>
+                                    <label for="statusRapor">Status Rapor:</label>
+                                    <select v-model="form.status_rapor" class="form-input">
+                                        <option value="Dapat Diterima">Dapat Diterima</option>
+                                        <option value="Belum Dapat Diterima">Belum Dapat Diterima</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                    <div class="custom-modal-footer">
-                        <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
-                        <button type="submit" class="btn-save">Simpan Perubahan</button>
-                    </div>
-                </form>
+                        <div class="custom-modal-footer">
+                            <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
+                            <button type="submit" class="btn-save">Simpan Perubahan</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
-    </div>
         <div class="pagination-info-ortu">
             <p class="page-info">{{ pageInfo }}</p>
             <nav aria-label="Page navigation" class="pagination-nav">
@@ -188,10 +196,8 @@
 </template>
 
 <script>
-import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Swal from "sweetalert2";
-import Papa from "papaparse";
 import axios from 'axios';
 import {
     ref,
@@ -205,23 +211,28 @@ export default {
             currentPage: 1,
             showModal: false,
             tampilModal: false,
+            isEdit: false,
             dropdownIndex: null,
-            searchQuery: '', // for filtering
+            searchQuery: '',
             selectedFilters: {
                 namaSiswa: true,
+                namaKelas: true,
                 tglPembayaran: true,
                 nominal: true,
                 buktiPembayaran: true,
                 statusPembayaran: true,
                 statusRapor: true,
             },
+            siswaList: [],
+            kelasList: [],
             pembayaranSppList: [],
-            headerMapping: {
-                noKK: 'Nomor Kartu Keluarga',
-            },
             firstRowFilters: [{
                     key: "namaSiswa",
                     label: "Nama Siswa"
+                },
+                {
+                    key: "namaKelas",
+                    label: "Nama Kelas"
                 },
                 {
                     key: "tglPembayaran",
@@ -245,13 +256,21 @@ export default {
                 }
             ],
             form: {
+                siswa_id: '',
+                tanggal_pembayaran: '',
+                nominal: '',
+                bukti_pembayaran: '',
+                status_pembayaran: '',
+                status_rapor: '',
+            },
+            newPembayaran: {
                 nama_siswa: '',
                 tanggal_pembayaran: '',
                 nominal: '',
                 bukti_pembayaran: '',
                 status_pembayaran: '',
                 status_rapor: '',
-            }
+            },
         };
     },
     setup() {
@@ -268,32 +287,72 @@ export default {
                     console.log(error.response.data.data);
                 });
         };
-
         onMounted(() => {
             fetchPembayaranSppList();
         });
-
         return {
             pembayaranSppList,
-            fetchPembayaranSppList // Return supaya bisa diakses di luar setup
+            fetchPembayaranSppList
         };
     },
     methods: {
+        fetchKelasList() {
+            axios.get('/kelas')
+                .then((res) => {
+                    this.kelasList = res.data.data;
+                })
+                .catch((err) => {
+                    console.error("Gagal ambil data kelas", err);
+                });
+        },
+
+        getNamaKelasBySiswaId(siswaId) {
+            const siswa = this.siswaList.find(s => s.id === siswaId);
+            if (!siswa) return 'Siswa Tidak Ditemukan';
+
+            const kelas = this.kelasList.find(k => k.id === siswa.kelas_id);
+            return kelas ? kelas.nama_kelas : 'Kelas Tidak Ditemukan';
+        },
+        fetchSiswaList() {
+            axios.get('/siswa')
+                .then((res) => {
+                    this.siswaList = res.data.data;
+                })
+                .catch((err) => {
+                    console.error("Gagal ambil data siswa", err);
+                });
+        },
+        prepareTambahPembayaran() {
+            this.isEdit = false;
+            this.tampilModal = true;
+            this.resetForm();
+        },
+        resetForm() {
+            this.form = {
+                siswa_id: '',
+                nominal: '',
+                tanggal_pembayaran: '',
+                bukti_pembayaran: '',
+                status_pembayaran: '',
+                status_rapor: ''
+            };
+        },
         prepareEditPembayaran(id) {
+            this.isEdit = true;
+            this.tampilModal = true;
             this.dropdownIndex = null;
-            
+
             const pembayaranSpp = this.pembayaranSppList.find(k => k.id === id);
             if (pembayaranSpp) {
-                this.form = { 
+                this.form = {
                     id: pembayaranSpp.id,
-                    nama_siswa: pembayaranSpp.siswa?.nama_siswa || '', // Ambil dari objek siswa
+                    siswa_id: pembayaranSpp.siswa_id || '',
                     tanggal_pembayaran: pembayaranSpp.tanggal_pembayaran || '',
                     nominal: pembayaranSpp.nominal || '',
                     bukti_pembayaran: pembayaranSpp.bukti_pembayaran || '',
                     status_pembayaran: pembayaranSpp.status_pembayaran || '',
                     status_rapor: pembayaranSpp.status_rapor || '',
                 };
-                this.tampilModal = true;
             }
         },
         toggleDropdown(index) {
@@ -313,7 +372,7 @@ export default {
             return this.pembayaranSppList.map((pembayaranSpp, index) => {
                 const filteredPembayaranSpp = {
                     No: index + 1
-                }; // Menambahkan nomor urut
+                };
                 Object.keys(this.selectedFilters).forEach(key => {
                     if (this.selectedFilters[key]) {
                         filteredPembayaranSpp[key] = pembayaranSpp[key];
@@ -322,41 +381,85 @@ export default {
                 return filteredPembayaranSpp;
             });
         },
-        async simpanSpp() {
-            if (!this.form.id) {
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: 'ID tidak ditemukan, gagal menyimpan data',
-                });
-                return;
-            }
+        simpanSpp() {
+            const url = this.isEdit ?
+                `/pembayaranspp/${this.form.id}` // route update
+                :
+                '/pembayaranspp'; // route create
 
-            try {
-                await axios.put(`/pembayaranspp/${this.form.id}`, this.form);
-                this.tampilModal = false;
-                this.fetchPembayaranSppList();
+            const method = this.isEdit ? 'put' : 'post';
 
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Berhasil!',
-                    text: 'Data SPP telah diperbarui',
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-            } catch (error) {
-                console.error('Gagal menyimpan data:', error);
+            const payload = {
+                tanggal_pembayaran: this.form.tanggal_pembayaran,
+                nominal: this.form.nominal,
+                bukti_pembayaran: this.form.bukti_pembayaran,
+                status_pembayaran: this.form.status_pembayaran,
+                status_rapor: this.form.status_rapor,
+                siswa_id: this.form.siswa_id,
+                ...(this.isEdit ? {} : {
+                    nama_siswa: this.form.nama_siswa
+                }),
+            };
 
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Gagal!',
-                    text: 'Terjadi kesalahan saat menyimpan data',
+            axios[method](url, payload)
+                .then((res) => {
+                    Swal.fire({
+                        icon: 'success',
+                        title: this.isEdit ? 'Data berhasil diubah' : 'Data berhasil ditambahkan',
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    this.closeModal();
+                    this.fetchPembayaranSppList();
+                })
+                .catch((err) => {
+                    console.error(err);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal menyimpan data',
+                        text: err.response ?.data ?.message || 'Terjadi kesalahan',
+                    });
                 });
-            }
+        },
+        deletePembayaranSpp(id) {
+            Swal.fire({
+                title: 'Apakah kamu yakin?',
+                text: 'Data yang dihapus tidak bisa dikembalikan!',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Ya, hapus!'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    axios.delete(`/pembayaranspp/${id}`)
+                        .then(() => {
+                            Swal.fire({
+                                icon: 'success',
+                                title: 'Berhasil dihapus',
+                                timer: 1500,
+                                showConfirmButton: false
+                            });
+                            this.fetchPembayaranSppList();
+                            this.dropdownIndex = null;
+                        })
+                        .catch((err) => {
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Gagal menghapus data',
+                                text: err.response ?.data ?.message || 'Terjadi kesalahan'
+                            });
+                        });
+                }
+            });
         },
         formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID').format(angka);
         }
+    },
+    mounted() {
+        this.fetchSiswaList();
+        this.fetchKelasList();
     },
     computed: {
         filteredPembayaranSppList() {
@@ -369,42 +472,41 @@ export default {
                 return Object.keys(pembayaranSpp).some(key => {
                     let value = pembayaranSpp[key];
 
-                    // 🔍 Cek jika properti siswa.nama_siswa cocok dengan pencarian
-                    if (key === "siswa" && pembayaranSpp.siswa?.nama_siswa) {
+                    // Cek jika properti siswa.nama_siswa cocok dengan pencarian
+                    if (key === "siswa" && pembayaranSpp.siswa ?.nama_siswa) {
                         if (pembayaranSpp.siswa.nama_siswa.toLowerCase().includes(query)) {
                             return true;
                         }
                     }
 
-                    // 🔍 Cek status pembayaran
+                    // Cek status pembayaran
                     if (key === "status_pembayaran" && pembayaranSpp.status_pembayaran) {
                         if (pembayaranSpp.status_pembayaran.toLowerCase().includes(query)) {
                             return true;
                         }
                     }
 
-                    // 🔍 Cek tanggal pembayaran (formatkan ke string)
+                    // Cek tanggal pembayaran (formatkan ke string)
                     if (key === "tanggal_pembayaran" && pembayaranSpp.tanggal_pembayaran) {
                         if (String(pembayaranSpp.tanggal_pembayaran).toLowerCase().includes(query)) {
                             return true;
                         }
                     }
 
-                    // 🔍 Cek nominal pembayaran (konversi ke string agar bisa dicari)
+                    // Cek nominal pembayaran (konversi ke string agar bisa dicari)
                     if (key === "nominal" && pembayaranSpp.nominal) {
                         if (String(pembayaranSpp.nominal).toLowerCase().includes(query)) {
                             return true;
                         }
                     }
 
-                    // 🔍 Cek status rapor
+                    // Cek status rapor
                     if (key === "status_rapor" && pembayaranSpp.status_rapor) {
                         if (pembayaranSpp.status_rapor.toLowerCase().includes(query)) {
                             return true;
                         }
                     }
 
-                    // 🔍 Cek properti lain yang bertipe string
                     if (value !== null && value !== undefined) {
                         return String(value).toLowerCase().includes(query);
                     }
@@ -413,7 +515,6 @@ export default {
                 });
             });
         },
-
         paginatedPembayaranSppList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
@@ -432,29 +533,6 @@ export default {
 </script>
 
 <style scoped>
-.modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    z-index: 1050;
-}
-
-.modal-content-ortu {
-    background: rgb(255, 255, 255);
-    padding: 1.5rem;
-    border-radius: 10px;
-    width: 30%;
-    max-width: 250px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    text-align: left;
-}
-
 /* Filter Rows */
 .filter-rows {
     margin: 0.5rem 0;
@@ -481,6 +559,19 @@ label {
 }
 
 /* Modal Filter */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1050;
+}
+
 .modal-overlay-filter {
     position: fixed;
     top: 0;
@@ -494,7 +585,7 @@ label {
     z-index: 1050;
 }
 
-.modal-content-ortu {
+.modal-content-spp {
     background: white;
     padding: 1.5rem;
     border-radius: 10px;
@@ -505,34 +596,154 @@ label {
 }
 
 /* Modal Edit Pembayaran */
-.modal {
-    background: white;
-    padding: 20px;
-    border-radius: 10px;
-    width: 400px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+select[disabled] {
+  color: #8a8a8a;
+  cursor: not-allowed;
+  border-color: #aeafaf;
 }
 
-/* Pastikan tidak ada display: none */
-.modal-overlay-edit {
+.custom-modal {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
-    display: flex; /* Jangan pakai display: none */
-    justify-content: center;
+    display: flex;
     align-items: center;
-    z-index: 1051;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 1050;
 }
 
-/* Tombol Modal */
-.modal-actions {
-    margin-top: 15px;
+.custom-modal-dialog {
+    background: white;
+    border: none;
+    border-radius: 10px;
+    width: 90%;
+    max-width: 600px;
+    margin: 0;
+    box-shadow: none;
+    overflow: hidden;
+}
+
+.custom-modal-content {
+    margin-top: 3rem;
+    margin-bottom: 3rem;
+    border-radius: 8px;
+    padding: 0px;
+    max-height: calc(100vh - 10rem);
+    overflow-y: auto;
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    flex-direction: column;
+}
+
+.custom-modal-header {
+    background: #ffffff;
+    padding: 2rem;
+    font-size: 1.25rem;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #888;
+}
+
+.custom-modal-body {
+    text-align: left;
+    padding: 2rem;
+    flex-direction: column;
+    gap: 1rem;
+    font-size: 1rem;
+    color: #333;
+    padding-top: 0;
+}
+
+.form-input {
+    color: black;
+    width: 100%;
+    padding: 10px;
+    background-color: white;
+    border: 1px solid #636364;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+.form-group-spp>label {
+    margin-top: 1rem;
+    display: block;
+    font-weight: 500;
+}
+
+.form-group-spp>input,
+.form-group-spp>select {
+    margin-top: 5px;
+    margin-bottom: 15px;
+}
+
+.satu-row {
+    margin-top: 10px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 10px;
+    align-items: center;
+}
+
+.custom-modal-footer {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    padding: 1rem 2rem;
+    background: #ffffff;
+}
+
+.btn-save {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+    width: 50%;
+}
+
+.btn-save:hover {
+    background: #0056b3;
+}
+
+.btn-cancel {
+    background: #ffffff;
+    color: rgb(10, 10, 10);
+    border: 1px solid rgb(167, 163, 163);
+    width: 50%;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    margin-left: 0.5rem;
+}
+
+.btn-save,
+.btn-cancel {
+    flex: 1 1 45%;
+    min-width: 120px;
+}
+
+.btn-save:hover,
+.btn-cancel:hover {
+    transition: background 0.3s ease, color 0.3s ease;
+}
+
+.btn-cancel:hover {
+    background: #e4e3e3;
 }
 
 .container {
@@ -557,7 +768,7 @@ label {
     color: #336C2A;
 }
 
-.btn-add {
+.btn-add-tuition {
     text-decoration: none;
     background: #46943a;
     color: white;
@@ -573,14 +784,14 @@ label {
     width: auto;
 }
 
-.btn-add:hover {
+.btn-add-tuition:hover {
     color: white;
     background: #336C2A;
     transform: translateY(-2px);
     text-decoration: none;
 }
 
-.btn-add i {
+.btn-add-tuition i {
     font-size: 1rem;
 }
 

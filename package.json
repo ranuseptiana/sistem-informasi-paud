@@ -29,6 +29,7 @@
     "vue-leaflet": "^0.1.0",
     "vue-router": "^4.4.3",
     "vue3-perfect-scrollbar": "^2.0.0",
+    "vue3-select": "^0.1.2",
     "vuetify": "^3.6.8"
   },
   "devDependencies": {

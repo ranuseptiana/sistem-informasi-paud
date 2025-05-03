@@ -22,11 +22,11 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="username">Username</label>
-                            <input v-model="form.username" type="text" id="username" placeholder="Tambahkan username" required :disabled="isEdit"/>
+                            <input v-model="form.username" type="text" id="username" placeholder="Tambahkan username" required :disabled="isEdit" />
                         </div>
                         <div class="form-group">
                             <label for="password">Password</label>
-                            <input v-model="form.password" type="text" id="password" placeholder="Tambahkan password" required :disabled="isEdit"/>
+                            <input v-model="form.password" type="text" id="password" placeholder="Tambahkan password" required :disabled="isEdit" />
                         </div>
                     </div>
                 </form>
@@ -41,7 +41,7 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="nip">NIP</label>
-                            <input v-model="form.nip" type="number" id="nip" placeholder="Masukkan NIP" required :disabled="isEdit"/>
+                            <input v-model="form.nip" type="number" id="nip" placeholder="Masukkan NIP" required :disabled="isEdit" />
                         </div>
                         <div class="form-group">
                             <label for="nama">Nama</label>
@@ -59,7 +59,7 @@
                             <label for="agama">Agama</label>
                             <input v-model="form.agama" type="text" id="agama" placeholder="Masukkan agama" required />
                         </div>
-                       
+
                     </div>
                     <div class="row">
                         <div class="form-group">
@@ -68,7 +68,7 @@
                         </div>
                         <div class="form-group">
                             <label for="tgl_lahir">Tanggal Lahir</label>
-                            <input v-model="form.tgl_lahir" type="date" id="tgl_lahir"/>
+                            <input v-model="form.tgl_lahir" type="date" id="tgl_lahir" />
                         </div>
                         <div class="form-group">
                             <label for="noHp">No Telepon</label>
@@ -103,8 +103,13 @@
                             <input v-model="form.jumlah_hari_mengajar" type="number" id="jumlahHari" placeholder="Masukkan jumlah hari mengajar" />
                         </div>
                         <div class="form-group">
-                            <label for="tugasMengajar">Tugas Mengajar dan Tambahan</label>
-                            <input v-model="form.tugas_mengajar" type="text" id="tugasMengajar" placeholder="Masukkan tugas mengajar dan tambahan" />
+                            <label for="tugasMengajar">Kelas yang Diajar</label>
+                            <select v-model="form.kelas_id">
+                                <option value="" disabled>Pilih Kelas</option>
+                                <option v-for="kelas in kelasList" :key="kelas.id" :value="kelas.id">
+                                    {{ kelas.nama_kelas }}
+                                </option>
+                            </select>
                         </div>
                     </div>
                 </form>
@@ -117,7 +122,6 @@
 </div>
 </template>
 
-    
 <script>
 import Swal from "sweetalert2";
 import axios from 'axios';
@@ -138,9 +142,11 @@ export default {
                 alamat: '',
                 jabatan: '',
                 jumlah_hari_mengajar: '',
-                tugas_mengajar: ''
+                tugas_mengajar: '',
+                kelas_id: ''
             },
             guruList: [],
+            kelasList: [],
             jenisKelamin: "",
         }
     },
@@ -154,19 +160,23 @@ export default {
                 const payload = {
                     ...this.form
                 };
-
                 let response;
                 if (this.isEdit) {
-                    // Edit Data Guru (gunakan PUT)
                     response = await axios.put(`http://localhost:8000/api/guru/${this.$route.params.id}`, payload);
                 } else {
-                    // Tambah Data Guru (gunakan POST)
                     response = await axios.post('http://localhost:8000/api/guru/', payload);
+
+                    // Setelah berhasil buat guru, buat relasi guru-kelas
+                    const guruId = response.data.data.id; // pastikan API kamu mengembalikan ID guru yang baru
+                    await axios.post('http://localhost:8000/api/relasikelas', {
+                        guru_id: guruId,
+                        kelas_id: this.form.kelas_id
+                    });
                 }
 
                 Swal.fire("Sukses", this.isEdit ? "Data guru berhasil diperbarui!" : "Data guru berhasil disimpan!", "success");
                 this.resetForm();
-                this.$router.push('/adminmainsidebar/teachers'); // Redirect setelah sukses
+                this.$router.push('/adminmainsidebar/teachers');
             } catch (error) {
                 Swal.fire("Gagal", error.response ?.data ?.message || "Terjadi kesalahan", "error");
             }
@@ -186,9 +196,20 @@ export default {
             }
         },
 
+        async getKelasList() {
+            try {
+                const response = await axios.get('http://localhost:8000/api/kelas');
+                console.log("Response API Kelas:", response.data);
+
+                this.kelasList = response.data.data;
+            } catch (error) {
+                console.error("Gagal mengambil daftar kelas:", error);
+                this.kelasList = [];
+            }
+        },
         resetForm() {
             this.form = {
-               nip: '',
+                nip: '',
                 nama_lengkap: '',
                 gender: '',
                 agama: '',
@@ -198,15 +219,18 @@ export default {
                 alamat: '',
                 jabatan: '',
                 jumlah_hari_mengajar: '',
-                tugas_mengajar: ''
+                tugas_mengajar: '',
+                nama_kelas: ''
             };
             this.isEdit = false;
         }
     },
     mounted() {
+        this.getKelasList();
+
         if (this.$route.params.id) {
             console.log('ID Guru:', this.$route.params.id); // Debugging log
-            this.getGuruData(); // Memanggil method untuk mengambil data berdasarkan ID
+            this.getGuruData();
         }
 
         this.jenisKelamin = "";
@@ -214,7 +238,6 @@ export default {
 };
 </script>
 
-    
 <style>
 .container {
     display: flex;

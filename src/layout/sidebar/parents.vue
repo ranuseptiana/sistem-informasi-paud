@@ -198,6 +198,8 @@ export default {
         return {
             maxVisiblePages: 5,
             rowsPerPage: 5,
+            sortKey: '',
+            sortAsc: true,
             currentPage: 1,
             showModal: false,
             dropdownIndex: null,
@@ -219,22 +221,6 @@ export default {
                 noHp: false,
             },
             ortuList: [],
-            headerMapping: {
-                noKK: 'Nomor Kartu Keluarga',
-                nikAyah: 'NIK Ayah',
-                namaAyah: 'Nama Ayah',
-                tahunLahirAyah: 'Tahun Lahir Ayah',
-                pendidikanAyah: 'Pendidikan Terakhir Ayah',
-                pekerjaanAyah: 'Pekerjaan Ayah',
-                penghasilanAyah: 'Penghasilan Ayah',
-                nikIbu: 'NIK Ibu',
-                namaIbu: 'Nama Ibu',
-                tahunLahirIbu: 'Tahun Lahir Ibu',
-                pendidikanIbu: 'Pendidikan Terakhir Ibu',
-                pekerjaanIbu: 'Pekerjaan Ibu',
-                penghasilanIbu: 'Penghasilan Ibu',
-                noHp: 'Nomor Hp'
-            },
             firstRowFilters: [{
                     key: "noKK",
                     label: "No KK"
@@ -302,14 +288,13 @@ export default {
                 });
         };
 
-        // Panggil fetchOrtuList saat komponen di-mount
         onMounted(() => {
             fetchOrtuList();
         });
 
         return {
             ortuList,
-            fetchOrtuList // Return supaya bisa diakses di luar setup
+            fetchOrtuList 
         };
     },
     methods: {
@@ -322,6 +307,14 @@ export default {
         changePage(page) {
             if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
+            }
+        },
+        sortBy(key) {
+            if (this.sortKey === key) {
+                this.sortAsc = !this.sortAsc;
+            } else {
+                this.sortKey = key;
+                this.sortAsc = true;
             }
         },
         // Fungsi untuk mendapatkan data berdasarkan filter aktif
@@ -340,36 +333,7 @@ export default {
         },
         // Fungsi ekspor data berdasarkan filter aktif
         exportData(format) {
-            const filteredData = this.getFilteredData();
-
-            // Buat header sesuai mapping
-            const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
-            const headerLabels = headers.map(header => this.headerMapping[header] || header);
-
-            if (format === 'pdf') {
-                const doc = new jsPDF();
-
-                // Buat data tabel untuk PDF
-                const data = filteredData.map(ortu => headers.map(key => ortu[key] || ''));
-
-                doc.autoTable({
-                    head: [headerLabels],
-                    body: data,
-                });
-
-                doc.save('filtered_data.pdf');
-            } else if (format === 'excel') {
-                const data = [headerLabels, ...filteredData.map(ortu => headers.map(key => ortu[key] || ''))];
-                const csv = Papa.unparse(data);
-
-                const blob = new Blob([csv], {
-                    type: 'text/csv;charset=utf-8;'
-                });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'filtered_data.csv';
-                link.click();
-            }
+            
         },
         editOrtu(id) {
             this.dropdownIndex = null;
@@ -733,7 +697,8 @@ label {
 }
 
 .data-table td {
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -775,8 +740,15 @@ label {
     padding: 0;
 }
 
+.popup {
+    position: relative;
+}
+
 .popup-menu {
     position: absolute;
+    top: 100%; 
+    transform: translateX(-30px);    
+    left: 0; 
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     padding: 10px;

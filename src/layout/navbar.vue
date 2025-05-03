@@ -21,16 +21,18 @@
                     <ul class="navbar-nav me-auto mb-2 mb-lg-0">
                         <router-link to="/" class="w3-bar-item w3-button dashboard-item" :class="{ active: $route.path === '/' }">Beranda</router-link>
                         <router-link to="/about" class="w3-bar-item w3-button" :class="{ active: $route.path === '/about' }">Tentang Kami</router-link>
-                        <router-link to="/gallery" class="w3-bar-item w3-button" :class="{ active: $route.path === '/gallery' }">Galeri Kegiatan</router-link>
+                        <router-link to="/album" class="w3-bar-item w3-button" :class="{ active: $route.path === '/album' }">Galeri Kegiatan</router-link>
                         <router-link to="/agenda" class="w3-bar-item w3-button" :class="{ active: $route.path === '/agenda' }">Agenda</router-link>
                         <router-link to="/information" class="w3-bar-item w3-button" :class="{ active: $route.path === '/information' }">Informasi</router-link>
                         <!-- Dropdown Kontak -->
                         <li class="nav-item dropdown">
                             <router-link to="#" class="nav-link dropdown-toggle w3-bar-item w3-button" @click.prevent.stop="toggleDropdown">
-                                Kontak 
+                                Kontak
                             </router-link>
                             <ul class="dropdown-menu" v-if="isDropdownOpen">
-                                <li class="dropdown-item"><p>PAUD AL UMMAH</p></li>
+                                <li class="dropdown-item">
+                                    <p>PAUD AL UMMAH</p>
+                                </li>
                                 <li class="dropdown-item">📍 Jl. Dieng Atas No.16, Sumberjo, Kalisongo, Kec. Dau, Kabupaten Malang, Jawa Timur 65151</li>
                                 <li class="dropdown-item">📞 081335305234</li>
                                 <li class="dropdown-item">📧 paudalummah.x9dau@gmail.com</li>
@@ -47,36 +49,38 @@
     </nav>
 </header>
 
-    <div class="container">
-        <!-- modal login -->
-        <div v-if="showModal" class="modal-overlay" @click="closeModal">
-            <div class="modal-content" @click.stop>
-                <h5>Login sebagai</h5>
-                <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Pilih salah satu untuk melanjutkan</p>
-                <div class="user-buttons">
-                    <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Admin'}" @click="selectedUser = 'Admin'">
-                        Admin
-                    </button>
-                    <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Guru' }" @click="selectedUser = 'Guru'">
-                        Guru
-                    </button>
-                    <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Orangtua' }" @click="selectedUser = 'Orangtua'">Orangtua</button>
-                </div>
-
-                <input type="text" class="input-login" placeholder="Username" v-model="username" />
-                <input type="passwordFieldType" style="margin-bottom: 2.5rem;" class="input-login" placeholder="Password" v-model="password"/>
-
-                <i class="passwordFieldIcon" @click="togglePasswordVisibility"></i>
-
-                <button type="button" class="login-button-2" @click="navigateToDashboard">Login</button>
-            </div>
-        </div>
+<div class="container">
     <!-- modal login -->
+    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+        <div class="modal-content" @click.stop>
+            <h5>Login sebagai</h5>
+            <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Pilih salah satu untuk melanjutkan</p>
+            <div class="user-buttons">
+                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Admin'}" @click="selectedUser = 'Admin'">
+                    Admin
+                </button>
+                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Guru' }" @click="selectedUser = 'Guru'">
+                    Guru
+                </button>
+                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Siswa' }" @click="selectedUser = 'Siswa'">
+                    Siswa
+                </button>
+            </div>
+
+            <input type="text" class="input-login" placeholder="Username" v-model="username" />
+            <div class="password-wrapper">
+                <input :type="passwordFieldType" class="input-login" placeholder="Password" v-model="password" />
+            </div>
+
+            <button type="button" class="login-button-2" @click="navigateToDashboard">Login</button>
+        </div>
     </div>
-  
+</div>
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+
 export default {
     data() {
         return {
@@ -85,11 +89,33 @@ export default {
             showModal: false,
             isDropdownOpen: false,
             selectedUser: 'Admin',
-            username: "",
-            password: "",
+            username: '',
+            password: '',
+            dummyCredentials: {
+                Admin: {
+                    username: 'admin123',
+                    password: 'adminpass'
+                },
+                Guru: {
+                    username: 'guru123',
+                    password: 'gurupass'
+                },
+                Siswa: {
+                    username: 'siswa123',
+                    password: 'siswapass'
+                }
+            },
             passwordFieldType: 'password',
-            passwordFieldIcon: 'fas fa-eye',
+            passwordFieldIcon: 'fas fa-eye'
         };
+    },
+    watch: {
+        selectedUser(newVal) {
+            if (this.dummyCredentials[newVal]) {
+                this.username = this.dummyCredentials[newVal].username;
+                this.password = this.dummyCredentials[newVal].password;
+            }
+        }
     },
     methods: {
         toggleDropdown() {
@@ -107,8 +133,8 @@ export default {
                 this.activeMenu = 'beranda';
             } else if (currentPath.includes('about')) {
                 this.activeMenu = 'about';
-            } else if (currentPath.includes('galeri')) {
-                this.activeMenu = 'galeri';
+            } else if (currentPath.includes('album')) {
+                this.activeMenu = 'album';
             } else if (currentPath.includes('agenda')) {
                 this.activeMenu = 'agenda';
             } else if (currentPath.includes('information')) {
@@ -137,17 +163,40 @@ export default {
                 this.passwordFieldIcon = 'fas fa-eye';
             }
         },
-        navigateToDashboard() {
-            let route = '/';
-            if (this.selectedUser === 'Admin') {
-                route = '/adminmainsidebar/dashboard';
-            } else if (this.selectedUser === 'Guru') {
-                route = '/gurumainsidebar/dashboard';
-            } else if (this.selectedUser === 'Orangtua') {
-                route = '/parents/dashboard'; // Ubah rute ini sesuai kebutuhan Anda.
+            navigateToDashboard() {
+                if (!this.username || !this.password) {
+                    Swal.fire({
+                        icon: 'warning',
+                        title: 'Oops...',
+                        text: 'Harap masukkan username dan password!',
+                    });
+                    return; 
+                }
+
+                const creds = this.dummyCredentials[this.selectedUser];
+                if (creds && this.username === creds.username && this.password === creds.password) {
+                    let route = '/';
+                    if (this.selectedUser === 'Admin') {
+                        route = '/adminmainsidebar/dashboard';
+                    } else if (this.selectedUser === 'Guru') {
+                        route = '/gurumainsidebar/dashboard';
+                    } else if (this.selectedUser === 'Siswa') {
+                        route = '/siswamainsidebar/dashboard';
+                    }
+                    this.$router.push(route);
+                } else {
+                    this.resetForm();
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal Login!',
+                        text: 'Username atau password salah!',
+                    });
+                }
+            },
+            resetForm() {
+                this.username = '';
+                this.password = '';
             }
-            this.$router.push(route); // Menggunakan Vue Router untuk navigasi.
-        },
     },
     mounted() {
         this.updateActiveMenu(this.$route);
@@ -306,7 +355,8 @@ body {
 .dropdown-menu {
     right: auto;
     left: 100%;
-    transform: translateX(-63%); /* Geser ke kiri */
+    transform: translateX(-63%);
+    /* Geser ke kiri */
     width: 30rem;
     display: block;
     position: absolute;
@@ -384,6 +434,10 @@ body {
     padding-left: 2rem;
 }
 
+.password-wrapper {
+    margin-bottom: 1rem;
+}
+
 .login-button-2 {
     color: #336C2A;
     font-weight: 600;
@@ -417,9 +471,10 @@ body {
     cursor: pointer;
     line-height: 10px;
 }
+
 /* login */
 
-@media (min-width: 361px) and (max-width: 480px) { 
+@media (min-width: 361px) and (max-width: 480px) {
     .navbar-brand {
         margin-left: 2rem;
     }

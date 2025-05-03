@@ -34,6 +34,12 @@
                     <router-link to="/adminmainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition')">
                         Pembayaran SPP
                     </router-link>
+                    <router-link to="/adminmainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery')">
+                        Galeri
+                    </router-link>
+                    <router-link to="/adminmainsidebar/activity" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'activity' }" @click="setActive('activity')">
+                        Agenda
+                    </router-link>
                 </ul>
                 <!-- Profile icon -->
                 <div class="navbar-nav ms-auto">
@@ -91,6 +97,10 @@ export default {
                 this.activeMenu = 'class';
             } else if (currentPath.includes('tuition')) {
                 this.activeMenu = 'tuition';
+            } else if (currentPath.includes('gallery')) {
+                this.activeMenu = 'gallery';
+            } else if (currentPath.includes('activity')) {
+                this.activeMenu = 'activity';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
             }
@@ -172,8 +182,8 @@ main {
     display: flex;
     align-items: center;
     margin-top: 15px;
-    margin-left: 8rem;
-    gap: 15px;
+    margin-left: 3rem;
+    gap: 10px;
 }
 
 .main-logo {

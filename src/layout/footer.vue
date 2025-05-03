@@ -14,23 +14,19 @@
                 <ul>
                     <li><a href="http://localhost:5173/about">Tentang PAUD Al-Ummah</a></li>
                     <li><a href="http://localhost:5173/about">Visi dan Misi</a></li>
-                    <li><a href="http://localhost:5173/about">Rencana Pembelajaran</a></li>
-                    <li><a href="http://localhost:5173/about">Fasilitas</a></li>
                 </ul>
             </div>
             <div class="footer-column">
                 <h3>Informasi Kegiatan</h3>
                 <ul>
-                    <li><a href="#">Galeri Kegiatan</a></li>
-                    <li><a href="#">Agenda Kegiatan</a></li>
+                    <li><a href="http://localhost:5173/album">Galeri Kegiatan</a></li>
+                    <li><a href="http://localhost:5173/agenda">Agenda Kegiatan</a></li>
                 </ul>
             </div>
             <div class="footer-column">
                 <h3>Layanan</h3>
                 <ul>
-                    <li><a href="#">FAQ</a></li>
-                    <li><a href="#">Informasi Program</a></li>
-                    <li><a href="#">Pengumuman</a></li>
+                    <li><a href="http://localhost:5173/information">FAQ</a></li>
                 </ul>
             </div>
             <hr>

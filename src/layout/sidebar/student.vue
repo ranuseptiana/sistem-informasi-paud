@@ -225,9 +225,6 @@
 </template>
 
 <script>
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import Papa from "papaparse";
 import Swal from "sweetalert2";
 import axios from 'axios';
 import {
@@ -332,27 +329,25 @@ export default {
                 tahunAjar: true,
             },
             showTahunAjaran: true,
-            tahunAwal: "2023/2024",
-            tahunAkhir: "2024/2025",
-            headerMapping: {
-                nis: 'Nomor Induk Siswa',
-                noKk: 'Nomor KK',
-                nama: 'Nama Lengkap',
-                jenisKelamin: 'Jenis Kelamin',
-                agama: 'Agama',
-                nik: 'NIK',
-                tempatLahir: 'Tempat Lahir',
-                tanggalLahir: 'Tanggal Lahir',
-                alamat: 'Alamat',
-                anakKe: 'Anak Ke',
-                jumlahSaudara: 'Jumlah Saudara',
-                beratBadan: 'Berat Badan',
-                tinggiBadan: 'Tinggi Badan',
-                lingkarKepala: 'Lingkar Kepala',
-                rombel: 'Kelas Saat Ini',
-                status: 'Status Siswa',
-                tahunAjar: 'Tahun Ajaran',
-            }
+            // headerMapping: {
+            //     nis: 'Nomor Induk Siswa',
+            //     noKk: 'Nomor KK',
+            //     nama: 'Nama Lengkap',
+            //     jenisKelamin: 'Jenis Kelamin',
+            //     agama: 'Agama',
+            //     nik: 'NIK',
+            //     tempatLahir: 'Tempat Lahir',
+            //     tanggalLahir: 'Tanggal Lahir',
+            //     alamat: 'Alamat',
+            //     anakKe: 'Anak Ke',
+            //     jumlahSaudara: 'Jumlah Saudara',
+            //     beratBadan: 'Berat Badan',
+            //     tinggiBadan: 'Tinggi Badan',
+            //     lingkarKepala: 'Lingkar Kepala',
+            //     rombel: 'Kelas Saat Ini',
+            //     status: 'Status Siswa',
+            //     tahunAjar: 'Tahun Ajaran',
+            // }
         };
     },
     //untuk menampilkan data siswa
@@ -467,38 +462,7 @@ export default {
 
         // Fungsi ekspor data berdasarkan filter aktif
         exportData(format) {
-            const filteredData = this.getFilteredData();
-
-            // Buat header sesuai mapping
-            const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
-            const headerLabels = headers.map(header => this.headerMapping[header] || header);
-
-            if (format === 'pdf') {
-                const doc = new jsPDF();
-
-                // Buat data tabel untuk PDF
-                const data = filteredData.map(siswa => headers.map(key => siswa[key] !== undefined ? siswa[key] : ''));
-
-                doc.autoTable({
-                    head: [headerLabels],
-                    body: data,
-                    styles: { cellWidth: 'auto' }, // Biarkan auto atau sesuaikan
-                    theme: 'grid'
-                });
-
-                doc.save('filtered_data.pdf');
-            } else if (format === 'excel') {
-                const data = [headerLabels, ...filteredData.map(siswa => headers.map(key => siswa[key] || ''))];
-                const csv = Papa.unparse(data);
-
-                const blob = new Blob([csv], {
-                    type: 'text/csv;charset=utf-8;'
-                });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'filtered_data.csv';
-                link.click();
-            }
+            
         },
         editSiswa(id) {
             this.dropdownIndex = null;
@@ -906,7 +870,8 @@ label {
 }
 
 .data-table td {
-    overflow: hidden;
+    overflow: visible;
+    position: relative;
     text-overflow: ellipsis;
     white-space: nowrap;
 }
@@ -941,6 +906,11 @@ label {
     background-color: #f9f9f9;
 }
 
+.popup {
+    position: relative;
+    display: inline-block;
+}
+
 .popup .btn {
     box-shadow: none;
     border: none;
@@ -955,6 +925,8 @@ label {
     padding: 10px;
     border-radius: 8px;
     display: none;
+    left: 0;
+    transform: translateX(-30px);    
     z-index: 1000;
 }
 
@@ -964,7 +936,7 @@ label {
 
 .popup-item {
     display: block;
-    padding: 8px 12px;
+    padding: 5px 12px;
     width: 100%;
     text-align: left;
     background: none;
