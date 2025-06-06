@@ -10,7 +10,7 @@ import { library } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { faGears, faLightbulb, faChildReaching } from '@fortawesome/free-solid-svg-icons';
 
-axios.defaults.baseURL = 'http://localhost:8000/api/';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
 
 // Tambahkan ikon ke pustaka
 library.add(faGears, faChildReaching, faLightbulb);
