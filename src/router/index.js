@@ -16,6 +16,7 @@ import Teachers from "../layout/sidebar/teachers.vue";
 import AddTeachers from "../layout/sidebar/add-teachers.vue";
 import Classes from "../layout/sidebar/classes.vue";
 import Tuition from "../layout/sidebar/tuition.vue";
+import Cicilan from "../layout/sidebar/cicilan.vue";
 import Gallery from "../layout/sidebar/album.vue";
 import DetailGallery from "../layout/sidebar/album-detail.vue";
 import Activity from "../layout/sidebar/agenda.vue";
@@ -23,11 +24,14 @@ import Activity from "../layout/sidebar/agenda.vue";
 import GuruMainSidebar from "../layout/sidebar/guru-main.vue";
 import GuruDashboard from "../layout/sidebar/guru-dashboard.vue";
 import GuruClasses from "../layout/sidebar/guru-class.vue";
-import GuruTuition from "../layout/sidebar/guru-spp.vue";
+// import GuruTuition from "../layout/sidebar/guru-spp.vue";
 import GuruGallery from "../layout/sidebar/guru-gallery.vue";
 // bagian siswa
 import SiswaMainSidebar from "../layout/sidebar/siswa-main.vue";
 import SiswaDashboard from "../layout/sidebar/siswa-dashboard.vue";
+import SiswaKelas from "../layout/sidebar/siswa-class.vue";
+import SiswaPendaftaran from "../layout/sidebar/siswa-pendaftaran.vue";
+import SiswaDaftarUlang from "../layout/sidebar/siswa-daftar-ulang.vue";
 import { components } from "vuetify/dist/vuetify-labs.js";
 
 const routes = [
@@ -86,6 +90,11 @@ const routes = [
                 component: Tuition,
             },
             {
+                path: "cicilan/:id?",
+                component: Cicilan,
+                props: true
+            },
+            {
                 path: "gallery",
                 component: Gallery,
             },
@@ -99,9 +108,9 @@ const routes = [
                 component: Activity,
             },
             {
-                path: "addParents/:id?",  // :id adalah parameter opsional
+                path: "addParents/:id?",  
                 component: AddParents,
-                props: true,  // Kirim parameter id ke komponen sebagai prop
+                props: true,  
             },
             {
                 path: "addStudents/:id?",
@@ -124,13 +133,13 @@ const routes = [
                 component: GuruDashboard,
             },
             {
-                path: "classes",
+                path: "guru/:id?/kelas",
                 component: GuruClasses,
             },
-            {
-                path: "tuition",
-                component: GuruTuition,
-            },
+            // {
+            //     path: "tuition",
+            //     component: GuruTuition,
+            // },
             {
                 path: "gallery",
                 component: GuruGallery,
@@ -149,6 +158,21 @@ const routes = [
             {
                 path: "dashboard",
                 component: SiswaDashboard,
+            },
+            {
+                path: 'siswa/:id/kelas',
+                component: SiswaKelas,
+                name: 'SiswaKelas',
+            },
+            {
+                path: 'siswa/pembayaran/:id/pendaftaran_baru',
+                component: SiswaPendaftaran,
+                name: 'SiswaPendaftaran'
+            },
+            {
+                path: 'siswa/daftarUlang',
+                component: SiswaDaftarUlang,
+                name: 'SiswaDaftarUlang'
             },
         ],
     },

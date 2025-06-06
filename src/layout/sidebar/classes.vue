@@ -235,11 +235,9 @@ export default {
 
             try {
                 if (this.isEditing) {
-                    // Mode Edit (Update Data)
                     await axios.put(`/kelas/${this.form.id}`, payload);
                     Swal.fire('Berhasil', 'Data kelas berhasil diperbarui!', 'success');
                 } else {
-                    // Mode Tambah Data Baru
                     await axios.post('/kelas', payload);
                     Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success');
                 }
@@ -257,7 +255,6 @@ export default {
         },
         async deleteKelas(kelasId) {
             try {
-                // Konfirmasi penghapusan data
                 const confirmDelete = await Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: "Data ini akan dihapus!",
@@ -792,10 +789,6 @@ label {
     width: 100%;
     margin-top: 1rem;
     margin-bottom: 1rem;
-}
-
-.page-info {
-    margin: 0;
 }
 
 .pagination {

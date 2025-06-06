@@ -1,18 +1,25 @@
 <template>
 <div class="container">
     <section class="content-header">
-        <nav aria-label="breadcrumb">
+        <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Pembayaran</li>
+                <li class="breadcrumb-item">
+                    <router-link to="/adminmainsidebar/tuition">Pembayaran</router-link>
+                </li>
+                <li class="breadcrumb-item active" aria-current="page">Cicilan Pembayaran</li>
             </ol>
         </nav>
         <div class="header-button">
-            <h3 class="header-text">Pembayaran</h3>
+            <h4 class="header-text">
+            Cicilan Pembayaran - <span class="student-name">{{ namaSiswa }}</span>
+            </h4>
+
             <button class="btn-add-class" @click="prepareTambahPembayaran">Tambah Data
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
     </section>
+
     <section class="content">
         <!-- Filter section -->
         <div class="filter-section">
@@ -74,41 +81,23 @@
             <table class="table data-table table-hover">
                 <thead>
                     <tr>
-                        <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head">NISN</th>
-                        <th scope="col" class="table-head">Nama Siswa</th>
-                        <th scope="col" class="table-head">Kelas Siswa</th>
-                        <th scope="col" class="table-head">Tahun Ajaran</th>
-                        <th scope="col" class="table-head">Jenis Pembayaran</th>
+                        <th scope="col" class="table-head">Cicilan ke-</th>
                         <th scope="col" class="table-head">Tanggal Pembayaran</th>
-                        <th scope="col" class="table-head">Metode Pembayaran</th>
-                        <th scope="col" class="table-head">Nominal Pembayaran</th>
-                        <th scope="col" class="table-head">Sisa Pembayaran</th>
-                        <th scope="col" class="table-head">Bukti Pembayaran</th>
-                        <th scope="col" class="table-head">Status Pembayaran</th>
-                        <th scope="col" class="table-head">Status Cicilan</th>
-                        <th scope="col" class="table-head">Status Rapor</th>
-                        <th scope="col" class="table-head">Status Atribut</th>
+                        <th scope="col" class="table-head">Nominal Cicilan</th>
+                        <th scope="col" class="table-head">Status Verifikasi</th>
+                        <th scope="col" class="table-head">Tempat Pembayaran</th>
+                        <th scope="col" class="table-head">Keterangan</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(pembayaran, index) in paginatedPembayaranList" :key="pembayaran.id">
+                    <tr v-for="(cicilan, index) in paginatedCicilanList" :key="cicilan.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td>{{ pembayaran.siswa?.nisn }}</td>
-                        <td>{{ pembayaran.siswa?.nama_siswa }}</td>
-                        <td>{{ getNamaKelasBySiswaId(pembayaran.siswa_id) }}</td>
-                        <td>{{ getTahunAjaranBySiswaId(pembayaran.siswa_id) }}</td>
-                        <td>{{ pembayaran.jenis_pembayaran}}</td>
-                        <td>{{ pembayaran.tanggal_pembayaran ? pembayaran.tanggal_pembayaran : 'Tanggal Tidak Ditemukan' }}</td>
-                        <td>{{ pembayaran.metode_pembayaran }}</td>
-                        <td>{{ pembayaran.nominal ? formatRupiah(pembayaran.nominal) : 'Nominal Belum Ditambahkan' }}</td>
-                        <td>{{ pembayaran.sisa_pembayaran ? formatRupiah(pembayaran.sisa_pembayaran) : 'Tidak Ada Sisa Pembayaran' }}</td>
-                        <td>{{ pembayaran.bukti_pembayaran ? pembayaran.bukti_pembayaran : 'Bukti Belum Ditambahkan' }}</td>
-                        <td>{{ pembayaran.status_pembayaran }}</td>
-                        <td>{{ pembayaran.status_cicilan }}</td>
-                        <td>{{ pembayaran.status_rapor }}</td>
-                        <td>{{ pembayaran.status_atribut }}</td>
+                        <td>{{ cicilan.tanggal_cicilan }}</td>
+                        <td>{{ Number(cicilan.nominal_cicilan).toLocaleString('id-ID') }}</td>
+                        <td>{{ cicilan.status_verifikasi }}</td>
+                        <td>{{ cicilan.tempat_tagihan }}</td>
+                        <td>{{ cicilan.keterangan}}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -116,15 +105,14 @@
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
-                                    <button class="popup-item" @click="cicilanPembayaran(pembayaran.id)" style="color: #274278">Cicilan</button>
-                                    <button class="popup-item" @click="prepareEditPembayaran(pembayaran.id)" style="color: #274278">Edit</button>
-                                    <button class="popup-item" @click="deletePembayaran(pembayaran.id)" style="color: red">Hapus</button>
+                                    <button class="popup-item" @click="prepareEditCicilan(cicilan.id)" style="color: #274278">Edit</button>
+                                    <button class="popup-item" @click="deleteCicilan(cicilan.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
                         </td>
                     </tr>
-                    <tr v-if="paginatedPembayaranList.length === 0" class="no-data">
-                        <td colspan="15" class="no-data-cell">
+                    <tr v-if="paginatedCicilanList.length === 0" class="no-data">
+                        <td colspan="7" class="no-data-cell">
                             <div class="no-data-content">
                                 <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
                                 <p class="no-data-text">Tidak ada data</p>
@@ -138,61 +126,31 @@
             <div class="custom-modal-dialog">
                 <div class="custom-modal-content">
                     <div class="custom-modal-header">
-                        <h5 class="custom-modal-title">{{ isEdit ? 'Edit Data Pembayaran' : 'Tambah Data Pembayaran' }}</h5>
+                        <h5 class="custom-modal-title">{{ isEdit ? 'Edit Data Cicilan' : 'Tambah Data Cicilan' }}</h5>
                         <button type="button" class="close-btn" @click="closeModal">&times;</button>
                     </div>
                     <form @submit.prevent="simpanPembayaran">
                         <div class="custom-modal-body">
                             <div class="form-group-spp">
-                                <label for="idSiswa" style="font-weight: 700;">Nama Siswa</label>
-                                <select id="idSiswa" v-model="form.siswa_id" class="form-input" :disabled="isEdit">
-                                    <option disabled value="">-- Pilih Siswa --</option>
-                                    <option v-for="siswa in siswaList" :key="siswa.id" :value="siswa.id">
-                                        {{ siswa.nama_siswa }}
-                                    </option>
-                                </select>
-
                                 <div class="satu-row">
-                                    <label for="nominal">Nominal:</label>
-                                    <input type="text" v-model="displayNominal" @input="formatNominal" class="form-input" placeholder="Masukkan nominal" />
+                                    <label for="tanggal">Tanggal Pembayaran:</label>
+                                    <input type="date" v-model="form.tanggal_cicilan" class="form-input">
 
-                                    <label for="metodePembayaran">Metode Pembayaran:</label>
-                                    <select v-model="form.metode_pembayaran" class="form-input" @change="updateStatusPembayaran">
-                                        <option value="full">Cash (Bayar Penuh Tanpa Cicil)</option>
-                                        <option value="cicilan">Cicilan</option>
+                                    <label for="nominal">Nominal Pembayaran:</label>
+                                    <input type="text" v-model="form.nominal_cicilan" class="form-input" @input="formatNominal"/>
+
+                                    <label for="status">Status Verifikasi:</label>
+                                    <select v-model="form.status_verifikasi" class="form-input">
+                                        <option value="Disetujui">Disetujui</option>
+                                        <option value="Pending">Pending</option>
+                                        <option value="Ditolak">Ditolak</option>
                                     </select>
 
-                                    <label for="jenisPembayaran">Jenis Pembayaran:</label>
-                                    <select v-model="form.jenis_pembayaran" class="form-input">
-                                        <option value="pendaftaran baru">Pendaftaran Baru</option>
-                                        <option value="daftar ulang">Daftar Ulang</option>
-                                    </select>
+                                    <label for="tempat">Tempat Tagihan:</label>
+                                    <input type="text" v-model="form.tempat_tagihan" class="form-input">
 
-                                    <label for="tanggalPembayaran">Tanggal Pembayaran:</label>
-                                    <input type="date" v-model="form.tanggal_pembayaran" class="form-input">
-                                </div>
-
-                                <label for="buktiPembayaran" style="font-weight: 700;">Bukti Pembayaran:</label>
-                                <input type="text" v-model="form.bukti_pembayaran" class="form-input">
-
-                                <div class="satu-row">
-                                    <label for="statusPembayaran">Status Pembayaran:</label>
-                                    <input type="text" class="form-input" :value="form.metode_pembayaran === 'full' ? 'Lunas' : 'Belum Lunas'" readonly :disabled="isEdit" />
-
-                                    <label for="statusCicilan">Status Cicilan:</label>
-                                    <input type="text" class="form-input" :value="form.metode_pembayaran === 'full' ? 'Lunas' : 'Belum Lunas'" readonly :disabled="isEdit" />
-
-                                    <label for="statusRapor">Status Rapor:</label>
-                                    <select v-model="form.status_rapor" class="form-input">
-                                        <option value="Dapat Diterima">Dapat Diterima</option>
-                                        <option value="Belum Dapat Diterima">Belum Dapat Diterima</option>
-                                    </select>
-
-                                    <label for="statusAtribut">Status Atribut:</label>
-                                    <select v-model="form.status_atribut" class="form-input">
-                                        <option value="Sudah Diterima">Sudah Diterima</option>
-                                        <option value="Belum Diterima">Belum Diterima</option>
-                                    </select>
+                                    <label for="keterangan">Keterangan:</label>
+                                    <input type="text" v-model="form.keterangan" class="form-input" />
                                 </div>
                             </div>
                         </div>
@@ -229,13 +187,16 @@
 </template>
 
 <script>
-import "jspdf-autotable";
 import Swal from "sweetalert2";
 import axios from 'axios';
 import {
     ref,
-    onMounted
+    onMounted,
 } from 'vue';
+
+import {
+    useRoute
+} from 'vue-router';
 
 export default {
     data() {
@@ -247,190 +208,117 @@ export default {
             isEdit: false,
             dropdownIndex: null,
             searchQuery: '',
-            siswaList: [],
-            kelasList: [],
-            tahunAjaranList: [],
+            pembayaranList: [],
+            cicilanList: [],
+            namaSiswa: '',
             form: {
-                siswa_id: '',
-                tanggal_pembayaran: '',
-                jenis_pembayaran: '',
-                nominal: '',
-                metode_pembayaran: '',
-                isCicilan: false,
-                bukti_pembayaran: '',
-                status_pembayaran: '',
-                status_cicilan: '',
-                status_rapor: '',
-                status_atribut: '',
+                pembayaran_id: '',
+                tanggal_cicilan: '',
+                nominal_cicilan: '',
+                status_verifikasi: '',
+                tempat_tagihan: '',
+                keterangan: '',
             },
-            displayNominal: ''
         };
     },
-    setup() {
-        const pembayaranList = ref([]);
 
-        const fetchPembayaranList = () => {
+    created() {
+        const pembayaranId = this.$route.params.id; 
+        if (pembayaranId) {
+            this.form.pembayaran_id = pembayaranId; 
+        }
+    },
+
+    setup() {
+        const route = useRoute();
+        const pembayaranId = route.params.id; 
+        const cicilanList = ref([]);
+
+        const fetchCicilanList = () => {
             axios
-                .get('/pembayaran')
+                .get(`/cicilan/pembayaran/${pembayaranId}`) 
                 .then((res) => {
                     console.log('Data yang diterima:', res.data);
-                    pembayaranList.value = res.data.data; })
+                    cicilanList.value = res.data.data;
+                })
                 .catch((error) => {
                     console.log(error.response.data.data);
                 });
         };
+
         onMounted(() => {
-            fetchPembayaranList();
+            fetchCicilanList();
         });
+
         return {
-            pembayaranList,
-            fetchPembayaranList
+            pembayaranId,
+            cicilanList,
+            fetchCicilanList,
         };
     },
     methods: {
-        cicilanPembayaran(id) {
-            this.$router.push(`/adminmainsidebar/cicilan/${id}`);
-        },
-
-        formatNominal(event) {
-        let inputValue = event.target.value;
-        let numericValue = inputValue.replace(/[^\d]/g, '');
-        
-        if (numericValue.length > 9) {
-            numericValue = numericValue.slice(0, 9);
-        }
-        
-        this.form.nominal = numericValue;
-        
-        this.displayNominal = numericValue ? 
-            new Intl.NumberFormat('id-ID').format(parseInt(numericValue)) : 
-            '';
-        
-        event.target.value = this.displayNominal;
-    },
-
-        fetchKelasList() {
-            axios.get('/kelas')
+        fetchSiswaList() {
+            axios.get('/siswa')
                 .then((res) => {
-                    this.kelasList = res.data.data;
+                    this.namaSiswa = res.data.data;
                 })
                 .catch((err) => {
                     console.error("Gagal ambil data kelas", err);
                 });
         },
 
-        getNamaKelasBySiswaId(siswaId) {
-            const siswa = this.siswaList.find(s => s.id === siswaId);
-            if (!siswa) return 'Siswa Tidak Ditemukan';
+        getNamaSiswaByPembayaranId(pembayaranId) {
+            const pembayaran = this.namaSiswa.find(s => s.id === pembayaranId);
+            if (!pembayaran) return 'Pembayaran Tidak Ditemukan';
 
-            const kelas = this.kelasList.find(k => k.id === siswa.kelas_id);
-            return kelas ? kelas.nama_kelas : 'Kelas Tidak Ditemukan';
+            const siswa = this.namaSiswa.find(k => k.id === pembayaran.siswa_id);
+            return siswa ? siswa.nama_siswa : 'Siswa Tidak Ditemukan';
         },
 
-        fetchTahunAjaranList() {
-            axios.get('/tahunajaran')
-                .then((res) => {
-                    this.tahunAjaranList = res.data;
-                })
-                .catch((err) => {
-                    console.error("Gagal ambil data tahun ajaran", err);
-                });
+        formatNominal() {
+            // Hilangkan semua karakter bukan angka dulu
+            let num = this.form.nominal_cicilan.replace(/\D/g, '');
+
+            // Format jadi string dengan titik sebagai pemisah ribuan
+            this.form.nominal_cicilan = num ? Number(num).toLocaleString('id-ID') : '';
         },
-
-        getTahunAjaranBySiswaId(siswaId) {
-            if (!this.siswaList || !this.siswaList) {
-                return 'Data siswa belum dimuat';
-            }
-
-            const siswa = this.siswaList.find(s => s.id === siswaId);
-            if (!siswa) return 'Siswa Tidak Ditemukan';
-
-            if (!this.tahunAjaranList || !Array.isArray(this.tahunAjaranList)) {
-                return 'Data tahun ajaran belum dimuat';
-            }
-
-            const tahunajaran = this.tahunAjaranList.find(k => k.id === siswa.tahun_ajaran_id);
-            return tahunajaran ? tahunajaran.tahun : 'Tahun Ajaran Tidak Ditemukan';
+        
+        // Fungsi untuk prepare data yang akan dikirim ke backend (hilangkan titik)
+        getNominalForBackend() {
+            return this.form.nominal_cicilan.replace(/\./g, '');
         },
-
-        fetchSiswaList() {
-            axios.get('/siswa')
-                .then((res) => {
-                    this.siswaList = res.data.data;
-                })
-                .catch((err) => {
-                    console.error("Gagal ambil data siswa", err);
-                });
-        },
-
         prepareTambahPembayaran() {
             this.isEdit = false;
             this.tampilModal = true;
             this.resetForm();
+            this.form.pembayaran_id = this.pembayaranId;
         },
-
         resetForm() {
             this.form = {
-                siswa_id: '',
-                nominal: '',
-                jenis_pembayaran: '',
-                tanggal_pembayaran: '',
-                metode_pembayaran: '',
-                bukti_pembayaran: '',
-                status_pembayaran: '',
-                status_cicilan: '',
-                status_rapor: '',
-                status_atribut: ''
+                tanggal_cicilan: '',
+                nominal_cicilan: '',
+                status_verifikasi: '',
+                tempat_tagihan: '',
+                keterangan: '',
             };
         },
+        prepareEditCicilan(id) {
+            this.isEdit = true;
+            this.tampilModal = true;
+            this.dropdownIndex = null;
 
-        updateStatusPembayaran() {
-            if (this.form.metode_pembayaran === 'full') {
-                this.form.status_pembayaran = 'Lunas';
-                this.form.status_cicilan = 'Lunas';
-            } else {
-                this.form.status_pembayaran = 'Belum Lunas';
-                this.form.status_cicilan = 'Belum Lunas';
+            const cicilan = this.cicilanList.find(k => k.id === id);
+            if (cicilan) {
+                this.form = {
+                    id: cicilan.id,
+                    pembayaran_id: cicilan.pembayaran_id,
+                    tanggal_cicilan: cicilan.tanggal_cicilan || '',
+                    nominal_cicilan: Number(cicilan.nominal_cicilan).toLocaleString('id-ID'),
+                    status_verifikasi: cicilan.status_verifikasi || '',
+                    tempat_tagihan: cicilan.tempat_tagihan || '',
+                    keterangan: cicilan.keterangan || '',
+                };
             }
-        },
-
-        prepareEditPembayaran(id) {
-            axios.get(`/pembayaran/${id}`)
-                .then((res) => {
-                    const pembayaran = res.data.data;
-
-                    this.form = {
-                        id: pembayaran.id,
-                        siswa_id: pembayaran.siswa_id,
-                        tanggal_pembayaran: pembayaran.tanggal_pembayaran || '',
-                        jenis_pembayaran: pembayaran.jenis_pembayaran || 'pendaftaran baru',
-                        nominal: pembayaran.nominal ? pembayaran.nominal.toString() : '',
-                        metode_pembayaran: pembayaran.metode_pembayaran || 'full',
-                        bukti_pembayaran: pembayaran.bukti_pembayaran || '',
-                        status_pembayaran: pembayaran.status_pembayaran || 'Belum Lunas',
-                        status_cicilan: pembayaran.status_cicilan || 'Belum Lunas',
-                        status_rapor: pembayaran.status_rapor || 'Dapat Diterima',
-                        status_atribut: pembayaran.status_atribut || 'Sudah Diterima',
-                    };
-
-                    const rawValue = this.displayNominal.replace(/\./g, '');
-                    this.form.nominal = rawValue;
-                    
-                    this.displayNominal = pembayaran.nominal ?
-                        parseInt(pembayaran.nominal).toLocaleString('id-ID') :
-                        '';
-
-                    this.isEdit = true;
-                    this.tampilModal = true;
-                })
-                .catch((err) => {
-                    console.error("Gagal mengambil data pembayaran", err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal memuat data',
-                        text: err.response ?.data ?.message || 'Terjadi kesalahan saat memuat data pembayaran',
-                    });
-                });
         },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
@@ -444,72 +332,56 @@ export default {
                 this.currentPage = page;
             }
         },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
-            return this.pembayaranList.map((pembayaran, index) => {
-                const filteredPembayaran = {
+            return this.cicilanList.map((cicilan, index) => {
+                const filteredCicilan = {
                     No: index + 1
                 };
                 Object.keys(this.selectedFilters).forEach(key => {
                     if (this.selectedFilters[key]) {
-                        filteredPembayaran[key] = pembayaran[key];
+                        filteredCicilan[key] = cicilan[key];
                     }
                 });
-                return filteredPembayaran;
+                return filteredCicilan;
             });
         },
         simpanPembayaran() {
-            const url = this.isEdit ? `/pembayaran/${this.form.id}` : '/pembayaran';
+            const url = this.isEdit ? `/cicilan/${this.form.id}` : '/cicilan';
             const method = this.isEdit ? 'put' : 'post';
 
             const payload = {
-                siswa_id: this.form.siswa_id,
-                jenis_pembayaran: this.form.jenis_pembayaran.toLowerCase(),
-                tanggal_pembayaran: this.form.tanggal_pembayaran,
-                metode_pembayaran: this.form.metode_pembayaran,
-                nominal: Number(this.form.nominal.replace(/\D/g, '')),
-                bukti_pembayaran: this.form.bukti_pembayaran,
-                status_rapor: this.form.status_rapor,
-                status_atribut: this.form.status_atribut,
-                status_pembayaran: this.form.status_pembayaran,
-                status_cicilan: this.form.status_cicilan,
+                pembayaran_id: this.form.pembayaran_id,
+                status_verifikasi: this.form.status_verifikasi.toLowerCase(),
+                tanggal_cicilan: this.form.tanggal_cicilan,
+                nominal_cicilan: this.getNominalForBackend(), 
+                tempat_tagihan: this.form.tempat_tagihan,
+                keterangan: this.form.keterangan,
+                admin_id: this.form.admin_id || 1
             };
 
-            console.log('Payload sebelum dikirim:', {
-            payload: payload,
-            formData: this.form,
-            displayNominal: this.displayNominal,
-            isEdit: this.isEdit
-            });
+            console.log('Payload:', payload); 
 
             axios[method](url, payload)
                 .then((res) => {
-                    const idPembayaran = res.data.data.id;
-
                     Swal.fire({
                         icon: 'success',
                         title: this.isEdit ? 'Data berhasil diubah' : 'Data berhasil ditambahkan',
                         timer: 1500,
                         showConfirmButton: false
                     });
-
                     this.closeModal();
-                    this.fetchPembayaranList();
-
-                    if (this.form.metode_pembayaran === 'cicilan') {
-                        this.$router.push(`/adminmainsidebar/cicilan/${idPembayaran}`);
-                    }
+                    this.fetchCicilanList();
                 })
                 .catch((err) => {
                     console.error(err);
                     Swal.fire({
                         icon: 'error',
                         title: 'Gagal menyimpan data',
-                        text: err.response ?.data ?.message || 'Terjadi kesalahan saat menyimpan data',
+                        text: err.response?.data?.message || 'Terjadi kesalahan',
                     });
                 });
         },
-        deletePembayaran(id) {
+        deleteCicilan(id) {
             Swal.fire({
                 title: 'Apakah kamu yakin?',
                 text: 'Data yang dihapus tidak bisa dikembalikan!',
@@ -520,7 +392,7 @@ export default {
                 confirmButtonText: 'Ya, hapus!'
             }).then((result) => {
                 if (result.isConfirmed) {
-                    axios.delete(`/pembayaran/${id}`)
+                    axios.delete(`/cicilan/${id}`)
                         .then(() => {
                             Swal.fire({
                                 icon: 'success',
@@ -528,7 +400,7 @@ export default {
                                 timer: 1500,
                                 showConfirmButton: false
                             });
-                            this.fetchPembayaranList();
+                            this.fetchCicilanList();
                             this.dropdownIndex = null;
                         })
                         .catch((err) => {
@@ -546,59 +418,37 @@ export default {
         }
     },
     mounted() {
-        this.fetchSiswaList();
-        this.fetchKelasList();
-        this.fetchTahunAjaranList();
+        const id = this.$route.params.id;  
+        this.fetchCicilanList(id);
     },
     computed: {
-        filteredPembayaranList() {
+        filteredCicilanList() {
             if (!this.searchQuery) {
-                return this.pembayaranList;
+                return this.cicilanList;
             }
             const query = this.searchQuery.toLowerCase();
 
-            return this.pembayaranList.filter(pembayaran => {
-                return Object.keys(pembayaran).some(key => {
-                    let value = pembayaran[key];
+            return this.cicilanList.filter(cicilan => {
+                return Object.keys(cicilan).some(key => {
+                    let value = cicilan[key];
 
-                    // Cek jika properti siswa.nama_siswa cocok dengan pencarian
-                    if (key === "siswa" && pembayaran.siswa ?.nama_siswa) {
-                        if (pembayaran.siswa.nama_siswa.toLowerCase().includes(query)) {
-                            return true;
-                        }
-                    }
-
-                    // Cek status pembayaran
-                    if (key === "status_pembayaran" && pembayaran.status_pembayaran) {
-                        if (pembayaran.status_pembayaran.toLowerCase().includes(query)) {
+                    // Cek status verifikasi
+                    if (key === "status_verifikasi" && cicilan.status_verifikasi) {
+                        if (cicilan.status_verifikasi.toLowerCase().includes(query)) {
                             return true;
                         }
                     }
 
                     // Cek tanggal pembayaran (formatkan ke string)
-                    if (key === "tanggal_pembayaran" && pembayaran.tanggal_pembayaran) {
-                        if (String(pembayaran.tanggal_pembayaran).toLowerCase().includes(query)) {
+                    if (key === "tanggal_pembayaran" && cicilan.tanggal_cicilan) {
+                        if (String(cicilan.tanggal_cicilan).toLowerCase().includes(query)) {
                             return true;
                         }
                     }
 
                     // Cek nominal pembayaran (konversi ke string agar bisa dicari)
-                    if (key === "nominal" && pembayaran.nominal) {
-                        if (String(pembayaran.nominal).toLowerCase().includes(query)) {
-                            return true;
-                        }
-                    }
-
-                    // Cek status rapor
-                    if (key === "status_rapor" && pembayaran.status_rapor) {
-                        if (pembayaran.status_rapor.toLowerCase().includes(query)) {
-                            return true;
-                        }
-                    }
-
-                    // Cek status atribut
-                    if (key === "status_atribut" && pembayaran.status_atribut) {
-                        if (pembayaran.status_atribut.toLowerCase().includes(query)) {
+                    if (key === "nominal" && cicilan.nominal_cicilan) {
+                        if (String(cicilan.nominal_cicilan).toLowerCase().includes(query)) {
                             return true;
                         }
                     }
@@ -611,28 +461,25 @@ export default {
                 });
             });
         },
-        paginatedPembayaranList() {
+        paginatedCicilanList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
-            return this.filteredPembayaranList.slice(startIndex, endIndex);
+            return this.filteredCicilanList.slice(startIndex, endIndex);
         },
         totalPages() {
-            return Math.ceil(this.pembayaranList.length / this.rowsPerPage);
+            return Math.ceil(this.cicilanList.length / this.rowsPerPage);
         },
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.pembayaranList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.pembayaranList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.cicilanList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.cicilanList.length} entries`;
         },
     },
 };
 </script>
 
 <style scoped>
-.readonly {
-    color: #636364;
-}
-
+/* Filter Rows */
 .filter-rows {
     margin: 0.5rem 0;
     flex-direction: column;
@@ -1100,7 +947,6 @@ select[disabled] {
     border-radius: 8px;
     display: none;
     z-index: 1000;
-    left: 77rem;
 }
 
 .popup-menu.show {

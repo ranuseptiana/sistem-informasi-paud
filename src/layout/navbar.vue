@@ -35,7 +35,6 @@
                                 </li>
                                 <li class="dropdown-item">📍 Jl. Dieng Atas No.16, Sumberjo, Kalisongo, Kec. Dau, Kabupaten Malang, Jawa Timur 65151</li>
                                 <li class="dropdown-item">📞 081335305234</li>
-                                <li class="dropdown-item">📧 paudalummah.x9dau@gmail.com</li>
                             </ul>
                         </li>
                     </ul>
@@ -63,7 +62,7 @@
                     Guru
                 </button>
                 <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Siswa' }" @click="selectedUser = 'Siswa'">
-                    Siswa
+                    Orangtua
                 </button>
             </div>
 
@@ -80,6 +79,7 @@
 
 <script>
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 export default {
     data() {
@@ -91,33 +91,57 @@ export default {
             selectedUser: 'Admin',
             username: '',
             password: '',
-            dummyCredentials: {
-                Admin: {
-                    username: 'admin123',
-                    password: 'adminpass'
-                },
-                Guru: {
-                    username: 'guru123',
-                    password: 'gurupass'
-                },
-                Siswa: {
-                    username: 'siswa123',
-                    password: 'siswapass'
-                }
-            },
             passwordFieldType: 'password',
             passwordFieldIcon: 'fas fa-eye'
         };
     },
-    watch: {
-        selectedUser(newVal) {
-            if (this.dummyCredentials[newVal]) {
-                this.username = this.dummyCredentials[newVal].username;
-                this.password = this.dummyCredentials[newVal].password;
-            }
-        }
-    },
     methods: {
+        async navigateToDashboard() {
+            if (!this.username || !this.password) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops...',
+                    text: 'Harap masukkan username dan password!',
+                });
+                return;
+            }
+
+            try {
+                const response = await axios.post('http://localhost:8000/api/auth/login', {
+                    username: this.username,
+                    password: this.password
+                });
+                console.log(response);
+                
+                const token = response.data.token;
+                const expiresAt = response.data.expires_at;
+                const userId = response.data.user.id;
+
+                localStorage.setItem('token', token);
+                localStorage.setItem('expires_at', expiresAt);
+                localStorage.setItem('user_id', userId);
+
+                let route = '/';
+                if (this.selectedUser === 'Admin') {
+                    route = '/adminmainsidebar/dashboard';
+                } else if (this.selectedUser === 'Guru') {
+                    route = '/gurumainsidebar/dashboard';
+                } else if (this.selectedUser === 'Siswa') {
+                    route = '/siswamainsidebar/dashboard';
+                }
+
+                this.$router.push(route);
+
+            } catch (error) {
+                console.error(error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Login Gagal!',
+                    text: error.response ?.data ?.message || 'Username atau password salah!',
+                });
+                this.resetForm();
+            }
+        },
         toggleDropdown() {
             this.isDropdownOpen = !this.isDropdownOpen;
         },
@@ -163,40 +187,10 @@ export default {
                 this.passwordFieldIcon = 'fas fa-eye';
             }
         },
-            navigateToDashboard() {
-                if (!this.username || !this.password) {
-                    Swal.fire({
-                        icon: 'warning',
-                        title: 'Oops...',
-                        text: 'Harap masukkan username dan password!',
-                    });
-                    return; 
-                }
-
-                const creds = this.dummyCredentials[this.selectedUser];
-                if (creds && this.username === creds.username && this.password === creds.password) {
-                    let route = '/';
-                    if (this.selectedUser === 'Admin') {
-                        route = '/adminmainsidebar/dashboard';
-                    } else if (this.selectedUser === 'Guru') {
-                        route = '/gurumainsidebar/dashboard';
-                    } else if (this.selectedUser === 'Siswa') {
-                        route = '/siswamainsidebar/dashboard';
-                    }
-                    this.$router.push(route);
-                } else {
-                    this.resetForm();
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal Login!',
-                        text: 'Username atau password salah!',
-                    });
-                }
-            },
-            resetForm() {
-                this.username = '';
-                this.password = '';
-            }
+        resetForm() {
+            this.username = '';
+            this.password = '';
+        }
     },
     mounted() {
         this.updateActiveMenu(this.$route);

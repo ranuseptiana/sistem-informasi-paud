@@ -7,7 +7,7 @@
         </ol>
     </nav>
 
-    <h4 class="welcome-text">Selamat Datang, Admin!</h4>
+    <h4 style="font-weight: 800; color: #336C2A; margin-top: 1.2rem;">Selamat Datang, {{ userName || 'Admin' }}!</h4>
 
     <!-- Kartu Informasi -->
     <div class="card-container">
@@ -106,30 +106,7 @@
 </template>
 
 <script lang="ts">
-const centerTextPlugin = {
-    id: 'centerText',
-    beforeDraw(chart) {
-        if (chart.config.type !== 'doughnut') return;
-
-        const {
-            width,
-            height,
-            ctx
-        } = chart;
-        ctx.save();
-        ctx.font = 'bold 30px Nunito Sans';
-        ctx.fillStyle = '#000';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-
-        // Pastikan hanya angka yang diproses
-        const dataset = chart.data.datasets[0].data;
-        const total = dataset.reduce((sum, value) => (typeof value === 'number' ? sum + value : sum), 0);
-
-        ctx.fillText(`${total}`, width / 2, height / 2);
-        ctx.restore();
-    }
-};
+import axios from "axios";
 
 import {
     Chart as ChartJS,
@@ -155,7 +132,31 @@ import {
     computed,
     onMounted
 } from 'vue';
-import axios from 'axios';
+
+const centerTextPlugin = {
+    id: 'centerText',
+    beforeDraw(chart) {
+        if (chart.config.type !== 'doughnut') return;
+
+        const {
+            width,
+            height,
+            ctx
+        } = chart;
+        ctx.save();
+        ctx.font = 'bold 30px Nunito Sans';
+        ctx.fillStyle = '#000';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+
+        // Pastikan hanya angka yang diproses
+        const dataset = chart.data.datasets[0].data;
+        const total = dataset.reduce((sum, value) => (typeof value === 'number' ? sum + value : sum), 0);
+
+        ctx.fillText(`${total}`, width / 2, height / 2);
+        ctx.restore();
+    }
+};
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, BarElement, PointElement, ArcElement, Title, Tooltip, Legend)
 ChartJS.register(centerTextPlugin);
@@ -169,6 +170,9 @@ export default {
     },
     data() {
         return {
+            userName: "",
+            username: "",
+            password: "",
             guruList: [],
             chartData: {
                 labels: ['PG Matahari', 'PG Mentari', 'PG 1 Bintang', 'A1', 'A2', 'B1', 'B2'],
@@ -235,7 +239,7 @@ export default {
                     data: [20, 20, 30, 25, 15, 20, 25, 30, 23, 25, 20, 29, 35] // Data SPP
                 }]
             },
-            newData: { // Struktur data diperbaiki
+            newData: {
                 labels: ['Laki-Laki', 'Perempuan'],
                 datasets: [{
                     label: 'Jumlah Siswa',
@@ -243,7 +247,10 @@ export default {
                     data: [20, 30] // Data jumlah siswa
                 }]
             },
-        }
+        };
+    },
+    created() { 
+        this.fetchUserData();
     },
     setup() {
         const relasiKelasList = ref < Array < {
@@ -307,15 +314,49 @@ export default {
             await fetchGuruList();
             await fetchKelasList();
             await fetchRelasiKelasList();
-
-            console.log("Relasi Kelas List:", JSON.stringify(relasiKelasList.value, null, 2));
-            console.log("Kelas List:", JSON.stringify(kelasList.value, null, 2));
         });
 
         return {
             guruWithKelas
         };
     },
+    methods: {
+        async login() {
+            try {
+                const response = await axios.post("/auth/login", {
+                    username: this.username,
+                    password: this.password
+                });
+
+                localStorage.setItem("auth_token", response.data.token);
+
+                this.fetchUserData();
+            } catch (error) {
+                console.error("Login failed:", error);
+            }
+        },
+
+        async fetchUserData() {
+            try { 
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    console.log('Token tidak ditemukan');
+                    return;
+                }
+
+                const response = await axios.get('/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                this.userName = response.data.name;
+            } catch (error) {
+                console.error('Error fetching user data:', error.response || error);
+            }
+        }
+    }
 }
 </script>
 

@@ -32,7 +32,7 @@
                         Kelas
                     </router-link>
                     <router-link to="/adminmainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition')">
-                        Pembayaran SPP
+                        Pembayaran
                     </router-link>
                     <router-link to="/adminmainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery')">
                         Galeri
@@ -50,12 +50,12 @@
                     <div v-if="isDropdownVisible" class="profile-dropdown">
                         <ul>
                             <span class="dropdown-item-text">
-                                <i class="fa-regular fa-user"></i>Admin
+                                <i class="fa-regular fa-user"></i>{{ userName || 'Admin 1' }}
                             </span>
                             <li>
-                                <router-link to="/" class="dropdown-item" :class="{ active: activeMenu === 'logout' }" @click="setActive('logout')" style="color: red">
+                                <a href="#" class="dropdown-item" :class="{ active: activeMenu === 'logout' }" @click.prevent="logout" style="color: red; text-decoration: none;">
                                     <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
-                                </router-link>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -72,14 +72,58 @@
 </template>
 
 <script>
+import Swal from 'sweetalert2';
+import axios from 'axios';
+
 export default {
     data() {
         return {
             activeMenu: '',
+            userName: "",
+            username: "",
+            password: "",
             isDropdownVisible: false, // Kontrol visibilitas dropdown
         };
     },
+    created() { 
+        this.fetchUserData();
+    },
     methods: {
+        async login() {
+            try {
+                const response = await axios.post("/auth/login", {
+                    username: this.username,
+                    password: this.password
+                });
+
+                localStorage.setItem("auth_token", response.data.token);
+
+                this.fetchUserData();
+            } catch (error) {
+                console.error("Login failed:", error);
+            }
+        },
+
+        async fetchUserData() {
+            try { 
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    console.log('Token tidak ditemukan');
+                    return;
+                }
+
+                const response = await axios.get('/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                this.userName = response.data.name;
+            } catch (error) {
+                console.error('Error fetching user data:', error.response || error);
+            }
+        },
         setActive(menu) {
             this.activeMenu = menu;
         },
@@ -95,9 +139,10 @@ export default {
                 this.activeMenu = 'teacher';
             } else if (currentPath.includes('class')) {
                 this.activeMenu = 'class';
-            } else if (currentPath.includes('tuition')) {
-                this.activeMenu = 'tuition';
-            } else if (currentPath.includes('gallery')) {
+            }
+            else if (currentPath.includes('tuition')) {
+                this.activeMenu = 'tuition'; } 
+            else if (currentPath.includes('gallery')) {
                 this.activeMenu = 'gallery';
             } else if (currentPath.includes('activity')) {
                 this.activeMenu = 'activity';
@@ -111,8 +156,35 @@ export default {
         closeDropdown() {
             this.isDropdownVisible = false;
         },
-        logout() {
-            console.log("Logout clicked");
+        async logout() {
+            Swal.fire({
+                title: 'Yakin ingin logout?',
+                text: "Anda akan keluar dari sistem!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Ya, Logout',
+                cancelButtonText: 'Batal'
+            }).then(async (result) => {
+                if (result.isConfirmed) {
+                    try {
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                            await axios.post('/auth/logout', {}, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                }
+                            });
+                        }
+                        localStorage.removeItem('token');
+                        
+                        this.$router.push('/');
+                    } catch (error) {
+                        console.error('Error during logout:', error);
+                    }
+                }
+            });
         },
         handleOutsideClick(event) {
             const dropdown = document.getElementById("profileDropdown");

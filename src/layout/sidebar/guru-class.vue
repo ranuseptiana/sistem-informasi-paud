@@ -1,498 +1,199 @@
 <template>
-<section class="content-header">
+<div class="main-content">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Kelas A</li>
+            <li class="breadcrumb-item active" aria-current="page">Kelas</li>
         </ol>
     </nav>
-    <div class="header-button">
-        <h3 class="header-text">Daftar Siswa - Kelas A</h3>
-    </div>
-</section>
-<section class="content">
-    <!-- Filter section -->
-    <div class="filter-section">
-        <div class="row-filter-wrapper">
-            <div class="tampil-baris">
-                Show
-                <select v-model="rowsPerPage" class="select-rows-student">
-                    <option value="5">5</option>
-                    <option value="10">10</option>
-                    <option value="20">20</option>
-                    <option value="100">All</option>
-                </select>
+    <div>
+        <div class="list-peserta">
+            <h2>Kelas {{ kelasList.nama_kelas }}</h2>
+        </div>
+        <div class="table-wrapper">
+            <div class="search-filter">
+                <h3>Peserta Kelas</h3>
             </div>
-            <!-- Show filter button -->
-            <div class="filter">
-                <button @click="toggleFilterPopup" class="filter-btn-student">
-                    Filter
-                    <i class="fa-solid fa-filter filter-icon"></i>
-                </button>
-                <div v-if="showModal" class="modal-overlay" @click.self="closeModal">
-                    <div class="modal-content">
-                        <!-- Header -->
-                        <div class="modal-header">
-                            <h5 class="modal-title">Filter Data Siswa</h5>
-                            <button type="button" class="close-btn" @click="closeModal">&times;</button>
-                        </div>
-                        <hr>
-
-                        <!-- Filter Checkbox dalam Dua Kolom -->
-                        <div class="filter-container">
-                            <div class="column">
-                                <div v-for="(filter, index) in firstRowFilters" :key="index">
-                                    <label>
-                                        <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
-                                        {{ filter.label }}
-                                    </label>
-                                </div>
-                            </div>
-                            <div class="column">
-                                <div v-for="(filter, index) in secondRowFilters" :key="index">
-                                    <label>
-                                        <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
-                                        {{ filter.label }}
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr>
-
-                        <!-- Tahun Ajaran -->
-                        <div class="tahun-ajaran">
-                            <label>
-                                <input type="checkbox" v-model="showTahunAjaran" class="checkbox" />
-                                Tahun Ajaran
-                            </label>
-                            <div v-if="showTahunAjaran" class="tahun-ajaran-dropdown">
-                                <select v-model="tahunAwal">
-                                    <option value="2023/2024">2023/2024</option>
-                                    <option value="2024/2025">2024/2025</option>
-                                </select>
-                                <span>-</span>
-                                <select v-model="tahunAkhir">
-                                    <option value="2024/2025">2024/2025</option>
-                                    <option value="2025/2026">2025/2026</option>
-                                </select>
-                            </div>
-                        </div>
-                        <!-- Tombol Save -->
-                        <div class="modal-footer">
-                            <button class="save-btn" @click="saveFilter">Save</button>
-                        </div>
-                    </div>
+            <hr>
+            <div class="show">
+                <div class="tampil-baris">
+                    Show
+                    <select v-model="rowsPerPage" class="select-rows">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="100">All</option>
+                    </select>
                 </div>
-
+                <div class="search-bar-container">
+                    <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
+                    <i class="fas fa-search search-icon"></i>
+                </div>
             </div>
-            <!-- Export -->
-            <div class="export-section">
-                <button class="btn btn-danger" @click="exportData('pdf')">
-                    <i class="fa fa-file-pdf" aria-hidden="true"></i>
-                    PDF
-                </button>
-                <button class="btn btn-success" @click="exportData('excel')">
-                    <i class="fa fa-file-excel" aria-hidden="true"></i>
-                    Excel
-                </button>
-            </div>
+            <table class="table data-table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col" class="table-head">No</th>
+                        <th scope="col" class="table-head">NIS</th>
+                        <th scope="col" class="table-head">Nama</th>
+                        <th scope="col" class="table-head">Jenis Kelamin</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id">
+                        <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
+                        <td>{{ siswa.nisn }}</td>
+                        <td>{{ siswa.nama }}</td>
+                        <td>{{ siswa.jenis_kelamin }}</td>
+                    </tr>
+                    <tr v-if="paginatedSiswaList.length === 0" class="no-data">
+                        <td colspan="5" class="no-data-cell">
+                            <div class="no-data-content">
+                                <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
+                                <p class="no-data-text">Tidak ada data</p>
+                            </div>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
-        <!-- Pencarian -->
-        <div class="search-bar-container">
-            <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
-            <i class="fas fa-search search-icon"></i>
+        <div class="pagination-info-guru">
+            <p class="page-info">{{ pageInfo }}</p>
+            <nav aria-label="Page navigation" class="pagination-nav">
+                <ul class="pagination">
+                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </button>
+                    </li>
+
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
+                    </li>
+
+                    <li v-if="showLeftEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <button class="page-link" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
+
+                    <li v-if="showRightEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
+
+                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
         </div>
     </div>
-    <div class="table-wrapper">
-        <!-- Table Section -->
-        <table class="table data-table table-hover">
-            <thead>
-                <tr>
-                    <th scope="col" class="table-head">No</th>
-                    <th scope="col" class="table-head" v-if="selectedFilters.nisn">NISN</th>
-                    <th scope="col" class="table-head" v-if="selectedFilters.nama">Nama Lengkap</th>
-                    <th scope="col" class="table-head" v-if="selectedFilters.jenisKelamin">Jenis Kelamin</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id" class="row-hover">
-                    <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
-                    <td v-if="selectedFilters.nisn">{{ siswa.nisn ? siswa.nisn : 'Data tidak ditemukan' }}</td>
-                    <td v-if="selectedFilters.nama">{{ siswa.nama_siswa }}</td>
-                    <td v-if="selectedFilters.jenisKelamin">{{ siswa.jenis_kelamin }}</td>
-                </tr>
-                <tr v-if="paginatedSiswaList.length === 0" class="no-data">
-                    <td colspan="9" class="no-data-cell">
-                        <div class="no-data-content">
-                            <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
-                            <p class="no-data-text">Tidak ada data</p>
-                        </div>
-                    </td>
-                </tr>
-            </tbody>
-        </table>
-    </div>
-    <div class="pagination-info">
-        <p class="page-info">{{ pageInfo }}</p>
-        <nav aria-label="Page navigation" class="pagination-nav">
-            <ul class="pagination">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                    <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </button>
-                </li>
-
-                <li class="page-item" :class="{ active: currentPage === 1 }">
-                    <button class="page-link" @click="changePage(1)">1</button>
-                </li>
-
-                <li v-if="showLeftEllipsis" class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>
-
-                <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                    <button class="page-link" @click="changePage(page)">
-                        {{ page }}
-                    </button>
-                </li>
-
-                <li v-if="showRightEllipsis" class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>
-
-                <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
-                    <button class="page-link" @click="changePage(totalPages)">
-                        {{ totalPages }}
-                    </button>
-                </li>
-
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                    <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </button>
-                </li>
-            </ul>
-        </nav>
-    </div>
-</section>
+</div>
 </template>
 
-    
 <script>
-import jsPDF from "jspdf";
-import "jspdf-autotable";
-import Papa from "papaparse";
-import Swal from "sweetalert2";
-import axios from 'axios';
-import {
-    ref,
-    computed,
-    onMounted
-} from 'vue';
+import axios from "axios";
 
 export default {
     data() {
         return {
-            maxVisiblePages: 5,
-            rowsPerPage: 5,
-            currentPage: 1,
-            dropdownIndex: null,
-            showModal: false,
-            searchQuery: '', // for filtering
+            searchQuery: "",
+            kelasList: {},
             siswaList: [],
-            firstRowFilters: [{
-                    key: "noKk",
-                    label: "No KK"
-                },
-                {
-                    key: "nik",
-                    label: "NIK Siswa"
-                },
-                {
-                    key: "nisn",
-                    label: "NISN"
-                },
-                {
-                    key: "nama",
-                    label: "Nama Siswa"
-                },
-                {
-                    key: "tempatLahir",
-                    label: "Tempat Lahir"
-                },
-                {
-                    key: "tanggalLahir",
-                    label: "Tanggal Lahir"
-                },
-                {
-                    key: "jenisKelamin",
-                    label: "Jenis Kelamin"
-                },
-                {
-                    key: "agama",
-                    label: "Agama"
-                },
-            ],
-            secondRowFilters: [{
-                    key: "alamat",
-                    label: "Alamat"
-                },
-                {
-                    key: "anakKe",
-                    label: "Anak Ke"
-                },
-                {
-                    key: "jumlahSaudara",
-                    label: "Jumlah Saudara"
-                },
-                {
-                    key: "beratBadan",
-                    label: "Berat Badan"
-                },
-                {
-                    key: "tinggiBadan",
-                    label: "Tinggi Badan"
-                },
-                {
-                    key: "lingkarKepala",
-                    label: "Lingkar Kepala"
-                },
-                {
-                    key: "rombel",
-                    label: "Kelas Saat Ini"
-                },
-                {
-                    key: "status",
-                    label: "Status Siswa"
-                },
-            ],
-            selectedFilters: {
-                noKk: true,
-                nik: true,
-                nisn: true,
-                nama: true,
-                jenisKelamin: true,
-                agama: false,
-                tempatLahir: false,
-                tanggalLahir: false,
-                alamat: false,
-                anakKe: false,
-                jumlahSaudara: false,
-                beratBadan: false,
-                tinggiBadan: false,
-                lingkarKepala: false,
-                rombel: true,
-                status: false,
-                tahunAjar: true,
-            },
-            showTahunAjaran: true,
-            tahunAwal: "2023/2024",
-            tahunAkhir: "2024/2025",
-            headerMapping: {
-                nis: 'Nomor Induk Siswa',
-                noKk: 'Nomor KK',
-                nama: 'Nama Lengkap',
-                jenisKelamin: 'Jenis Kelamin',
-                agama: 'Agama',
-                nik: 'NIK',
-                tempatLahir: 'Tempat Lahir',
-                tanggalLahir: 'Tanggal Lahir',
-                alamat: 'Alamat',
-                anakKe: 'Anak Ke',
-                jumlahSaudara: 'Jumlah Saudara',
-                beratBadan: 'Berat Badan',
-                tinggiBadan: 'Tinggi Badan',
-                lingkarKepala: 'Lingkar Kepala',
-                rombel: 'Kelas Saat Ini',
-                status: 'Status Siswa',
-                tahunAjar: 'Tahun Ajaran',
-            }
+            username: "",
+            password: "",
+            currentPage: 1,
+            rowsPerPage: 5
         };
     },
-    //untuk menampilkan data siswa
-    setup() {
-        const siswaList = ref([]);
-        const kelasList = ref([]);
-        const tahunAjaranList = ref([]);
+    mounted() {
+        const idGuru = localStorage.getItem("user_id");
 
-        const fetchSiswaList = () => {
-            axios.get('/siswa')
-                .then((res) => {
-                    console.log("Response dari API Siswa:", res.data); // Debugging
-                    if (res.data && Array.isArray(res.data.data)) {
-                        siswaList.value = res.data.data;
-                        console.log("Siswa List:", siswaList.value); // Cek apakah datanya tersimpan
-                    } else {
-                        console.error("Format data siswa tidak sesuai", res.data);
-                        siswaList.value = [];
-                    }
-                })
-                .catch((error) => {
-                    console.error("Terjadi error saat fetching data siswa:", error);
-                    siswaList.value = [];
-                });
-        };
+        console.log('ID Guru dari localStorage:', idGuru);
 
-        const fetchKelasList = () => {
-            axios.get('/kelas')
-                .then(res => {
-                    // console.log("Response dari API Kelas:", res.data); // Debugging
-                    if (res.data && Array.isArray(res.data.data)) {
-                        kelasList.value = res.data.data;
-                        // console.log("Kelas List:", kelasList.value); 
-                    } else {
-                        console.error("Format data kelas tidak sesuai", res.data);
-                        kelasList.value = [];
-                    }
-                })
-                .catch(error => console.error("Error fetching kelas:", error));
-        };
-
-        const fetchTahunAjaranList = async () => {
-            try {
-                const response = await axios.get('/tahunajaran');
-                tahunAjaranList.value = response.data;
-                console.log("Tahun Ajar List:", tahunAjaranList.value);
-            } catch (error) {
-                console.error('Gagal mengambil data tahun ajaran', error);
-            }
-        };
-
-        const getTahunAjar = (id) => {
-            const tahunAjar = tahunAjaranList.value.find(item => item.id === id);
-
-            return tahunAjar ? tahunAjar.tahun : 'Tidak ditemukan';
-        };
-
-        onMounted(() => {
-            fetchSiswaList();
-            fetchKelasList();
-            fetchTahunAjaranList();
-        });
-
-        const sortedSiswaList = computed(() => {
-            return [...siswaList.value].sort((a, b) => a.id - b.id);
-        });
-
-        return {
-            siswaList,
-            kelasList,
-            tahunAjaranList,
-            fetchSiswaList,
-            fetchKelasList,
-            fetchTahunAjaranList,
-            getTahunAjar,
-            sortedSiswaList
-        };
+        if (idGuru) {
+            this.fetchKelasByGuruId(idGuru);
+        } else {
+            console.error("ID guru tidak ditemukan di localStorage");
+        }
     },
     methods: {
-        saveFilter() {
-            console.log("Filter disimpan:", this.selectedFilters, this.tahunAwal, this.tahunAkhir);
+        async login() {
+            try {
+                const response = await axios.post("/auth/login", {
+                    username: this.username,
+                    password: this.password,
+                });
+
+                const token = response.data.token;
+                const user = response.data.user;
+                const guruId = response.data.guruId;
+
+                localStorage.setItem("auth_token", response.data.token);
+                localStorage.setItem("id_guru", response.data.guruId);
+
+                let userId = localStorage.getItem("id_guru");
+
+                this.fetchKelasByGuruId(userId);
+            } catch (error) {
+                console.error("Login failed:", error);
+            }
         },
-        toggleDropdown(index) {
-            this.dropdownIndex = this.dropdownIndex === index ? null : index;
+
+        async fetchKelasByGuruId(idGuru) {
+            try {
+                const response = await axios.get(`http://localhost:8000/api/guru/${idGuru}/kelas`);
+                console.log("Response:", response);
+                console.log("Response Data:", response.data.data.daftar_kelas);
+
+                if (!response.data) {
+                    throw new Error('Response tidak valid dari server');
+                }
+
+                this.kelasList = response.data.data.daftar_kelas[0] || {};
+                this.siswaList = response.data.data.daftar_kelas[0].siswa || [];
+
+            } catch (error) {
+                console.error("Error detail:", {
+                    message: error.message,
+                    response: error.response ?.data,
+                    status: error.response ?.status
+                });
+
+                alert(`Gagal memuat data: ${error.response?.data?.message || error.message}`);
+            }
         },
-        closeModal() {
-            this.showModal = false;
-        },
+
         changePage(page) {
-            if (page > 0 && page <= this.totalPages) {
+            if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
             }
-        },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
-        getFilteredData() {
-            return this.siswaList.map((siswa, index) => {
-                const filteredSiswa = {
-                    No: index + 1
-                }; // Menambahkan nomor urut
-                Object.keys(this.selectedFilters).forEach(key => {
-                    if (this.selectedFilters[key]) {
-                        filteredSiswa[key] = siswa[key];
-                    }
-                });
-                return filteredSiswa;
-            });
-        },
-
-        toggleFilterPopup() {
-            this.showModal = !this.showModal;
-        },
-
-        // Fungsi ekspor data berdasarkan filter aktif
-        exportData(format) {
-            const filteredData = this.getFilteredData();
-
-            // Buat header sesuai mapping
-            const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
-            const headerLabels = headers.map(header => this.headerMapping[header] || header);
-
-            if (format === 'pdf') {
-                const doc = new jsPDF();
-
-                // Buat data tabel untuk PDF
-                const data = filteredData.map(siswa => headers.map(key => siswa[key] || ''));
-
-                doc.autoTable({
-                    head: [headerLabels],
-                    body: data,
-                });
-
-                doc.save('filtered_data.pdf');
-            } else if (format === 'excel') {
-                const data = [headerLabels, ...filteredData.map(siswa => headers.map(key => siswa[key] || ''))];
-                const csv = Papa.unparse(data);
-
-                const blob = new Blob([csv], {
-                    type: 'text/csv;charset=utf-8;'
-                });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'filtered_data.csv';
-                link.click();
-            }
-        },
-
-        editSiswa(id) {
-            this.$router.push(`/adminmainsidebar/addStudents/${id}`);
-        },
-        async deleteSiswa(siswaId) {
-            try {
-                // Konfirmasi penghapusan data
-                const confirmDelete = await Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data ini akan dihapus!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, Hapus',
-                    cancelButtonText: 'Batal'
-                });
-
-                if (confirmDelete.isConfirmed) {
-                    const response = await axios.delete(`/siswa/${siswaId}`);
-
-                    Swal.fire('Terhapus!', 'Data siswa berhasil dihapus.', 'success');
-
-                    this.siswaList = this.siswaList.filter(siswa => siswa.id !== siswaId);
-                }
-            } catch (error) {
-                Swal.fire('Error', 'Gagal menghapus data siswa!', 'error');
-            }
-        },
-        //         getTahunAjar(id) {
-        //     const tahun = this.tahunAjaranList.find(t => t.id === id);
-        //     return tahun ? tahun.nama : "Tidak Ada";
-        //   }
+        }
     },
     computed: {
+        filteredSiswa() {
+            return this.siswaList.filter((siswa) =>
+                siswa.nama.toLowerCase().includes(this.searchQuery.toLowerCase()) ||
+                (siswa.nisn && siswa.nisn.toString().includes(this.searchQuery))
+            );
+        },
         showLeftEllipsis() {
             return this.currentPage > 4;
         },
-
         showRightEllipsis() {
             return this.currentPage < this.totalPages - 3;
         },
-
         middlePages() {
             let start = Math.max(2, this.currentPage - 1);
             let end = Math.min(this.totalPages - 1, this.currentPage + 1);
@@ -511,511 +212,219 @@ export default {
             }
             return pages;
         },
-        filteredSiswaList() {
-            if (!this.searchQuery) {
-                return this.siswaList; // Jika tidak ada pencarian, tampilkan semua data
-            }
-
-            const query = this.searchQuery.toLowerCase();
-            return this.siswaList.filter(siswa => {
-                return Object.keys(siswa).some(key => {
-                    return String(siswa[key]).toLowerCase().includes(query);
-                });
-            });
-        },
         paginatedSiswaList() {
-            const start = (this.currentPage - 1) * this.rowsPerPage;
-            const end = start + this.rowsPerPage;
-            return this.filteredSiswaList.slice(start, end);
+            let start = (this.currentPage - 1) * this.rowsPerPage;
+            return this.filteredSiswa.slice(start, start + this.rowsPerPage);
         },
-        // Total halaman berdasarkan jumlah siswa
         totalPages() {
-            return Math.ceil(this.siswaList.length / this.rowsPerPage);
+            return Math.ceil(this.filteredSiswa.length / this.rowsPerPage);
         },
         pageInfo() {
+            if (this.filteredSiswa.length === 0) {
+                return 'Tidak ada data';
+            }
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.siswaList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.siswaList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredSiswa.length);
+            return `Showing ${startRow} - ${endRow} of ${this.filteredSiswa.length} entries`;
         },
-        getKelasNama() {
-            return (kelas_id) => {
-                const kelas = this.kelasList.find(k => k.id === kelas_id);
-                return kelas ? kelas.nama_kelas : 'Tidak ada kelas';
-            };
-        },
-    },
+    }
 };
 </script>
 
-    
+  
 <style scoped>
- /* Overlay modal */
- .modal-overlay {
-     position: fixed;
-     top: 0;
-     left: 0;
-     width: 100%;
-     height: 100%;
-     background: rgba(0, 0, 0, 0.5);
-     display: flex;
-     justify-content: center;
-     align-items: center;
- }
+.main-content {
+    display: flex;
+    flex-direction: column;
+}
 
- /* Konten modal */
- .modal-content {
-     background: white;
-     padding: 20px;
-     border-radius: 8px;
-     width: 500px;
-     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-     text-align: left;
- }
+.list-peserta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    width: auto;
+    max-width: 150rem;
+    overflow-x: auto;
+    background-color: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
- /* Header modal */
- .modal-header {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     font-size: 18px;
- }
+.search-filter {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
 
- /* Tombol close */
- .close-btn {
-     background: none;
-     border: none;
-     font-size: 22px;
-     cursor: pointer;
- }
+.show {
+    display: flex;
+    flex-direction: row;
+}
 
- /* Layout dua kolom */
- .filter-container {
-     display: flex;
-     justify-content: space-between;
- }
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    margin-left: auto;
+    border: 1px solid #e2e2e286;
+    padding: 5px 0.5rem;
+    border-radius: 10px;
+    width: fit-content;
+    background-color: white;
+    box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
+}
 
- .column {
-     width: 48%;
- }
+.search-input {
+    border: none;
+    outline: none;
+    text-align: left;
+    background-color: white;
+    width: 7rem;
+}
 
- /* Tahun ajaran dropdown */
- .tahun-ajaran {
-     margin-top: 15px;
- }
+.search-icon {
+    color: #888;
+}
 
- .tahun-ajaran-dropdown {
-     display: flex;
-     gap: 10px;
-     margin-top: 5px;
- }
+.search-bar-container:focus-within {
+    border-color: #636364;
+}
 
- /* Footer modal */
- .modal-footer {
-     text-align: right;
-     margin-top: 15px;
- }
+.table-wrapper {
+    width: 100%;
+    max-width: 100rem;
+    overflow-x: auto;
+    background-color: white;
+    margin-top: 1rem;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
- /* Tombol save */
- .save-btn {
-     background: blue;
-     color: white;
-     padding: 8px 15px;
-     border: none;
-     border-radius: 5px;
-     cursor: pointer;
- }
+.table-hover>tbody>tr:hover {
+    font-weight: 800;
+    background-color: #6c757d;
+}
 
- /* Filter Rows */
- .filter-rows {
-     margin: 0.5rem 0;
-     flex-direction: column;
-     align-items: flex-start;
-     margin-top: 1rem;
-     display: flex;
-     flex-wrap: wrap;
-     gap: 1rem;
- }
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 50rem;
+    margin-top: 1rem;
+    table-layout: auto;
+}
 
- .col {
-     display: flex;
-     margin-bottom: 0.3rem;
-     align-items: center;
-     width: calc(50% - 0.5rem);
- }
+.data-table th,
+.data-table td {
+    padding: 12px 8px;
+    text-align: left;
+}
 
- label {
-     display: inline-block;
-     white-space: nowrap;
-     width: calc(100% - 30px);
-     color: #636364;
- }
+.data-table .table-head {
+    font-weight: 800;
+    color: #336C2A;
+}
 
- .select-rows-student {
-     color: #6E736D;
-     padding: 5px;
-     width: 3.4rem;
-     border-radius: 10px;
-     border: 1px solid #d6d6d686;
-     background-color: #ffffff;
-     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
-     transition: border-color 0.3s ease;
- }
+.no-data-cell {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    height: 150px;
+}
 
- .filter-section {
-     display: flex;
-     justify-content: space-between;
-     align-items: center;
-     position: relative;
-     width: 64rem;
-     overflow-x: auto;
-     background-color: #ffffff;
-     margin-top: 1rem;
-     padding: 20px;
-     border-radius: 10px;
-     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
- }
+.no-data-content {
+    display: flex;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
 
- .row-filter-wrapper {
-     display: flex;
-     align-items: center;
- }
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
 
- .filter {
-     margin-left: 0.5rem;
- }
+.no-data-text {
+    font-size: 16px;
+    color: #6c757d;
+}
 
- .filter-actions {
-     display: flex;
-     align-items: center;
-     gap: 2px;
- }
+.pagination-info-guru {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
 
- .filter-btn-student {
-     font-weight: 600;
-     color: #6E736D;
-     padding: 4px;
-     width: 7rem;
-     border-radius: 10px;
-     border: 1px solid #d6d6d686;
-     background-color: #ffffff;
-     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
-     transition: border-color 0.3s ease;
- }
+.pagination-info {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+}
 
- .filter-icon {
-     margin-left: 2rem;
-     color: #636364;
- }
+.page-info {
+    margin: 0;
+}
 
- .filter-popup {
-     position: absolute;
-     top: 100%;
-     margin-top: 0.3rem;
-     left: 4;
-     z-index: 999;
-     background-color: white;
-     border: 1px solid rgb(240, 238, 238);
-     border-radius: 10px;
-     padding: 10px;
-     width: 75%;
-     text-align: left;
-     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
- }
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
 
- .filter-popup label {
-     display: block;
-     margin-bottom: 5px;
- }
+.page-item {
+    margin: 0 2px;
+}
 
- .checkbox {
-     margin-right: 0.5rem;
-     position: relative;
-     width: 16px;
-     height: 16px;
-     appearance: none;
-     border: 2px solid #ccc;
-     border-radius: 4px;
-     outline: none;
-     cursor: pointer;
-     background-color: white;
- }
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
 
- .checkbox:checked {
-     text-align: center;
-     background-color: #007bff;
-     border-color: #007bff;
- }
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
 
- .checkbox:checked::after {
-     content: '';
-     position: absolute;
-     top: 1px;
-     left: 4px;
-     width: 4px;
-     height: 8px;
-     border: solid white;
-     border-width: 0 2px 2px 0;
-     transform: rotate(45deg);
- }
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
 
- .breadcrumb {
-     margin-top: 3.5rem;
- }
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
 
- .header-text {
-     margin: 0;
-     font-weight: 800;
-     color: #336C2A;
- }
-
- .btn-add-siswa {
-     text-decoration: none;
-     background: #46943a;
-     color: white;
-     border: none;
-     padding: 0.5rem 1rem;
-     border-radius: 20px;
-     cursor: pointer;
-     display: flex;
-     align-items: center;
-     justify-content: center;
-     gap: 0.5rem;
-     right: 12px;
-     width: auto;
- }
-
- .btn-add-siswa:hover {
-     color: white;
-     background: #336C2A;
-     transform: translateY(-2px);
-     text-decoration: none;
- }
-
- .btn-add-siswa i {
-     font-size: 1rem;
- }
-
- .tampil-baris {
-     color: #336C2A;
-     font-weight: 600;
- }
-
- .export-section {
-     margin-left: 0.5rem;
- }
-
- .search-bar-container {
-     display: flex;
-     align-items: center;
-     border: 1px solid #d6d6d686;
-     padding: 5px 0.5rem;
-     border-radius: 10px;
-     width: fit-content;
-     background-color: white;
-     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
- }
-
- .search-input {
-     border: none;
-     outline: none;
-     text-align: left;
-     background-color: white;
-     width: 7rem;
- }
-
- .search-icon {
-     color: #888;
- }
-
- .search-bar-container:focus-within {
-     border-color: #636364;
- }
-
- .table-wrapper {
-     width: 64rem;
-     max-width: 150rem;
-     overflow-x: auto;
-     background-color: white;
-     margin-top: 1rem;
-     padding: 20px;
-     border-radius: 10px;
-     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
- }
-
- .data-table {
-     width: 100%;
-     border-collapse: collapse;
-     min-width: 50rem;
-     margin-top: 1rem;
-     table-layout: auto;
- }
-
- .table-hover>tbody>tr:hover {
-     font-weight: 800;
-     background-color: #6c757d;
- }
-
- .data-table td {
-     overflow: hidden;
-     text-overflow: ellipsis;
-     white-space: nowrap;
- }
-
- .data-table th,
- .data-table td {
-     padding: 12px 8px;
-     min-width: 120px;
-     white-space: nowrap;
-     text-align: left;
- }
-
- .data-table .table-head {
-     font-weight: 800;
-     color: #336C2A;
- }
-
- .data-table th:first-child,
- .data-table td:first-child {
-     width: 50px;
-     min-width: 50px;
-     max-width: 50px;
-     text-align: center;
- }
-
- .data-table td:last-child,
- .data-table th:last-child {
-     text-align: center;
- }
-
- .data-table tr:nth-child(even) {
-     background-color: #f9f9f9;
- }
-
- .popup .btn {
-     box-shadow: none;
-     border: none;
-     background: transparent;
-     padding: 0;
- }
-
- .popup-menu {
-     position: absolute;
-     background-color: white;
-     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-     padding: 10px;
-     border-radius: 8px;
-     display: none;
-     z-index: 1000;
- }
-
- .popup-menu.show {
-     display: block;
- }
-
- .popup-item {
-     display: block;
-     padding: 8px 12px;
-     width: 100%;
-     text-align: left;
-     background: none;
-     border: none;
-     cursor: pointer;
- }
-
- .popup-item:hover {
-     background-color: #f5f5f5;
- }
-
- .no-data-cell {
-     text-align: center;
-     padding: 20px;
-     position: relative;
-     height: 150px;
- }
-
- .no-data-content {
-     display: flex;
-     margin-top: 0.5rem;
-     flex-direction: column;
-     align-items: center;
-     justify-content: center;
-     height: 100%;
-     position: absolute;
-     top: 0;
-     left: 0;
-     width: 100%;
- }
-
- .no-data-img {
-     max-width: 100px;
-     margin-bottom: 10px;
- }
-
- .no-data-text {
-     font-size: 16px;
-     color: #6c757d;
-     /* Warna teks abu-abu */
- }
-
- .pagination-info {
-     display: flex;
-     align-items: center;
-     justify-content: space-between;
-     width: 100%;
-     margin-top: 1rem;
-     margin-bottom: 1rem;
- }
-
- .page-info {
-     margin: 0;
- }
-
- .pagination {
-     display: flex;
-     padding-left: 0;
-     list-style: none;
-     border-radius: 0.25rem;
- }
-
- .page-item {
-     margin: 0 2px;
- }
-
- .page-item.active .page-link {
-     background-color: #336C2A;
-     border-color: #336C2A;
-     color: white;
- }
-
- .page-item.disabled .page-link {
-     color: #6c757d;
-     pointer-events: none;
-     background-color: #fff;
-     border-color: #dee2e6;
- }
-
- .page-link {
-     position: relative;
-     display: block;
-     padding: 0.5rem 0.75rem;
-     margin-left: -1px;
-     line-height: 1.25;
-     color: #336C2A;
-     background-color: #fff;
-     border: 1px solid #dee2e6;
-     cursor: pointer;
- }
-
- .page-link:hover {
-     color: #1a3615;
-     text-decoration: none;
-     background-color: #e9ecef;
-     border-color: #dee2e6;
- }
-
- .page-link:focus {
-     z-index: 3;
-     outline: 0;
-     box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
- }
+.page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
+}
 </style>

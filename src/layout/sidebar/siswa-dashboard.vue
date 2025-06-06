@@ -3,13 +3,12 @@
     <div class="fluid-container">
         <nav aria-label="breadcrumb">
             <ol class="breadcrumb">
-                <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Beranda</li>
+                <li class="breadcrumb-item active" aria-current="page">Beranda</li>
             </ol>
         </nav>
 
-        <h4 class="welcome-text">Selamat Datang, Siswa!</h4>
+        <h4 class="welcome-text">Selamat Datang, {{ userName || 'Siswa' }}!</h4>
 
-        <!-- Kartu Informasi -->
         <div class="card-container">
             <div class="card-information">
                 <div class="card-dashboard">
@@ -107,6 +106,8 @@
 
     
 <script lang="ts">
+import axios from 'axios';
+
 const centerTextPlugin = {
     id: 'centerText',
     beforeDraw(chart) {
@@ -156,7 +157,6 @@ import {
     computed,
     onMounted
 } from 'vue';
-import axios from 'axios';
 
 ChartJS.register(CategoryScale, LinearScale, LineElement, BarElement, PointElement, ArcElement, Title, Tooltip, Legend)
 ChartJS.register(centerTextPlugin);
@@ -170,6 +170,9 @@ export default {
     },
     data() {
         return {
+            userName: "",
+            username: "",
+            password: "",
             guruList: [],
             chartData: {
                 labels: ['PG Matahari', 'PG Mentari', 'PG 1 Bintang', 'A1', 'A2', 'B1', 'B2'],
@@ -246,6 +249,46 @@ export default {
             },
         }
     },
+    created() { 
+        this.fetchUserData();
+    },
+    methods: {
+        async login() {
+            try {
+                const response = await axios.post("/auth/login", {
+                    username: this.username,
+                    password: this.password
+                });
+
+                localStorage.setItem("auth_token", response.data.token);
+
+                this.fetchUserData();
+            } catch (error) {
+                console.error("Login failed:", error);
+            }
+        },
+
+        async fetchUserData() {
+            try { 
+                const token = localStorage.getItem('token');
+
+                if (!token) {
+                    console.log('Token tidak ditemukan');
+                    return;
+                }
+
+                const response = await axios.get('/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                this.userName = response.data.name;
+            } catch (error) {
+                console.error('Error fetching user data:', error.response || error);
+            }
+        }
+    },
     setup() {
         const relasiKelasList = ref < Array < {
             guru_id: number;kelas_id: number
@@ -309,8 +352,8 @@ export default {
             await fetchKelasList();
             await fetchRelasiKelasList();
 
-            console.log("Relasi Kelas List:", JSON.stringify(relasiKelasList.value, null, 2));
-            console.log("Kelas List:", JSON.stringify(kelasList.value, null, 2));
+            // console.log("Relasi Kelas List:", JSON.stringify(relasiKelasList.value, null, 2));
+            // console.log("Kelas List:", JSON.stringify(kelasList.value, null, 2));
         });
 
         return {
@@ -319,9 +362,8 @@ export default {
     },
 }
 </script>
-
     
-<style>
+<style scoped>
 .main-content {
     display: flex;
     flex-direction: column;

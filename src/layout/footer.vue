@@ -1,33 +1,43 @@
 <template>
    <footer class="footer">
         <div class="container">
-            <div class="footer-column">
-                <h3>PAUD Al-Ummah</h3>
-                <ul>
-                    <li><p>Jl. Dieng Atas No.16, Sumberjo, Kalisongo, Kec. Dau, Kabupaten Malang, Jawa Timur 65151</p></li>
-                    <li><p><i class="fa-solid fa-phone" style="margin-right: 0.5rem;"></i>081335305234</p></li>
-                    <li><a href="https://web.facebook.com/paud.alummah"><i class="fa-brands fa-facebook" style="margin-right: 0.5rem;"></i>PAUD Al Ummah</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Tentang Kami</h3>
-                <ul>
-                    <li><a href="http://localhost:5173/about">Tentang PAUD Al-Ummah</a></li>
-                    <li><a href="http://localhost:5173/about">Visi dan Misi</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Informasi Kegiatan</h3>
-                <ul>
-                    <li><a href="http://localhost:5173/album">Galeri Kegiatan</a></li>
-                    <li><a href="http://localhost:5173/agenda">Agenda Kegiatan</a></li>
-                </ul>
-            </div>
-            <div class="footer-column">
-                <h3>Layanan</h3>
-                <ul>
-                    <li><a href="http://localhost:5173/information">FAQ</a></li>
-                </ul>
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>PAUD Al-Ummah</h3>
+                    <ul>
+                        <li><p>Jl. Dieng Atas No.16, Sumberjo, Kalisongo, Kec. Dau, Kabupaten Malang, Jawa Timur 65151</p></li>
+                        <li><p><i class="fa-solid fa-phone" style="margin-right: 0.5rem;"></i>081335305234</p></li>
+                        <li><p><i class="fa-solid fa-envelope" style="margin-right: 0.5rem;"></i>alummahk@gmail.com</p></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Tentang Kami</h3>
+                    <ul>
+                        <li><a href="http://localhost:5173/about">Tentang PAUD Al-Ummah</a></li>
+                        <li><a href="http://localhost:5173/about">Visi dan Misi</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Informasi Kegiatan</h3>
+                    <ul>
+                        <li><a href="http://localhost:5173/album">Galeri Kegiatan</a></li>
+                        <li><a href="http://localhost:5173/agenda">Agenda Kegiatan</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Layanan</h3>
+                    <ul>
+                        <li><a href="http://localhost:5173/information">FAQ</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Akun Sosial Media</h3>
+                    <ul>
+                        <li><a href="https://web.facebook.com/paud.alummah"><i class="fa-brands fa-facebook" style="margin-right: 0.5rem;"></i>PAUD Al Ummah</a></li>
+                        <li><a href="https://www.instagram.com/paud_alummah_dieng?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="fa-brands fa-instagram" style="margin-right: 0.5rem;"></i>paud_alummah_dieng</a></li>
+                        <li><a href="https://www.tiktok.com/@paud.al.ummahkb.a?_t=ZS-8wc41BoN333&_r=1"><i class="fa-brands fa-tiktok" style="margin-right: 0.5rem;"></i>Paud AL Ummah/KB Al Ummah</a></li>
+                    </ul>
+                </div>
             </div>
             <hr>
         </div>
@@ -71,9 +81,14 @@ export default {
     padding: 20px 0;
 }
 
+.footer-content {
+    display: flex;
+    flex-direction: row;
+    margin: 0;
+}
+
 .footer-column {
-    flex: 2;
-    justify-content: space-between;
+    flex: 1;
     margin: 0 0px 0 25px;
 }
 

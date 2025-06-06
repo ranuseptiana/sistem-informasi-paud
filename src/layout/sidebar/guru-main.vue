@@ -45,13 +45,13 @@
                 <span class="material-symbols-outlined">dashboard</span> Beranda
             </router-link>
 
-            <router-link to="/gurumainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
+            <router-link to="/gurumainsidebar/guru/:id/kelas" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
                 <span class="material-symbols-outlined">diversity_2</span> Kelas
             </router-link>
 
-            <router-link to="/gurumainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'payment' }" @click="setActive('payment')">
+            <!-- <router-link to="/gurumainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'payment' }" @click="setActive('payment')">
                 <span class="material-symbols-outlined"> payments </span> Pembayaran SPP
-            </router-link>
+            </router-link> -->
 
             <router-link to="/gurumainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery')">
                 <span class="material-symbols-outlined"> photo_library </span> Galeri
@@ -79,6 +79,7 @@
     
 <script>
 import Swal from 'sweetalert2';
+import axios from 'axios';
 
 export default {
     data() {
@@ -104,9 +105,9 @@ export default {
                 this.activeMenu = 'dashboard';
             } else if (currentPath.includes('class')) {
                 this.activeMenu = 'class';
-            } else if (currentPath.includes('payment')) {
-                this.activeMenu = 'payment';
-            } else if (currentPath.includes('gallery')) {
+            }
+            //else if (currentPath.includes('payment')) { this.activeMenu = 'payment';} 
+            else if(currentPath.includes('gallery')) {
                 this.activeMenu = 'gallery';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
@@ -118,7 +119,7 @@ export default {
         closeDropdown() {
             this.isDropdownVisible = false;
         },
-        logout() {
+        async logout() {
             Swal.fire({
                 title: 'Yakin ingin logout?',
                 text: "Anda akan keluar dari sistem!",
@@ -128,9 +129,26 @@ export default {
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Ya, Logout',
                 cancelButtonText: 'Batal'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
-                    this.$router.push('/'); 
+                    try {
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                            // Mengirim permintaan untuk logout di backend
+                            await axios.post('/auth/logout', {}, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                }
+                            });
+                        }
+                        // Menghapus token dari localStorage
+                        localStorage.removeItem('token');
+                        
+                        // Arahkan ke halaman awal setelah logout
+                        this.$router.push('/');
+                    } catch (error) {
+                        console.error('Error during logout:', error);
+                    }
                 }
             });
         },

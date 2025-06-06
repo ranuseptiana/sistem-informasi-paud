@@ -20,14 +20,14 @@
             <div class="collapse navbar-collapse">
                 <!-- Profile icon -->
                 <div class="navbar-nav ms-auto">
-                    <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleDropdown">
+                    <a ref="profileDropdown" class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleProfileDropdown">
                         <i class="fas fa-user-circle"></i>
                     </a>
                     <!-- Popup dropdown -->
-                    <div v-if="isDropdownVisible" class="profile-dropdown">
+                    <div v-if="isProfileDropdownVisible" ref="profileDropdown" class="profile-dropdown">
                         <ul>
                             <span class="dropdown-item-text">
-                                <i class="fa-regular fa-user"></i>Siswa
+                                <i class="fa-regular fa-user"></i>{{ userName || 'Siswa' }}
                             </span>
                         </ul>
                     </div>
@@ -40,19 +40,35 @@
 
     <!-- Sidebar -->
     <nav id="sidebarMenu" :class="{ show: sidebarOpen }" class="sidebar collapse d-lg-block">
-        <div class="position-sticky mt-5" style="text-align: left;">
-            <router-link to="/siswamainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
-                <span class="material-symbols-outlined">dashboard</span> Beranda
-            </router-link>
+        <div class="sidebar-menu-container">
+            <!-- Menu utama -->
+            <div>
+                <router-link to="/siswamainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
+                    <span class="material-symbols-outlined">dashboard</span> Beranda
+                </router-link>
 
-            <router-link to="/gurumainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
-                <span class="material-symbols-outlined">diversity_2</span> Kelas
-            </router-link>
+                <router-link to="/siswamainsidebar/siswa/:id/kelas" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
+                    <span class="material-symbols-outlined">diversity_2</span> Kelas
+                </router-link>
 
-            <router-link to="/gurumainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'payment' }" @click="setActive('payment')">
-                <span class="material-symbols-outlined"> payments </span> Pembayaran SPP
-            </router-link>
+                <div class="w3-bar-item w3-button dropdown-btn" @click.stop="togglePaymentDropdown" :class="{ active: activeMenu === 'payment' }">
+                    <span class="material-symbols-outlined">payments</span> Pembayaran
+                    <span class="material-symbols-outlined" style="float: right;">{{ isPaymentDropdownVisible ? 'expand_less' : 'expand_more' }}</span>
+                </div>
 
+                <!-- Submenu Dropdown -->
+                <div v-if="isPaymentDropdownVisible" class="w3-dropdown-content">
+                    <router-link to="/siswamainsidebar/siswa/pembayaran/${siswaId}/pendaftaran_baru" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'pendaftaranBaru' }" @click="setActive('pendaftaranBaru')">
+                        Pendaftaran Baru
+                    </router-link>
+
+                    <router-link to="/siswamainsidebar/siswa/daftarUlang" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'daftarUlang' }" @click="setActive('daftarUlang')">
+                        Daftar Ulang
+                    </router-link>
+                </div>
+            </div>
+
+            <!-- Menu logout dipindah ke bagian bawah container -->
             <a href="#" class="w3-bar-item-logout w3-button-logout" :class="{ active: activeMenu === 'logout' }" @click.prevent="logout" style="text-decoration: none;">
                 <span class="material-symbols-outlined" style="color: red;">
                     logout
@@ -74,16 +90,59 @@
 
 <script>
 import Swal from 'sweetalert2';
+import axios from "axios";
 
 export default {
     data() {
         return {
             sidebarOpen: true,
             activeMenu: '',
-            isDropdownVisible: false,
+            isProfileDropdownVisible: false,
+            isPaymentDropdownVisible: false,
+            userName: "",
+            username: "",
+            password: "",
         };
     },
+    created() {
+        this.fetchUserData();
+    },
     methods: {
+        async login() {
+            try {
+                const response = await axios.post("/auth/login", {
+                    username: this.username,
+                    password: this.password
+                });
+
+                localStorage.setItem("auth_token", response.data.token);
+
+                this.fetchUserData();
+            } catch (error) {
+                console.error("Login failed:", error);
+            }
+        },
+
+        async fetchUserData() {
+            try {
+                const token = localStorage.getItem('auth_token');
+
+                if (!token) {
+                    console.log('Token tidak ditemukan');
+                    return;
+                }
+
+                const response = await axios.get('/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                this.userName = response.data.name;
+            } catch (error) {
+                console.error('Error fetching user data:', error.response || error);
+            }
+        },
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
         },
@@ -101,17 +160,36 @@ export default {
                 this.activeMenu = 'class';
             } else if (currentPath.includes('payment')) {
                 this.activeMenu = 'payment';
+            } else if (currentPath === 'pendaftaranBaru') {
+                this.activeMenu = 'pendafataranBaru';
+            } else if (currentPath === 'daftarUlang') {
+                this.activeMenu = 'daftarUlang';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
             }
         },
-        toggleDropdown() {
-            this.isDropdownVisible = !this.isDropdownVisible;
+        toggleProfileDropdown() {
+            this.isProfileDropdownVisible = !this.isProfileDropdownVisible;
+        },
+        togglePaymentDropdown(event) {
+            event.stopPropagation(); 
+            this.isPaymentDropdownVisible = !this.isPaymentDropdownVisible;
+            this.setActive('payment');
+        },
+        handleOutsideClick(event) {
+            const dropdown = this.$el.querySelector('.w3-dropdown-content');
+            const button = this.$el.querySelector('.dropdown-btn');
+
+            if (dropdown && button && !dropdown.contains(event.target) && !button.contains(event.target)) {
+                this.isProfileDropdownVisible = false;
+                this.isPaymentDropdownVisible = false;
+            }
         },
         closeDropdown() {
-            this.isDropdownVisible = false;
+            this.isProfileDropdownVisible = false;
+            this.isPaymentDropdownVisible = false;
         },
-        logout() {
+        async logout() {
             Swal.fire({
                 title: 'Yakin ingin logout?',
                 text: "Anda akan keluar dari sistem!",
@@ -121,18 +199,45 @@ export default {
                 cancelButtonColor: '#d33',
                 confirmButtonText: 'Ya, Logout',
                 cancelButtonText: 'Batal'
-            }).then((result) => {
+            }).then(async (result) => {
                 if (result.isConfirmed) {
-                    this.$router.push('/'); 
+                    try {
+                        const token = localStorage.getItem('token');
+                        if (token) {
+                            await axios.post('/auth/logout', {}, {
+                                headers: {
+                                    Authorization: `Bearer ${token}`,
+                                }
+                            });
+                        }
+                        localStorage.removeItem('token');
+
+                        this.$router.push('/');
+                    } catch (error) {
+                        console.error('Error during logout:', error);
+                    }
                 }
             });
         },
-        handleOutsideClick(event) {
-            const dropdown = document.getElementById("profileDropdown");
-            if (!dropdown || !dropdown.contains(event.target)) {
-                this.closeDropdown();
-            }
-        },
+        // handleOutsideClick(event) {
+        //     const dropdown = document.getElementById("profileDropdown");
+        //     if (!dropdown || !dropdown.contains(event.target)) {
+        //         this.closeDropdown();
+        //     }
+        // },
+        // handleOutsideClick(event) {
+        //     const dropdown = this.$refs.profileDropdown;
+        //     const button = this.$refs.profileBtn;
+
+        //     if (
+        //         dropdown &&
+        //         button &&
+        //         !dropdown.contains(event.target) &&
+        //         !button.contains(event.target)
+        //     ) {
+        //         this.isProfileDropdownVisible = false;
+        //     }
+        //     }
     },
     mounted() {
         this.updateActiveMenu(this.$route);
@@ -151,6 +256,10 @@ export default {
 </script>
 
 <style scoped>
+.w3-dropdown-content {
+    display: block;
+}
+
 main {
     transition: margin-left 0.3s ease;
 }
@@ -217,15 +326,80 @@ main {
     top: 0;
     bottom: 0;
     left: 0;
-    padding-top: 2.5rem;
+    padding-top: 5.5rem;
     width: 240px;
-    z-index: 0;
+    z-index: 100;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Container untuk menu */
+.sidebar-menu-container {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Style dropdown yang benar */
+.w3-dropdown-content {
+    position: relative;
+    background-color: #f9f9f9;
+    min-width: 160px;
+    box-shadow: none;
+    margin-left: 2.5rem;
+    border-left: 2px solid #336C2A;
+    animation: fadeIn 0.2s ease-out;
+}
+
+/* Animasi dropdown */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Pastikan menu logout tetap di bawah */
+.w3-bar-item-logout {
+    margin-top: auto;
+    /* Ini akan mendorong logout ke bawah */
+    padding: 15px;
+    border-top: 1px solid #eee;
 }
 
 .sidebar.show {
     transform: translateX(0);
+}
+
+.dropdown-btn {
+    padding: 6px 8px 6px 16px;
+    text-decoration: none;
+    font-size: 20px;
+    color: #818181;
+    display: block;
+    border: none;
+    background: none;
+    width: 100%;
+    text-align: left;
+    cursor: pointer;
+    outline: none;
+}
+
+.dropdown-btn:hover {
+    color: #f1f1f1;
+}
+
+.active {
+    background-color: green;
+    color: white;
 }
 
 /* Sidebar styling */

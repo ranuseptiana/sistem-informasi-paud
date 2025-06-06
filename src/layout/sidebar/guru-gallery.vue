@@ -25,16 +25,6 @@
                         <option value="100">All</option>
                     </select>
                 </div>
-                <div class="export-section">
-                    <button class="btn btn-danger" @click="exportData('pdf')">
-                        <i class="fa fa-file-pdf" aria-hidden="true"></i>
-                        PDF
-                    </button>
-                    <button class="btn btn-success" @click="exportData('excel')">
-                        <i class="fa fa-file-excel" aria-hidden="true"></i>
-                        Excel
-                    </button>
-                </div>
             </div>
             <!-- Modal -->
             <div class="custom-modal" v-if="showModal">

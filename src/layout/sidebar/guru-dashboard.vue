@@ -6,11 +6,7 @@
         </ol>
     </nav>
 
-    <h4 style="
-            font-weight: 800; 
-            color: #336C2A;
-            margin-top: 1.2rem;">Selamat Datang, guru!
-    </h4>
+    <h4 style="font-weight: 800; color: #336C2A; margin-top: 1.2rem;">Selamat Datang, {{ userName || 'Guru' }}!</h4>
 
     <div class="card-container">
         <router-link to="/adminmainsidebar/student" class="card-dashboard">
@@ -32,7 +28,61 @@
 </div>
 </template>
 
-    
+<script>
+import axios from "axios";
+
+export default {
+  data() {
+    return {
+      userName: "", 
+      username: "", 
+        password: "", 
+    };
+  },
+  created() {
+    this.fetchUserData(); 
+  },
+  methods: {
+    // Fungsi login yang mengirimkan request untuk autentikasi
+    async login() {
+      try {
+        const response = await axios.post("/auth/login", {
+          username: this.username,
+          password: this.password
+        });
+
+        localStorage.setItem("auth_token", response.data.token);
+
+        this.fetchUserData();
+      } catch (error) {
+        console.error("Login failed:", error);
+      }
+    },
+ 
+    async fetchUserData() {
+        try {
+            const token = localStorage.getItem('token'); 
+
+            if (!token) {
+                console.error('Token tidak ditemukan');
+                return;
+            }
+
+            const response = await axios.get('/user', {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+
+            this.userName = response.data.name;
+        } catch (error) {
+            console.error('Error fetching user data:', error.response || error);
+        }
+    }
+  },
+};
+</script>
+
 <style scoped>
 .main-content {
     margin: 0;

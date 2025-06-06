@@ -72,16 +72,28 @@
                                 </label>
                                 <div v-if="showTahunAjaran" class="tahun-ajaran-dropdown">
                                     <select v-model="tahunAwal">
-                                        <option value="2023/2024">2023/2024</option>
-                                        <option value="2024/2025">2024/2025</option>
+                                        <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun">{{ tahun.tahun }}</option>
                                     </select>
                                     <span>-</span>
                                     <select v-model="tahunAkhir">
-                                        <option value="2024/2025">2024/2025</option>
-                                        <option value="2025/2026">2025/2026</option>
+                                        <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun">{{ tahun.tahun }}</option>
                                     </select>
                                 </div>
                             </div>
+
+                            <!-- Kelas -->
+                            <div class="tahun-ajaran">
+                                <label>Kelas</label>
+                                <div class="tahun-ajaran-dropdown">
+                                    <select v-model="selectedKelas">
+                                        <option value="">Semua Kelas</option>
+                                        <option v-for="kelas in kelasList" :key="kelas.id" :value="kelas.id">
+                                            {{ kelas.nama_kelas }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </div>
+
                             <!-- Tombol Save -->
                             <div class="modal-footer">
                                 <button class="save-btn" @click="saveFilter">Save</button>
@@ -114,46 +126,46 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.noKk">No KK</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nisn">NISN</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nik">NIK</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nama">Nama Lengkap</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jenisKelamin">Jenis Kelamin</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tempatLahir">Tempat Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tanggalLahir">Tanggal Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.agama">Agama</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.alamat">Alamat</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.anakKe">Anak Ke</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jumlahSaudara">Jumlah Saudara</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.beratBadan">Berat Badan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tinggiBadan">Tinggi Badan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.lingkarKepala">Lingkar Kepala</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.rombel">Kelas Saat Ini</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.status">Status Siswa</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tahunAjar">Tahun Ajaran</th>
+                        <th scope="col" class="table-head">No KK</th>
+                        <th scope="col" class="table-head">NISN</th>
+                        <th scope="col" class="table-head">NIK</th>
+                        <th scope="col" class="table-head">Nama Lengkap</th>
+                        <th scope="col" class="table-head">Jenis Kelamin</th>
+                        <th scope="col" class="table-head">Tempat Lahir</th>
+                        <th scope="col" class="table-head">Tanggal Lahir</th>
+                        <th scope="col" class="table-head">Agama</th>
+                        <th scope="col" class="table-head">Alamat</th>
+                        <th scope="col" class="table-head">Anak Ke</th>
+                        <th scope="col" class="table-head">Jumlah Saudara</th>
+                        <th scope="col" class="table-head">Berat Badan</th>
+                        <th scope="col" class="table-head">Tinggi Badan</th>
+                        <th scope="col" class="table-head">Lingkar Kepala</th>
+                        <th scope="col" class="table-head">Kelas Saat Ini</th>
+                        <th scope="col" class="table-head">Status Siswa</th>
+                        <th scope="col" class="table-head">Tahun Ajaran</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id" class="row-hover">
                         <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
-                        <td v-if="selectedFilters.noKk">{{ siswa.no_kk ? siswa.no_kk : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.nisn">{{ siswa.nisn ? siswa.nisn : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.nik">{{ siswa.nik_siswa }}</td>
-                        <td v-if="selectedFilters.nama">{{ siswa.nama_siswa }}</td>
-                        <td v-if="selectedFilters.jenisKelamin">{{ siswa.jenis_kelamin }}</td>
-                        <td v-if="selectedFilters.tempatLahir">{{ siswa.tempat_lahir }}</td>
-                        <td v-if="selectedFilters.tanggalLahir">{{ siswa.tanggal_lahir }}</td>
-                        <td v-if="selectedFilters.agama">{{ siswa.agama }}</td>
-                        <td v-if="selectedFilters.alamat">{{ siswa.alamat }}</td>
-                        <td v-if="selectedFilters.anakKe">{{ siswa.anak_ke }}</td>
-                        <td v-if="selectedFilters.jumlahSaudara">{{ siswa.jumlah_saudara }}</td>
-                        <td v-if="selectedFilters.beratBadan">{{ siswa.berat_badan }}</td>
-                        <td v-if="selectedFilters.tinggiBadan">{{ siswa.tinggi_badan }}</td>
-                        <td v-if="selectedFilters.lingkarKepala">{{ siswa.lingkar_kepala }}</td>
-                        <td v-if="selectedFilters.rombel">{{ getKelasNama(siswa.kelas_id) }}</td>
-                        <td v-if="selectedFilters.status">{{ siswa.status ? siswa.status : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.tahunAjar">{{ getTahunAjar(siswa.tahun_ajaran_id) }}</td>
+                        <td>{{ siswa.no_kk ? siswa.no_kk : 'Data tidak ditemukan' }}</td>
+                        <td>{{ siswa.nisn ? siswa.nisn : 'Data tidak ditemukan' }}</td>
+                        <td>{{ siswa.nik_siswa }}</td>
+                        <td>{{ siswa.nama_siswa }}</td>
+                        <td>{{ siswa.jenis_kelamin }}</td>
+                        <td>{{ siswa.tempat_lahir }}</td>
+                        <td>{{ siswa.tanggal_lahir }}</td>
+                        <td>{{ siswa.agama }}</td>
+                        <td>{{ siswa.alamat }}</td>
+                        <td>{{ siswa.anak_ke }}</td>
+                        <td>{{ siswa.jumlah_saudara }}</td>
+                        <td>{{ siswa.berat_badan }}</td>
+                        <td>{{ siswa.tinggi_badan }}</td>
+                        <td>{{ siswa.lingkar_kepala }}</td>
+                        <td>{{ getKelasNama(siswa.kelas_id) }}</td>
+                        <td>{{ siswa.status ? siswa.status : 'Data tidak ditemukan' }}</td>
+                        <td>{{ getTahunAjar(siswa.tahun_ajaran_id) }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -243,6 +255,9 @@ export default {
             showModal: false,
             searchQuery: '', // for filtering
             siswaList: [],
+            selectedKelas: null,
+            tahunAwal: '',
+            tahunAkhir: '',
             firstRowFilters: [{
                     key: "noKk",
                     label: "No KK"
@@ -310,11 +325,11 @@ export default {
                 },
             ],
             selectedFilters: {
-                noKk: true,
-                nik: true,
-                nisn: true,
-                nama: true,
-                jenisKelamin: true,
+                noKk: false,
+                nik: false,
+                nisn: false,
+                nama: false,
+                jenisKelamin: false,
                 agama: false,
                 tempatLahir: false,
                 tanggalLahir: false,
@@ -324,11 +339,11 @@ export default {
                 beratBadan: false,
                 tinggiBadan: false,
                 lingkarKepala: false,
-                rombel: true,
+                rombel: false,
                 status: false,
-                tahunAjar: true,
+                tahunAjar: false,
             },
-            showTahunAjaran: true,
+            showTahunAjaran: false,
             // headerMapping: {
             //     nis: 'Nomor Induk Siswa',
             //     noKk: 'Nomor KK',
@@ -401,7 +416,7 @@ export default {
 
         const getTahunAjar = (id) => {
             const tahunAjar = tahunAjaranList.value.find(item => item.id === id);
-        
+
             return tahunAjar ? tahunAjar.tahun : 'Tidak ditemukan';
         };
 
@@ -428,7 +443,7 @@ export default {
     },
     methods: {
         saveFilter() {
-            console.log("Filter disimpan:", this.selectedFilters, this.tahunAwal, this.tahunAkhir);
+            this.closeModal();
         },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
@@ -462,11 +477,9 @@ export default {
 
         // Fungsi ekspor data berdasarkan filter aktif
         exportData(format) {
-            
+
         },
         editSiswa(id) {
-            this.dropdownIndex = null;
-            
             this.$router.push(`/adminmainsidebar/addStudents/${id}`);
         },
         async deleteSiswa(siswaId) {
@@ -519,17 +532,35 @@ export default {
             return pages;
         },
         filteredSiswaList() {
-            if (!this.searchQuery) {
-                return this.siswaList; // Jika tidak ada pencarian, tampilkan semua data
-            }
+            return this.siswaList.filter((siswa) => {
+                // Filter tahun ajaran
+                if (this.showTahunAjaran && this.tahunAwal && this.tahunAkhir) {
+                    const tahun = this.getTahunAjar(siswa.tahun_ajaran_id);
+                    if (!tahun || tahun < this.tahunAwal || tahun > this.tahunAkhir) {
+                        return false;
+                    }
+                }
 
-            const query = this.searchQuery.toLowerCase();
-            return this.siswaList.filter(siswa => {
-                return Object.keys(siswa).some(key => {
-                    return String(siswa[key]).toLowerCase().includes(query);
-                });
+                // Filter kelas
+                if (this.selectedKelas && siswa.kelas_id !== this.selectedKelas) {
+                    return false;
+                }
+
+                return true; // lolos semua filter
             });
         },
+        // filteredSiswaList() {
+        //     if (!this.searchQuery) {
+        //         return this.siswaList; // Jika tidak ada pencarian, tampilkan semua data
+        //     }
+
+        //     const query = this.searchQuery.toLowerCase();
+        //     return this.siswaList.filter(siswa => {
+        //         return Object.keys(siswa).some(key => {
+        //             return String(siswa[key]).toLowerCase().includes(query);
+        //         });
+        //     });
+        // },
         paginatedSiswaList() {
             const start = (this.currentPage - 1) * this.rowsPerPage;
             const end = start + this.rowsPerPage;
@@ -926,7 +957,7 @@ label {
     border-radius: 8px;
     display: none;
     left: 0;
-    transform: translateX(-30px);    
+    transform: translateX(-30px);
     z-index: 1000;
 }
 
@@ -976,7 +1007,6 @@ label {
 .no-data-text {
     font-size: 16px;
     color: #6c757d;
-    /* Warna teks abu-abu */
 }
 
 .pagination-info {
