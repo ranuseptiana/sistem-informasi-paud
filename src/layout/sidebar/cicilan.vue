@@ -208,7 +208,6 @@ export default {
             isEdit: false,
             dropdownIndex: null,
             searchQuery: '',
-            pembayaranList: [],
             cicilanList: [],
             namaSiswa: '',
             form: {
@@ -233,17 +232,35 @@ export default {
         const route = useRoute();
         const pembayaranId = route.params.id; 
         const cicilanList = ref([]);
+        const namaSiswaRef = ref('');
 
-        const fetchCicilanList = () => {
-            axios
-                .get(`/cicilan/pembayaran/${pembayaranId}`) 
-                .then((res) => {
-                    console.log('Data yang diterima:', res.data);
-                    cicilanList.value = res.data.data;
-                })
-                .catch((error) => {
-                    console.log(error.response.data.data);
+        const fetchCicilanList = async () => {
+            try {
+                const res = await axios.get(`/cicilan/pembayaran/${pembayaranId}`);
+                console.log('Data yang diterima:', res.data); 
+
+                cicilanList.value = res.data.data;
+
+                if (res.data.data && res.data.data.length > 0) {
+                    namaSiswaRef.value = res.data.data[0].nama_siswa || 'Nama Siswa Tidak Ditemukan';
+                }
+        
+                else if (res.data.siswa_nama) {
+                    namaSiswaRef.value = res.data.siswa_nama;
+                }
+                else {
+                    namaSiswaRef.value = 'Data Siswa Tidak Ditemukan'; 
+                }
+
+            } catch (error) {
+                console.error("Gagal mengambil data cicilan:", error.response?.data || error.message);
+                namaSiswaRef.value = 'Gagal Memuat Nama Siswa';
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal memuat data cicilan',
+                    text: error.response?.data?.message || 'Terjadi kesalahan saat mengambil data cicilan.',
                 });
+            }
         };
 
         onMounted(() => {
@@ -254,36 +271,15 @@ export default {
             pembayaranId,
             cicilanList,
             fetchCicilanList,
+            namaSiswa: namaSiswaRef,
         };
     },
     methods: {
-        fetchSiswaList() {
-            axios.get('/siswa')
-                .then((res) => {
-                    this.namaSiswa = res.data.data;
-                })
-                .catch((err) => {
-                    console.error("Gagal ambil data kelas", err);
-                });
-        },
-
-        getNamaSiswaByPembayaranId(pembayaranId) {
-            const pembayaran = this.namaSiswa.find(s => s.id === pembayaranId);
-            if (!pembayaran) return 'Pembayaran Tidak Ditemukan';
-
-            const siswa = this.namaSiswa.find(k => k.id === pembayaran.siswa_id);
-            return siswa ? siswa.nama_siswa : 'Siswa Tidak Ditemukan';
-        },
-
         formatNominal() {
-            // Hilangkan semua karakter bukan angka dulu
             let num = this.form.nominal_cicilan.replace(/\D/g, '');
 
-            // Format jadi string dengan titik sebagai pemisah ribuan
             this.form.nominal_cicilan = num ? Number(num).toLocaleString('id-ID') : '';
         },
-        
-        // Fungsi untuk prepare data yang akan dikirim ke backend (hilangkan titik)
         getNominalForBackend() {
             return this.form.nominal_cicilan.replace(/\./g, '');
         },
@@ -358,8 +354,6 @@ export default {
                 keterangan: this.form.keterangan,
                 admin_id: this.form.admin_id || 1
             };
-
-            console.log('Payload:', payload); 
 
             axios[method](url, payload)
                 .then((res) => {

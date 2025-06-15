@@ -32,6 +32,7 @@ import SiswaDashboard from "../layout/sidebar/siswa-dashboard.vue";
 import SiswaKelas from "../layout/sidebar/siswa-class.vue";
 import SiswaPendaftaran from "../layout/sidebar/siswa-pendaftaran.vue";
 import SiswaDaftarUlang from "../layout/sidebar/siswa-daftar-ulang.vue";
+import SiswaCicilan from "../layout/sidebar/siswa-cicilan.vue"
 import { components } from "vuetify/dist/vuetify-labs.js";
 
 const routes = [
@@ -136,10 +137,6 @@ const routes = [
                 path: "guru/:id?/kelas",
                 component: GuruClasses,
             },
-            // {
-            //     path: "tuition",
-            //     component: GuruTuition,
-            // },
             {
                 path: "gallery",
                 component: GuruGallery,
@@ -165,9 +162,14 @@ const routes = [
                 name: 'SiswaKelas',
             },
             {
-                path: 'siswa/pembayaran/:id/pendaftaran_baru',
+                path: 'siswa/pembayaran/pendaftaran_baru',
                 component: SiswaPendaftaran,
                 name: 'SiswaPendaftaran'
+            },
+            {
+                path: 'siswa/cicilan/:id',
+                component: SiswaCicilan,
+                name: 'DetailCicilan'
             },
             {
                 path: 'siswa/daftarUlang',

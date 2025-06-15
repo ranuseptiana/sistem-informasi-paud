@@ -5,7 +5,7 @@
             <li class="breadcrumb-item active" aria-current="page">Kelas</li>
         </ol>
     </nav>
-    <div>
+    <div class="kotak-peserta">
         <div class="list-peserta">
             <h2>Kelas {{ kelasList.nama_kelas }}</h2>
         </div>
@@ -403,6 +403,9 @@ export default {
     border-color: #dee2e6;
 }
 
+.kotak-peserta {
+    width: 94%;
+}
 .page-link {
     position: relative;
     display: block;

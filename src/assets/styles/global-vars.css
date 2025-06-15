@@ -1,0 +1,24 @@
+/* src/assets/styles/global-vars.css */
+:root {
+    --primary-green: #4CAF50;
+    --light-green: #8BC34A;
+    --secondary-blue: #2196F3;
+    --light-blue: #BBDEFB;
+    --accent-pink: #E91E63;
+    --light-pink: #F8BBD0;
+    --accent-yellow: #FFC107;
+    --light-yellow: #FFECB3;
+    --text-dark: #333;
+    --text-light: #fff;
+    --background-light: #F0F4F8;
+    --card-shadow: rgba(0, 0, 0, 0.1);
+    --colorful-shadow-boy: rgba(33, 150, 243, 0.4);
+    --colorful-shadow-girl: rgba(233, 30, 99, 0.4);
+  }
+  
+  /* Anda juga bisa menambahkan reset CSS dasar di sini jika mau */
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }

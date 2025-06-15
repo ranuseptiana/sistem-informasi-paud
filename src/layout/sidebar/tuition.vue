@@ -104,7 +104,16 @@
                         <td>{{ pembayaran.metode_pembayaran }}</td>
                         <td>{{ pembayaran.nominal ? formatRupiah(pembayaran.nominal) : 'Nominal Belum Ditambahkan' }}</td>
                         <td>{{ pembayaran.sisa_pembayaran ? formatRupiah(pembayaran.sisa_pembayaran) : 'Tidak Ada Sisa Pembayaran' }}</td>
-                        <td>{{ pembayaran.bukti_pembayaran ? pembayaran.bukti_pembayaran : 'Bukti Belum Ditambahkan' }}</td>
+                        <td>
+                            <template v-if="pembayaran.bukti_pembayaran_url">
+                                <img :src="`http://localhost:8000/storage/${pembayaran.bukti_pembayaran}`"
+                                    alt="Bukti Pembayaran"
+                                    class="img-thumbnail cursor-pointer"
+                                    style="max-width: 80px; max-height: 150px; object-fit: cover;"
+                                    @click="openImageModal(`http://localhost:8000/storage/${pembayaran.bukti_pembayaran}`)">
+                                </template>
+                            <span v-else>Tidak Ada</span>
+                        </td>
                         <td>{{ pembayaran.status_pembayaran }}</td>
                         <td>{{ pembayaran.status_cicilan }}</td>
                         <td>{{ pembayaran.status_rapor }}</td>
@@ -172,8 +181,14 @@
                                     <input type="date" v-model="form.tanggal_pembayaran" class="form-input">
                                 </div>
 
-                                <label for="buktiPembayaran" style="font-weight: 700;">Bukti Pembayaran:</label>
-                                <input type="text" v-model="form.bukti_pembayaran" class="form-input">
+                                <!-- <label for="buktiPembayaran" style="font-weight: 700;">Bukti Pembayaran:</label>
+                                <input type="file" class="form-input"> -->
+
+                                <div class="form-group">
+                                <label for="bukti_pembayaran">Bukti Pembayaran (Gambar):</label>
+                                <input type="file" id="bukti_pembayaran" @change="handleFileUpload" class="form-control-file">
+                                <span v-if="errors && errors.bukti_pembayaran" class="text-danger">{{ errors.bukti_pembayaran[0] }}</span>
+                            </div>
 
                                 <div class="satu-row">
                                     <label for="statusPembayaran">Status Pembayaran:</label>
@@ -226,6 +241,14 @@
         </div>
     </section>
 </div>
+<div v-if="showImageModal"
+     class="image-modal-backdrop"
+     @click="handleClickOutside">
+    <div class="image-modal-content">
+        <button class="image-modal-close" @click="closeImageModal">&times;</button>
+        <img :src="currentImageUrl" alt="Bukti Pembayaran Full" class="full-image">
+    </div>
+</div>
 </template>
 
 <script>
@@ -251,19 +274,25 @@ export default {
             kelasList: [],
             tahunAjaranList: [],
             form: {
+                id: null,
                 siswa_id: '',
                 tanggal_pembayaran: '',
                 jenis_pembayaran: '',
                 nominal: '',
                 metode_pembayaran: '',
                 isCicilan: false,
-                bukti_pembayaran: '',
+                bukti_pembayaran: null,
+                bukti_pembayaran_url: null,
                 status_pembayaran: '',
                 status_cicilan: '',
                 status_rapor: '',
                 status_atribut: '',
             },
-            displayNominal: ''
+            displayNominal: '',
+            fileNameBuktiPembayaran: '',
+            showImageModal: false, // Tambahkan ini
+            currentImageUrl: '',
+            errors: {},
         };
     },
     setup() {
@@ -273,8 +302,8 @@ export default {
             axios
                 .get('/pembayaran')
                 .then((res) => {
-                    console.log('Data yang diterima:', res.data);
-                    pembayaranList.value = res.data.data; })
+                    pembayaranList.value = res.data.data;
+                })
                 .catch((error) => {
                     console.log(error.response.data.data);
                 });
@@ -293,21 +322,21 @@ export default {
         },
 
         formatNominal(event) {
-        let inputValue = event.target.value;
-        let numericValue = inputValue.replace(/[^\d]/g, '');
-        
-        if (numericValue.length > 9) {
-            numericValue = numericValue.slice(0, 9);
-        }
-        
-        this.form.nominal = numericValue;
-        
-        this.displayNominal = numericValue ? 
-            new Intl.NumberFormat('id-ID').format(parseInt(numericValue)) : 
-            '';
-        
-        event.target.value = this.displayNominal;
-    },
+            let inputValue = event.target.value;
+            let numericValue = inputValue.replace(/[^\d]/g, '');
+
+            if (numericValue.length > 9) {
+                numericValue = numericValue.slice(0, 9);
+            }
+
+            this.form.nominal = numericValue;
+
+            this.displayNominal = numericValue ?
+                new Intl.NumberFormat('id-ID').format(parseInt(numericValue)) :
+                '';
+
+            event.target.value = this.displayNominal;
+        },
 
         fetchKelasList() {
             axios.get('/kelas')
@@ -376,12 +405,19 @@ export default {
                 jenis_pembayaran: '',
                 tanggal_pembayaran: '',
                 metode_pembayaran: '',
-                bukti_pembayaran: '',
+                bukti_pembayaran: null, // Reset ke null untuk file
+                bukti_pembayaran_url: null, 
                 status_pembayaran: '',
                 status_cicilan: '',
                 status_rapor: '',
                 status_atribut: ''
             };
+            this.errors = {}; // Reset errors
+            // Reset input file HTML secara manual
+            const fileInput = document.getElementById('bukti_pembayaran');
+            if (fileInput) {
+                fileInput.value = '';
+            }
         },
 
         updateStatusPembayaran() {
@@ -399,29 +435,32 @@ export default {
                 .then((res) => {
                     const pembayaran = res.data.data;
 
+                    this.displayNominal = pembayaran.nominal ?
+                        parseInt(pembayaran.nominal).toLocaleString('id-ID') :
+                        '';
+
                     this.form = {
                         id: pembayaran.id,
                         siswa_id: pembayaran.siswa_id,
                         tanggal_pembayaran: pembayaran.tanggal_pembayaran || '',
                         jenis_pembayaran: pembayaran.jenis_pembayaran || 'pendaftaran baru',
-                        nominal: pembayaran.nominal ? pembayaran.nominal.toString() : '',
+                        nominal: pembayaran.nominal ? pembayaran.nominal.toString() : '', // <-- Ambil langsung dari pembayaran.nominal
                         metode_pembayaran: pembayaran.metode_pembayaran || 'full',
-                        bukti_pembayaran: pembayaran.bukti_pembayaran || '',
+                        bukti_pembayaran: null, // Penting: Set null untuk file baru, biarkan yang lama di backend
+                        bukti_pembayaran_url: pembayaran.bukti_pembayaran_url,
                         status_pembayaran: pembayaran.status_pembayaran || 'Belum Lunas',
                         status_cicilan: pembayaran.status_cicilan || 'Belum Lunas',
                         status_rapor: pembayaran.status_rapor || 'Dapat Diterima',
                         status_atribut: pembayaran.status_atribut || 'Sudah Diterima',
                     };
 
-                    const rawValue = this.displayNominal.replace(/\./g, '');
-                    this.form.nominal = rawValue;
-                    
-                    this.displayNominal = pembayaran.nominal ?
-                        parseInt(pembayaran.nominal).toLocaleString('id-ID') :
-                        '';
-
                     this.isEdit = true;
                     this.tampilModal = true;
+                    this.errors = {}; 
+                    const fileInput = document.getElementById('bukti_pembayaran');
+                if (fileInput) {
+                    fileInput.value = '';
+                }
                 })
                 .catch((err) => {
                     console.error("Gagal mengambil data pembayaran", err);
@@ -432,83 +471,82 @@ export default {
                     });
                 });
         },
-        toggleDropdown(index) {
-            this.dropdownIndex = this.dropdownIndex === index ? null : index;
-        },
-        closeModal() {
-            this.showModal = false;
-            this.tampilModal = false;
-        },
-        changePage(page) {
-            if (page >= 1 && page <= this.totalPages) {
-                this.currentPage = page;
-            }
-        },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
-        getFilteredData() {
-            return this.pembayaranList.map((pembayaran, index) => {
-                const filteredPembayaran = {
-                    No: index + 1
-                };
-                Object.keys(this.selectedFilters).forEach(key => {
-                    if (this.selectedFilters[key]) {
-                        filteredPembayaran[key] = pembayaran[key];
-                    }
-                });
-                return filteredPembayaran;
+        async simpanPembayaran() {
+    this.errors = {}; // Reset errors sebelum submit
+
+    // Konversi nominal dari format tampilan ke format database
+    const nominalValue = this.displayNominal 
+        ? parseInt(this.displayNominal.replace(/\./g, '')) 
+        : 0;
+
+    // Siapkan FormData
+    const formData = new FormData();
+    formData.append('siswa_id', this.form.siswa_id);
+    formData.append('tanggal_pembayaran', this.form.tanggal_pembayaran);
+    formData.append('jenis_pembayaran', this.form.jenis_pembayaran);
+    formData.append('nominal', nominalValue);
+    formData.append('metode_pembayaran', this.form.metode_pembayaran);
+    formData.append('status_rapor', this.form.status_rapor);
+    formData.append('status_atribut', this.form.status_atribut);
+    formData.append('status_pembayaran', this.form.status_pembayaran);
+
+    console.log('Respon API:', formData);
+    // Handle file upload
+    if (this.form.bukti_pembayaran instanceof File) {
+        formData.append('bukti_pembayaran', this.form.bukti_pembayaran);
+    } else if (this.isEdit && !this.form.bukti_pembayaran_url) {
+        // Jika mode edit dan tidak ada file lama, kirim string kosong
+        formData.append('bukti_pembayaran', '');
+    }
+
+    try {
+        let res;
+        if (this.isEdit) {
+            formData.append('_method', 'PUT');
+            res = await axios.post(`/pembayaran/${this.form.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
-        },
-        simpanPembayaran() {
-            const url = this.isEdit ? `/pembayaran/${this.form.id}` : '/pembayaran';
-            const method = this.isEdit ? 'put' : 'post';
-
-            const payload = {
-                siswa_id: this.form.siswa_id,
-                jenis_pembayaran: this.form.jenis_pembayaran.toLowerCase(),
-                tanggal_pembayaran: this.form.tanggal_pembayaran,
-                metode_pembayaran: this.form.metode_pembayaran,
-                nominal: Number(this.form.nominal.replace(/\D/g, '')),
-                bukti_pembayaran: this.form.bukti_pembayaran,
-                status_rapor: this.form.status_rapor,
-                status_atribut: this.form.status_atribut,
-                status_pembayaran: this.form.status_pembayaran,
-                status_cicilan: this.form.status_cicilan,
-            };
-
-            console.log('Payload sebelum dikirim:', {
-            payload: payload,
-            formData: this.form,
-            displayNominal: this.displayNominal,
-            isEdit: this.isEdit
+        } else {
+            res = await axios.post('/pembayaran', formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
             });
+        }
 
-            axios[method](url, payload)
-                .then((res) => {
-                    const idPembayaran = res.data.data.id;
+        Swal.fire({
+            icon: 'success',
+            title: this.isEdit ? 'Data berhasil diubah' : 'Data berhasil ditambahkan',
+            timer: 1500,
+            showConfirmButton: false
+        });
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: this.isEdit ? 'Data berhasil diubah' : 'Data berhasil ditambahkan',
-                        timer: 1500,
-                        showConfirmButton: false
-                    });
+        this.closeModal();
+        this.fetchPembayaranList();
 
-                    this.closeModal();
-                    this.fetchPembayaranList();
-
-                    if (this.form.metode_pembayaran === 'cicilan') {
-                        this.$router.push(`/adminmainsidebar/cicilan/${idPembayaran}`);
-                    }
-                })
-                .catch((err) => {
-                    console.error(err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal menyimpan data',
-                        text: err.response ?.data ?.message || 'Terjadi kesalahan saat menyimpan data',
-                    });
-                });
-        },
+        if (this.form.metode_pembayaran === 'cicilan') {
+            this.$router.push(`/adminmainsidebar/cicilan/${res.data.data.id}`);
+        }
+    } catch (err) {
+        console.error(err);
+        if (err.response && err.response.status === 422) {
+            this.errors = err.response.data.errors;
+            Swal.fire({
+                icon: 'error',
+                title: 'Validasi Gagal',
+                text: 'Silakan periksa kembali input Anda.',
+            });
+        } else {
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal menyimpan data',
+                text: err.response?.data?.message || 'Terjadi kesalahan saat menyimpan data',
+            });
+        }
+    }
+},
         deletePembayaran(id) {
             Swal.fire({
                 title: 'Apakah kamu yakin?',
@@ -543,7 +581,71 @@ export default {
         },
         formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID').format(angka);
-        }
+        },
+        handleFileUpload(event) {
+            // Mengambil file pertama yang dipilih
+            this.form.bukti_pembayaran = event.target.files[0];
+            // Clear URL bukti pembayaran yang lama jika ada file baru diupload
+            if (this.form.bukti_pembayaran) {
+                this.form.bukti_pembayaran_url = null;
+            }
+        },
+        removeBuktiPembayaran() {
+            // Ini akan menandakan bahwa bukti pembayaran harus dihapus di backend
+            this.form.bukti_pembayaran = null;
+            this.form.bukti_pembayaran_url = null; // Hapus tampilan URL di frontend
+            // Juga reset input file
+            const fileInput = document.getElementById('bukti_pembayaran');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        },
+        toggleDropdown(index) {
+            this.dropdownIndex = this.dropdownIndex === index ? null : index;
+        },
+        closeModal() {
+            this.showModal = false;
+            this.tampilModal = false;
+            this.dropdownIndex = null; // Tutup dropdown jika ada
+            this.errors = {}; 
+        },
+        changePage(page) {
+            if (page >= 1 && page <= this.totalPages) {
+                this.currentPage = page;
+            }
+        },
+        // Fungsi untuk mendapatkan data berdasarkan filter aktif
+        getFilteredData() {
+            return this.pembayaranList.map((pembayaran, index) => {
+                const filteredPembayaran = {
+                    No: index + 1
+                };
+                Object.keys(this.selectedFilters).forEach(key => {
+                    if (this.selectedFilters[key]) {
+                        filteredPembayaran[key] = pembayaran[key];
+                    }
+                });
+                return filteredPembayaran;
+            });
+        },
+        openImageModal(url) {
+            this.currentImageUrl = url;
+            this.showImageModal = true;
+            // Opsional: Disable body scroll saat modal terbuka
+            document.body.style.overflow = 'hidden';
+        },
+        closeImageModal() {
+            this.showImageModal = false;
+            this.currentImageUrl = ''; // Opsional: Bersihkan URL setelah ditutup
+            // Opsional: Enable body scroll kembali
+            document.body.style.overflow = '';
+        },
+        handleClickOutside(event) {
+            // Cek jika klik berada di luar modal content tapi di dalam modal backdrop
+            if (event.target.classList.contains('image-modal-backdrop')) {
+                this.closeImageModal();
+            }
+        },
     },
     mounted() {
         this.fetchSiswaList();
@@ -1132,5 +1234,68 @@ select[disabled] {
 
 .pagination {
     margin: 0;
+}
+
+.image-modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.8); /* Latar belakang gelap transparan */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999; /* Pastikan di atas elemen lain */
+    overflow: auto; /* Agar bisa scroll jika gambar terlalu besar */
+}
+
+.image-modal-content {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    position: relative;
+    max-width: 90vw; /* Lebar maksimal modal */
+    max-height: 90vh; /* Tinggi maksimal modal */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3); /* Sedikit lebih gelap */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.image-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: none;
+    border: none;
+    font-size: 2.5em; /* Ukuran lebih besar */
+    color: #fff; /* Warna putih agar terlihat di backdrop gelap */
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.5); /* Shadow agar lebih jelas */
+    cursor: pointer;
+    z-index: 10;
+}
+
+.image-modal-close:hover {
+    color: #ff0000; /* Merah saat hover */
+}
+
+.full-image {
+    max-width: 100%; /* Agar gambar tidak melebihi lebar modal */
+    max-height: calc(90vh - 40px); /* Kurangi tinggi untuk padding/tombol close */
+    object-fit: contain; /* Agar gambar tidak terpotong, menyesuaikan diri dalam batas */
+    display: block;
+}
+
+/* Optional: Menambahkan sedikit efek transisi saat modal muncul/hilang */
+.image-modal-backdrop.v-enter-active, .image-modal-backdrop.v-leave-active {
+  transition: opacity 0.3s ease;
+}
+.image-modal-backdrop.v-enter-from, .image-modal-backdrop.v-leave-to {
+  opacity: 0;
+}
+
+.img-thumbnail.cursor-pointer {
+    cursor: pointer;
 }
 </style>

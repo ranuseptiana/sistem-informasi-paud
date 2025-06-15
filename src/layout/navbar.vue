@@ -111,7 +111,6 @@ export default {
                     username: this.username,
                     password: this.password
                 });
-                console.log(response);
                 
                 const token = response.data.token;
                 const expiresAt = response.data.expires_at;

@@ -14,8 +14,8 @@
             </div>
         </section>
         <section class="content">
-            <!-- Filter section -->
-            <div class="filter-section">
+        <!-- Filter section -->
+        <div class="filter-section">
                 <div class="row-filter-wrapper">
                     <div class="tampil-baris">
                         Show
@@ -46,25 +46,37 @@
                                 <button type="button" class="close-btn" @click="closeModal">&times;</button>
                             </div>
                             <form @submit.prevent="simpanAlbum">
-                                <div class="custom-modal-body">
-                                    <div class="form-group-album">
-                                        <label for="pathFoto">Cover Album</label>
-                                        <input type="file" id="pathFoto" @change="handleFileChange" class="form-input" />
-                                    </div>
-                                    <div class="form-group-album">
-                                        <label for="namaAlbum">Nama Album</label>
-                                        <input type="text" id="namaAlbum" v-model="form.nama_album" class="form-input" />
-                                    </div>
-                                    <div class="form-group-album">
-                                        <label for="namaAlbum">Deskripsi</label>
-                                        <input type="text" id="deskripsi" v-model="form.deskripsi" class="form-input" />
-                                    </div>
+                        <div class="custom-modal-body">
+                          <div class="form-group-album">
+                            <label for="pathFoto">Cover Album</label>
+                            <input type="file" id="pathFoto" @change="handleFileChange" class="form-input" />
+                          </div>
+                                <div class="form-group-album">
+                                <label for="pathFoto">Preview Foto</label>
+                                <img v-if="form.photo_cover_preview" :src="form.photo_cover_preview" alt="Cover Album Preview" style="width: 100px; height: auto; margin-top: 10px;" />
                                 </div>
-                                <div class="custom-modal-footer">
-                                    <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
-                                    <button type="submit" class="btn-save">{{ isEditing ? 'Simpan Perubahan' : 'Simpan Data' }}</button>
-                                </div>
-                            </form>
+                          <div class="form-group-album">
+                            <label for="namaAlbum">Nama Album</label>
+                            <input type="text" id="namaAlbum" v-model="form.nama_album" class="form-input" />
+                          </div>
+                          <div class="form-group-album">
+                            <label for="deskripsi">Deskripsi</label>
+                            <input type="text" id="deskripsi" v-model="form.deskripsi" class="form-input" />
+                          </div>
+                          <div class="form-group-album">
+                            <label for="tanggalKegiatan">Tanggal Kegiatan</label>
+                            <input type="date" id="tanggalKegiatan" v-model="form.tanggal_kegiatan" class="form-input" />
+                          </div>
+                          <div class="form-group-album">
+                            <label for="lokasiKegiatan">Lokasi Kegiatan</label>
+                            <input type="text" id="lokasiKegiatan" v-model="form.lokasi_kegiatan" class="form-input" />
+                          </div>
+                        </div>
+                        <div class="custom-modal-footer">
+                          <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
+                          <button type="submit" class="btn-save">{{ isEditing ? 'Simpan Perubahan' : 'Simpan Data' }}</button>
+                        </div>
+                      </form>
                         </div>
                     </div>
                 </div>
@@ -73,6 +85,7 @@
                     <i class="fas fa-search search-icon"></i>
                 </div>
             </div>
+
             <div class="table-wrapper">
                 <!-- Table Section -->
                 <table class="table data-table table-hover">
@@ -82,31 +95,34 @@
                             <th scope="col" class="table-head" v-if="selectedFilters.coverAlbum">Cover Album</th>
                             <th scope="col" class="table-head" v-if="selectedFilters.namaAlbum">Nama Album</th>
                             <th scope="col" class="table-head" v-if="selectedFilters.deskripsi">Deskripsi</th>
+                            <th scope="col" class="table-head" v-if="selectedFilters.tanggalKegiatan">Tanggal Kegiatan</th>
+                            <th scope="col" class="table-head" v-if="selectedFilters.lokasiKegiatan">Lokasi Kegiatan</th>
                             <th scope="col" class="table-head">Action</th>
                         </tr>
                     </thead>
                     <tbody>
                         <tr v-for="(album, index) in paginatedAlbumList" :key="album.id">
-                            <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                            <td v-if="selectedFilters.coverAlbum">
-                                <img :src="`http://localhost:8000/${album['photo_cover']}`" alt="Foto Album" style="width: 100px; height: auto;" />
-                            </td>
-                            <td v-if="selectedFilters.namaAlbum">{{ album['nama_album'] }}</td>
-                            <td v-if="selectedFilters.deskripsi">{{ album['deskripsi'] }}</td>
-                            <td>
-                                <!-- popup set -->
-                                <div class="popup d-inline-block" ref="popup">
-                                    <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
-                                        <i class="fas fa-ellipsis-h"></i>
-                                    </button>
-                                    <div class="popup-menu" :class="{ show: dropdownIndex === index }">
-                                        <button class="popup-item" @click="detailAlbum(album.id)" style="color: #274278">Detail</button>
-                                        <button class="popup-item" @click="prepareEditAlbum(album.id)" style="color: #274278">Edit</button>
-                                        <button class="popup-item" @click="deleteAlbum(album.id)" style="color: red">Hapus</button>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
+                        <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
+                        <td v-if="selectedFilters.coverAlbum">
+                          <img :src="getCoverAlbumUrl(album.photo_cover)" alt="Foto Album" style="width: 100px; height: auto;" />
+                        </td>
+                        <td v-if="selectedFilters.namaAlbum">{{ album['nama_album'] }}</td>
+                        <td v-if="selectedFilters.deskripsi">{{ album['deskripsi'] }}</td>
+                        <td v-if="selectedFilters.tanggalKegiatan">{{ album['tanggal_kegiatan'] }}</td>
+                        <td v-if="selectedFilters.lokasiKegiatan">{{ album['lokasi_kegiatan'] }}</td>
+                        <td>
+                          <div class="popup d-inline-block" ref="popup">
+                            <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
+                              <i class="fas fa-ellipsis-h"></i>
+                            </button>
+                            <div class="popup-menu" :class="{ show: dropdownIndex === index }">
+                              <button class="popup-item" @click="detailAlbum(album.id)" style="color: #274278">Detail</button>
+                              <button class="popup-item" @click="prepareEditAlbum(album.id)" style="color: #274278">Edit</button>
+                              <button class="popup-item" @click="deleteAlbum(album.id)" style="color: red">Hapus</button>
+                            </div>
+                          </div>
+                        </td>
+                      </tr>
                         <tr v-if="AlbumList.length === 0" class="no-data">
                             <td colspan="7" class="no-data-cell">
                                 <div class="no-data-content">
@@ -160,254 +176,319 @@
                     </ul>
                 </nav>
             </div>
-        </section>
+      </section>
     </div>
-    </template>
-    
-    <script>
-    import jsPDF from "jspdf";
-    import "jspdf-autotable";
-    import Swal from "sweetalert2";
-    import Papa from "papaparse";
-    import axios from 'axios';
-    import {
-        ref,
-        onMounted
-    } from 'vue';
-    
-    export default {
-        data() {
-            return {
-                maxVisiblePages: 5,
-                rowsPerPage: 5,
-                currentPage: 1,
-                openModal: false,
-                isEditing: false,
-                dropdownIndex: null,
-                searchQuery: '',
-                showModal: false,
-                isFilterPopupVisible: false,
-                selectedFilters: {
-                    coverAlbum: true,
-                    namaAlbum: true,
-                    deskripsi: true
-                },
-                newAlbum: {
-                    photo_cover: '',
-                    nama_album: '',
-                    deskripsi: ''
-                },
-                form: {
-                    photo_cover: '',
-                    nama_album: '',
-                    deskripsi: ''
-                },
-                errors: {},
-            };
+  </template>
+  
+  <script>
+  import jsPDF from "jspdf";
+  import "jspdf-autotable";
+  import Swal from "sweetalert2";
+  import Papa from "papaparse";
+  import axios from 'axios';
+  import {
+    ref,
+    onMounted,
+    computed
+  } from 'vue';
+  
+  export default {
+    data() {
+      return {
+        maxVisiblePages: 5,
+        rowsPerPage: 5,
+        currentPage: 1,
+        openModal: false,
+        isEditing: false,
+        dropdownIndex: null,
+        searchQuery: '',
+        showModal: false,
+        isFilterPopupVisible: false,
+        selectedFilters: {
+          coverAlbum: true,
+          namaAlbum: true,
+          deskripsi: true,
+          tanggalKegiatan: true, // Tambahkan filter baru
+          lokasiKegiatan: true // Tambahkan filter baru
         },
-        methods: {
-            prepareTambahAlbum() {
-                this.form = {
-                    id: null,
-                    photo_cover: '',
-                    nama_album: '',
-                    deskripsi: ''
-                }; 
-                this.isEditing = false;
-                this.showModal = true; 
-            },
-            detailAlbum(id) {
-                this.dropdownIndex = null;
-            
-                this.$router.push(`/adminmainsidebar/detailGallery/${id}`);
-            },
-            prepareEditAlbum(id) {
-                this.dropdownIndex = null;
-                
-                const album = this.AlbumList.find(a => a.id === id); 
-                if (album) {
-                    this.form = {
-                        ...album
-                    }; 
-                    this.isEditing = true; 
-                    this.showModal = true; 
-                }
-            },
-            async simpanAlbum() {
-                const payload = {
-                    photo_cover: this.form.photo_cover,
-                    nama_album: this.form.nama_album,
-                    deskripsi: this.form.deskripsi
-                };
-    
-                try {
-                    if (this.isEditing) {
-                        // Mode Edit (Update Data)
-                        await axios.put(`/album/${this.form.id}`, payload);
-                        Swal.fire('Berhasil', 'Data album berhasil diperbarui!', 'success');
-                    } else {
-                        // Mode Tambah Data Baru
-                        await axios.post('/album', payload);
-                        Swal.fire('Berhasil', 'Data album berhasil disimpan!', 'success');
-                    }
-    
-                    this.closeModal(); 
-                    this.fetchAlbumList(); 
-                } catch (error) {
-                    if (error.response && error.response.status === 422) {
-                        this.errors = error.response.data.errors;
-                    } else {
-                        console.error(error);
-                        Swal.fire('Error', 'Gagal menyimpan data album!', 'error');
-                    }
-                }
-            },
-            async deleteAlbum(albumId) {
-                try {
-                    // Konfirmasi penghapusan data
-                    const confirmDelete = await Swal.fire({
-                        title: 'Apakah Anda yakin?',
-                        text: "Data ini akan dihapus!",
-                        icon: 'warning',
-                        showCancelButton: true,
-                        confirmButtonText: 'Ya, Hapus',
-                        cancelButtonText: 'Batal'
-                    });
-    
-                    if (confirmDelete.isConfirmed) {
-                        const response = await axios.delete(`/album/${albumId}`);
-                        Swal.fire('Terhapus!', 'Data album berhasil dihapus.', 'success');
-                        this.AlbumList = this.AlbumList.filter(album => album.id !== albumId);
-                    }
-                } catch (error) {
-                    Swal.fire('Error', 'Gagal menghapus data album!', 'error');
-                }
-            },
-            changePage(page) {
-                if (page > 0 && page <= this.totalPages) {
-                    this.currentPage = page;
-                }
-            },
-            // Fungsi untuk mendapatkan data berdasarkan filter aktif
-            getFilteredData() {
-                return this.AlbumList.map((album, index) => {
-                    const filteredAlbum = {
-                        No: index + 1,
-                    };
-                    Object.keys(this.selectedFilters).forEach((key) => {
-                        if (this.selectedFilters[key]) {
-                            filteredAlbum[key] = album[key];
-                        }
-                    });
-                    return filteredAlbum;
-                });
-            },
-            closeModal() {
-                this.showModal = false;
-                this.newAlbum.photo_cover = '';
-                this.newAlbum.nama_album = '';
-                this.newAlbum.deskripsi = '';
-                this.resetForm();
-            },
-            toggleDropdown(index) {
-                this.dropdownIndex = this.dropdownIndex === index ? null : index;
-            },
-            resetForm() {
-                this.newAlbum = {
-                    photo_cover: "",
-                    nama_album: "",
-                    deskripsi: ""
-                };
-            },
+        form: {
+          id: null,
+          photo_cover: null,
+          photo_cover_preview: '',
+          nama_album: '',
+          deskripsi: '',
+          tanggal_kegiatan: '', // Tambahkan
+          lokasi_kegiatan: '' // Tambahkan
         },
-        //untuk menampilkan data album
-        setup() {
-            const album = ref([]);
-            const AlbumList = ref([]); // List album
-    
-            const fetchAlbumList = () => {
-                axios.get('/album')
-                    .then((res) => {
-                        console.log("Response dari backend:", res.data);
-                        if (res.data && Array.isArray(res.data.data)) {
-                            AlbumList.value = res.data.data;
-                        } else {
-                            console.error("Data tidak sesuai:", res.data);
-                            AlbumList.value = [];
-                        }
-                    })
-                    .catch((error) => {
-                        console.error("Gagal mengambil data album:", error);
-                    });
+        errors: {},
+        AlbumList: [], // Pastikan ini diinisialisasi
+      };
+    },
+    methods: {
+      prepareTambahAlbum() {
+        this.form = {
+          id: null,
+          photo_cover: null,
+          photo_cover_preview: '',
+          nama_album: '',
+          deskripsi: '',
+          tanggal_kegiatan: '', // Reset
+          lokasi_kegiatan: '' // Reset
+        };
+        this.isEditing = false;
+        this.showModal = true;
+      },
+      detailAlbum(id) {
+        this.dropdownIndex = null;
+        this.$router.push(`/adminmainsidebar/detailGallery/${id}`);
+      },
+      async prepareEditAlbum(id) {
+        this.dropdownIndex = null;
+  
+        try {
+          const response = await axios.get(`/album/${id}`);
+          const album = response.data.data; // Ambil data album dari response
+  
+          if (album) {
+            this.form = {
+              id: album.id,
+              photo_cover: null, // Jangan langsung isi dengan path, hanya untuk file baru
+              photo_cover_preview: album.photo_cover ? `http://localhost:8000/storage/${album.photo_cover}` : '', // Tampilkan preview
+              nama_album: album.nama_album,
+              deskripsi: album.deskripsi,
+              tanggal_kegiatan: album.tanggal_kegiatan, // Isi data
+              lokasi_kegiatan: album.lokasi_kegiatan // Isi data
             };
-    
-            onMounted(() => {
-                fetchAlbumList();
+            this.isEditing = true;
+            this.showModal = true;
+          } else {
+            Swal.fire('Error', 'Album tidak ditemukan.', 'error');
+          }
+        } catch (error) {
+          console.error("Gagal mengambil data album untuk edit:", error);
+          Swal.fire('Error', 'Gagal mengambil data album untuk diedit!', 'error');
+        }
+      },
+      async simpanAlbum() {
+        const formData = new FormData();
+        formData.append('nama_album', this.form.nama_album);
+        formData.append('deskripsi', this.form.deskripsi);
+        formData.append('tanggal_kegiatan', this.form.tanggal_kegiatan || ''); // Tambahkan, kirim string kosong jika null/undefined
+        formData.append('lokasi_kegiatan', this.form.lokasi_kegiatan || ''); // Tambahkan
+  
+        if (this.form.photo_cover) {
+          formData.append('photo_cover', this.form.photo_cover);
+        }
+  
+        try {
+          if (this.isEditing) {
+            formData.append('_method', 'PUT'); // Penting untuk update dengan FormData
+            await axios.post(`/album/${this.form.id}`, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
             });
-    
-            return {
-                album,
-                AlbumList,
-                fetchAlbumList
-            };
-        },
-        computed: {
-            showLeftEllipsis() {
-                return this.currentPage > 4;
-            },
-            showRightEllipsis() {
-                return this.currentPage < this.totalPages - 3;
-            },
-            middlePages() {
-                let start = Math.max(2, this.currentPage - 1);
-                let end = Math.min(this.totalPages - 1, this.currentPage + 1);
-    
-                if (this.currentPage <= 4) {
-                    start = 2;
-                    end = Math.min(5, this.totalPages - 1);
-                } else if (this.currentPage >= this.totalPages - 3) {
-                    start = Math.max(this.totalPages - 4, 2);
-                    end = this.totalPages - 1;
-                }
-    
-                const pages = [];
-                for (let i = start; i <= end; i++) {
-                    pages.push(i);
-                }
-                return pages;
-            },
-            filteredAlbumList() {
-                const query = this.searchQuery.toLowerCase();
-                return this.AlbumList.filter(album => {
-                    return Object.keys(album).some(key => {
-                        return album[key] && String(album[key]).toLowerCase().includes(query);
-                    });
-                });
-            },
-            paginatedAlbumList() {
-                let start = (this.currentPage - 1) * this.rowsPerPage;
-                return this.filteredAlbumList.slice(start, start + this.rowsPerPage);
-            },
-            totalPages() {
-                return Math.ceil(this.AlbumList.length / this.rowsPerPage);
-            },
-            pageInfo() {
-                if (this.filteredAlbumList.length === 0) {
-                    return 'Tidak ada data';
-                }
-                const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-                const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredAlbumList.length);
-                return `Showing ${startRow} - ${endRow} of ${this.filteredAlbumList.length} entries`;
-            },
-        },
-        mounted() {
-            document.addEventListener('click', this.handleClickOutside);
-        },
-        beforeDestroy() {
-            document.removeEventListener('click', this.handleClickOutside);
-        },
-    };
-    </script>
+            Swal.fire('Berhasil', 'Data album berhasil diperbarui!', 'success');
+          } else {
+            await axios.post('/album', formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data'
+              }
+            });
+            Swal.fire('Berhasil', 'Data album berhasil disimpan!', 'success');
+          }
+  
+          this.closeModal();
+          this.fetchAlbumList();
+        } catch (error) {
+          if (error.response && error.response.status === 422) {
+            this.errors = error.response.data.errors;
+            let errorMessage = 'Terjadi kesalahan validasi:\n';
+            for (const key in this.errors) {
+              errorMessage += `${this.errors[key].join(', ')}\n`;
+            }
+            Swal.fire('Error Validasi', errorMessage, 'error');
+          } else {
+            console.error("Error saving album:", error.response || error);
+            Swal.fire('Error', 'Gagal menyimpan data album!', 'error');
+          }
+        }
+      },
+      async deleteAlbum(albumId) {
+        try {
+          const confirmDelete = await Swal.fire({
+            title: 'Apakah Anda yakin?',
+            text: "Data ini akan dihapus!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Hapus',
+            cancelButtonText: 'Batal'
+          });
+  
+          if (confirmDelete.isConfirmed) {
+            await axios.delete(`/album/${albumId}`);
+            Swal.fire('Terhapus!', 'Data album berhasil dihapus.', 'success');
+            this.fetchAlbumList(); // Refresh list setelah delete
+          }
+        } catch (error) {
+          console.error("Error deleting album:", error);
+          Swal.fire('Error', 'Gagal menghapus data album!', 'error');
+        }
+      },
+      handleFileChange(event) {
+        const file = event.target.files[0];
+        if (file) {
+          this.form.photo_cover = file;
+          this.form.photo_cover_preview = URL.createObjectURL(file);
+        } else {
+          this.form.photo_cover = null;
+          this.form.photo_cover_preview = '';
+        }
+      },
+      fetchAlbumList() {
+        axios.get('/album')
+          .then((res) => {
+            console.log("Response dari backend:", res.data);
+            if (res.data && Array.isArray(res.data.data)) {
+              this.AlbumList = res.data.data; // Gunakan this.AlbumList
+            } else {
+              console.error("Data tidak sesuai:", res.data);
+              this.AlbumList = [];
+            }
+          })
+          .catch((error) => {
+            console.error("Gagal mengambil data album:", error);
+          });
+      },
+      getCoverAlbumUrl(path) {
+        // Helper untuk mendapatkan URL gambar cover
+        if (path) {
+          return `http://localhost:8000/storage/${path}`;
+        }
+        return '/src/assets/images/placeholder.png'; // Placeholder jika tidak ada foto
+      },
+      changePage(page) {
+        if (page > 0 && page <= this.totalPages) {
+          this.currentPage = page;
+        }
+      },
+      getFilteredData() {
+        return this.AlbumList.map((album, index) => {
+          const filteredAlbum = {
+            No: index + 1,
+          };
+          Object.keys(this.selectedFilters).forEach((key) => {
+            if (this.selectedFilters[key]) {
+              // Sesuaikan key dengan nama kolom di objek album
+              if (key === 'coverAlbum') {
+                  filteredAlbum[key] = album['photo_cover'];
+              } else if (key === 'namaAlbum') {
+                  filteredAlbum[key] = album['nama_album'];
+              } else if (key === 'deskripsi') {
+                  filteredAlbum[key] = album['deskripsi'];
+              } else if (key === 'tanggalKegiatan') {
+                  filteredAlbum[key] = album['tanggal_kegiatan'];
+              } else if (key === 'lokasiKegiatan') {
+                  filteredAlbum[key] = album['lokasi_kegiatan'];
+              }
+            }
+          });
+          return filteredAlbum;
+        });
+      },
+      closeModal() {
+        this.showModal = false;
+        this.resetForm();
+      },
+      toggleDropdown(index) {
+        this.dropdownIndex = this.dropdownIndex === index ? null : index;
+      },
+      resetForm() {
+        this.form = { // Reset form kembali ke nilai default
+          id: null,
+          photo_cover: null,
+          photo_cover_preview: '',
+          nama_album: '',
+          deskripsi: '',
+          tanggal_kegiatan: '',
+          lokasi_kegiatan: ''
+        };
+      },
+      // Handler untuk klik di luar dropdown
+      handleClickOutside(event) {
+        if (this.dropdownIndex !== null) {
+          let clickedOnDropdown = false;
+          if (this.$refs.popup && this.$refs.popup[this.dropdownIndex]) {
+            clickedOnDropdown = this.$refs.popup[this.dropdownIndex].contains(event.target);
+          }
+          if (!clickedOnDropdown) {
+            this.dropdownIndex = null;
+          }
+        }
+      }
+    },
+    mounted() {
+      this.fetchAlbumList(); // Panggil fetchAlbumList di mounted
+      document.addEventListener('click', this.handleClickOutside);
+    },
+    beforeUnmount() { // Ganti beforeDestroy menjadi beforeUnmount untuk Vue 3
+      document.removeEventListener('click', this.handleClickOutside);
+    },
+    computed: {
+      totalPages() {
+        return Math.ceil(this.filteredAlbumList.length / this.rowsPerPage);
+      },
+      paginatedAlbumList() {
+        let start = (this.currentPage - 1) * this.rowsPerPage;
+        return this.filteredAlbumList.slice(start, start + this.rowsPerPage);
+      },
+      filteredAlbumList() {
+        const query = this.searchQuery.toLowerCase();
+        return this.AlbumList.filter(album => {
+          return Object.keys(album).some(key => {
+            // Hanya cari di kolom yang relevan dan bukan file
+            if (['nama_album', 'deskripsi', 'tanggal_kegiatan', 'lokasi_kegiatan'].includes(key)) {
+              return album[key] && String(album[key]).toLowerCase().includes(query);
+            }
+            return false;
+          });
+        });
+      },
+      pageInfo() {
+        if (this.filteredAlbumList.length === 0) {
+          return 'Tidak ada data';
+        }
+        const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
+        const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredAlbumList.length);
+        return `Showing ${startRow} - ${endRow} of ${this.filteredAlbumList.length} entries`;
+      },
+      showLeftEllipsis() {
+        return this.currentPage > 4;
+      },
+      showRightEllipsis() {
+        return this.currentPage < this.totalPages - 3;
+      },
+      middlePages() {
+        let start = Math.max(2, this.currentPage - 1);
+        let end = Math.min(this.totalPages - 1, this.currentPage + 1);
+  
+        if (this.currentPage <= 4) {
+          start = 2;
+          end = Math.min(5, this.totalPages - 1);
+        } else if (this.currentPage >= this.totalPages - 3) {
+          start = Math.max(this.totalPages - 4, 2);
+          end = this.totalPages - 1;
+        }
+  
+        const pages = [];
+        for (let i = start; i <= end; i++) {
+          pages.push(i);
+        }
+        return pages;
+      },
+    },
+  };
+  </script>
     
     <style scoped>
     .breadcrumb {

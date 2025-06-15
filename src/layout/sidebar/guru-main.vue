@@ -27,7 +27,7 @@
                     <div v-if="isDropdownVisible" class="profile-dropdown">
                         <ul>
                             <span class="dropdown-item-text">
-                                <i class="fa-regular fa-user"></i>Guru
+                                <i class="fa-regular fa-user"></i>{{ userName || 'Guru' }}
                             </span>
                         </ul>
                     </div>
@@ -87,8 +87,14 @@ export default {
             sidebarOpen: true,
             activeMenu: '',
             isDropdownVisible: false,
+            userName: "", 
+            username: "", 
+            password: "", 
         };
     },
+    created() {
+    this.fetchUserData(); 
+  },
     methods: {
         toggleSidebar() {
             this.sidebarOpen = !this.sidebarOpen;
@@ -158,6 +164,40 @@ export default {
                 this.closeDropdown();
             }
         },
+        async login() {
+            try {
+                const response = await axios.post("/auth/login", {
+                username: this.username,
+                password: this.password
+                });
+
+                localStorage.setItem("auth_token", response.data.token);
+
+                this.fetchUserData();
+            } catch (error) {
+                console.error("Login failed:", error);
+            }
+        },
+        async fetchUserData() {
+            try {
+                const token = localStorage.getItem('token'); 
+
+                if (!token) {
+                    console.error('Token tidak ditemukan');
+                    return;
+                }
+
+                const response = await axios.get('/user', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+
+                this.userName = response.data.name;
+            } catch (error) {
+                console.error('Error fetching user data:', error.response || error);
+            }
+        }
     },
     mounted() {
         this.updateActiveMenu(this.$route);
@@ -337,14 +377,14 @@ main {
 .profile-dropdown {
     position: absolute;
     top: 105%;
-    right: 75px;
+    right: 70px;
     background-color: white;
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 1rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 0.5rem 0;
     z-index: 1050;
-    width: 130px;
+    width: auto;
     text-align: left;
 }
 
@@ -368,10 +408,10 @@ main {
     color: #797c7e !important;
     margin-bottom: 0.5rem;
     margin-top: 0.5rem;
+    margin-right: 1.5rem;
 }
 
 .dropdown-item-text i {
-    margin-left: 2rem;
     margin-right: 0.5rem;
 }
 
