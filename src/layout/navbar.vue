@@ -34,7 +34,7 @@
                                     <p>PAUD AL UMMAH</p>
                                 </li>
                                 <li class="dropdown-item">📍 Jl. Dieng Atas No.16, Sumberjo, Kalisongo, Kec. Dau, Kabupaten Malang, Jawa Timur 65151</li>
-                                <li class="dropdown-item">📞 081335305234</li>
+                                <li class="dropdown-item">📞 +62 813-3530-5234</li>
                             </ul>
                         </li>
                     </ul>
@@ -128,11 +128,10 @@ export default {
                 } else if (this.selectedUser === 'Siswa') {
                     route = '/siswamainsidebar/dashboard';
                 }
-
                 this.$router.push(route);
-
             } catch (error) {
-                console.error(error);
+                // console.error(error);
+                this.showModal = false;
                 Swal.fire({
                     icon: 'error',
                     title: 'Login Gagal!',
@@ -226,7 +225,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1000;
+    z-index: 99999;
     backdrop-filter: blur(2px);
 }
 
@@ -237,13 +236,27 @@ body {
     margin-bottom: 1rem;
 }
 
-.modal-content {
+/* .modal-content {
     background-color: white;
     padding: 60px;
     border-radius: 6px;
     width: 585px;
     height: 480px;
     position: relative;
+} */
+
+.modal-content {
+    background-color: white;
+    padding: 60px;
+    border-radius: 6px;
+    width: 585px; /* Tetapkan width ini untuk desktop */
+    height: 480px; /* Tetapkan height ini untuk desktop */
+    position: relative;
+    touch-action: manipulation;
+    -webkit-overflow-scrolling: touch;
+    max-width: 90%; /* Batasi lebar maksimum modal agar tidak melebihi layar */
+    max-height: 90vh; /* Batasi tinggi maksimum modal agar tidak melebihi viewport height */
+    overflow-y: auto; /* Tambahkan scroll jika konten modal melebihi tinggi */
 }
 
 .close-button {
@@ -425,9 +438,13 @@ body {
     border-radius: 10px;
     margin-top: 0.5rem;
     padding-left: 2rem;
+    -webkit-user-select: text;
+    user-select: text;
+    -webkit-tap-highlight-color: transparent;
 }
 
 .password-wrapper {
+    position: relative;
     margin-bottom: 1rem;
 }
 
@@ -470,6 +487,107 @@ body {
 @media (min-width: 361px) and (max-width: 480px) {
     .navbar-brand {
         margin-left: 2rem;
+    }
+}
+
+/* Perbaikan Offcanvas untuk Mobile */
+@media (max-width: 767px) {
+    .offcanvas {
+        width: 75% !important; /* Lebar lebih proporsional untuk mobile */
+        margin-left: 0 !important; /* Hapus margin kiri yang tidak perlu */
+    }
+    
+    .offcanvas-body {
+        padding: 1rem;
+    }
+    
+    .w3-bar-item {
+        padding: 12px 8px;
+        font-size: 16px !important;
+        margin-bottom: 10px;
+    }
+    
+    .dropdown-menu {
+        width: 100% !important;
+        position: relative !important;
+        transform: none !important;
+        left: 0 !important;
+        margin-top: 10px;
+        box-shadow: none;
+    }
+    
+    .navbar-brand {
+        margin-left: 1rem !important;
+    }
+    
+    .navbar-nav {
+        margin-right: 0 !important;
+        gap: 8px !important;
+    }
+    
+    .login-button {
+        width: 80px;
+        height: 32px;
+        font-size: 14px;
+        line-height: 12px;
+    }
+
+    .modal-content {
+        width: 95%;
+        height: auto;
+        padding: 1.5rem;
+        transform: none !important;
+    }
+    
+    .input-login {
+        width: 100%;
+        height: 50px;
+        padding: 0 15px;
+        font-size: 16px;
+    }
+    
+    /* Login button */
+    .login-button-2 {
+        width: 100%;
+        height: 50px;
+        margin-top: 15px;
+    }
+
+    /* Pastikan tidak ada yang menutupi */
+    body.modal-open {
+        position: fixed;
+        width: 100%;
+    }
+    
+    .password-wrapper {
+        position: relative;
+        width: 100%;
+    }
+    
+    /* Pastikan input bisa diklik */
+    input[type="text"], 
+    input[type="password"] {
+        -webkit-user-select: auto !important;
+        user-select: auto !important;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+        touch-action: manipulation;
+    }
+    
+    /* Perbaikan z-index untuk memastikan input di atas elemen lain */
+    .modal-overlay {
+        z-index: 9999 !important;
+    }
+    
+    .modal-content {
+        z-index: 10000 !important;
+    }
+    
+    /* Perbaikan untuk keyboard mobile */
+    @media (max-height: 600px) {
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
     }
 }
 </style>

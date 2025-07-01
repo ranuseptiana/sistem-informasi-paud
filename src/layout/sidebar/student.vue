@@ -41,7 +41,6 @@
                                 <button type="button" class="close-btn" @click="closeModal">&times;</button>
                             </div>
                             <hr>
-
                             <!-- Filter Checkbox dalam Dua Kolom -->
                             <div class="filter-container">
                                 <div class="column">
@@ -53,88 +52,86 @@
                                     </div>
                                 </div>
                                 <div class="column">
-    <div v-for="(filter, index) in secondRowFilters" :key="index">
-        <label>
-            <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
-            {{ filter.label }}
-        </label>
-    </div>
-</div>
+                                    <div v-for="(filter, index) in secondRowFilters" :key="index">
+                                        <label>
+                                            <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
+                                            {{ filter.label }}
+                                        </label>
+                                    </div>
+                                </div>
                             </div>
 
                             <hr>
 
                             <!-- Tahun Ajaran -->
-                            <div class="tahun-ajaran">
-    <label>
-        <input type="checkbox" v-model="showTahunAjaran" class="checkbox" />
-        Filter Tahun Ajaran (Rentang)
-    </label>
-    <div v-if="showTahunAjaran" class="tahun-ajaran-dropdown">
-        <select v-model="tahunAwal">
-            <option value="">Pilih Tahun Awal</option>
-            <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[0]">{{ tahun.tahun }}</option>
-        </select>
-        <span>-</span>
-        <select v-model="tahunAkhir">
-            <option value="">Pilih Tahun Akhir</option>
-            <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[1]">{{ tahun.tahun }}</option>
-        </select>
-    </div>
-</div>
+                            <div class="form-group">
+                                <label>
+                                   
+                                    Filter Tahun Ajaran (Rentang)
+                                </label>
+                                <div class="tahun-ajaran-dropdown">
+                                    <select v-model="tahunAwal">
+                                        <option value="">Pilih Tahun Awal</option>
+                                        <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[0]">{{ tahun.tahun }}</option>
+                                    </select>
+                                    <span>-</span>
+                                    <select v-model="tahunAkhir">
+                                        <option value="">Pilih Tahun Akhir</option>
+                                        <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[1]">{{ tahun.tahun }}</option>
+                                    </select>
+                                </div>
+                            </div>
 
-                            <div class="status-siswa">
+                            <div class="form-group">
                                 <label>Status Siswa</label>
                                 <div class="status-dropdown">
                                     <select v-model="selectedStatus">
                                         <option value="">Semua Status</option>
                                         <option value="aktif">Aktif</option>
                                         <option value="tidak aktif">Lulus</option>
-                                        <option value="pindah">Pindah</option>
+                                        <option value="Pindah">Pindah</option>
                                         <option value="drop out">Drop Out</option>
-                                        </select>
+                                    </select>
                                 </div>
+                            </div> 
+
+                             <!-- Kelas -->
+                             <div class="form-group">
+                                <label>Kelas</label>
+                                <input
+                                    type="text"
+                                    class="form-input"
+                                    :value="selectedKelasLabel"
+                                    placeholder="Tap untuk memilih kelas"
+                                    readonly
+                                    @click="showKelasModal = true"
+                                />
                             </div>
 
-                            <!-- Kelas -->
-                            <div class="pilih-kelas">
-    <label>Kelas</label>
-    <div class="multi-select-container">
-        <div class="selected-kelas-tags">
-            <span v-for="kelasId in selectedKelasIds" :key="kelasId" class="kelas-tag">
-                {{ getKelasNama(kelasId) }}
-                <span class="remove-tag" @click="removeKelas(kelasId)">&times;</span>
-            </span>
-            <input type="text" 
-                   class="multi-select-input" 
-                   placeholder="Pilih Kelas..." 
-                   @focus="showKelasDropdown = true" 
-                   @blur="hideKelasDropdown"
-                   v-model="searchKelasQuery"
-                   @input="filterKelasOptions">
-        </div>
-
-        <div v-if="showKelasDropdown" class="kelas-options-dropdown">
-            <div v-for="kelas in filteredKelasOptions" 
-                 :key="kelas.id" 
-                 class="kelas-option" 
-                 @mousedown.prevent="toggleKelasSelection(kelas.id)">
-                {{ kelas.nama_kelas }}
-            </div>
-            <div v-if="filteredKelasOptions.length === 0" class="no-options-found">
-                Tidak ada kelas yang ditemukan.
-            </div>
-        </div>
-    </div>
-</div>
-
-                            <!-- Tombol Save -->
+                                <!-- Modal Pilih Kelas -->
+                            <div v-if="showKelasModal" class="modal-overlay" @click.self="showKelasModal = false">
+                                <div class="modal-content">
+                                    <h5>Pilih Kelas</h5>
+                                    <div v-for="kelas in kelasList" :key="kelas.id">
+                                    <input
+                                        type="checkbox"
+                                        :id="'kelas-' + kelas.id"
+                                        :value="kelas.id"
+                                        v-model="filter.kelas_ids"
+                                    />
+                                    <label :for="'kelas-' + kelas.id">{{ kelas.nama_kelas }}</label>
+                                    </div>
+                                    <button @click="showKelasModal = false">Simpan</button>
+                                </div>
+                            </div>
+                            <!-- Tombol di bawah modal -->
                             <div class="modal-footer">
-                                <button class="save-btn" @click="saveFilter">Save</button>
+                            <button @click="resetFilters" class="btn-reset">
+                                Reset
+                            </button>
                             </div>
                         </div>
                     </div>
-
                 </div>
                 <!-- Export -->
                 <div class="export-section">
@@ -160,46 +157,48 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head">No KK</th>
-                        <th scope="col" class="table-head">NISN</th>
-                        <th scope="col" class="table-head">NIK</th>
-                        <th scope="col" class="table-head">Nama Lengkap</th>
-                        <th scope="col" class="table-head">Jenis Kelamin</th>
-                        <th scope="col" class="table-head">Tempat Lahir</th>
-                        <th scope="col" class="table-head">Tanggal Lahir</th>
-                        <th scope="col" class="table-head">Agama</th>
-                        <th scope="col" class="table-head">Alamat</th>
-                        <th scope="col" class="table-head">Anak Ke</th>
-                        <th scope="col" class="table-head">Jumlah Saudara</th>
-                        <th scope="col" class="table-head">Berat Badan</th>
-                        <th scope="col" class="table-head">Tinggi Badan</th>
-                        <th scope="col" class="table-head">Lingkar Kepala</th>
-                        <th scope="col" class="table-head">Kelas Saat Ini</th>
-                        <th scope="col" class="table-head">Status Siswa</th>
-                        <th scope="col" class="table-head">Tahun Ajaran</th>
+                        <th v-if="shouldShowColumn('Nomor KK')" scope="col" class="table-head">No KK</th>
+                        <th v-if="shouldShowColumn('NIPD')" scope="col" class="table-head">NIPD</th>
+                        <th v-if="shouldShowColumn('NISN')" scope="col" class="table-head">NISN</th>
+                        <th v-if="shouldShowColumn('NIK')" scope="col" class="table-head">NIK</th>
+                        <th v-if="shouldShowColumn('Nama Lengkap')" scope="col" class="table-head">Nama Lengkap</th>
+                        <th v-if="shouldShowColumn('Jenis Kelamin')" scope="col" class="table-head">Jenis Kelamin</th>
+                        <th v-if="shouldShowColumn('Tempat Lahir')" scope="col" class="table-head">Tempat Lahir</th>
+                        <th v-if="shouldShowColumn('Tanggal Lahir')" scope="col" class="table-head">Tanggal Lahir</th>
+                        <th v-if="shouldShowColumn('Agama')" scope="col" class="table-head">Agama</th>
+                        <th v-if="shouldShowColumn('Alamat')" scope="col" class="table-head">Alamat</th>
+                        <th v-if="shouldShowColumn('Anak Ke')" scope="col" class="table-head">Anak Ke</th>
+                        <th v-if="shouldShowColumn('Jumlah Saudara')" scope="col" class="table-head">Jumlah Saudara</th>
+                        <th v-if="shouldShowColumn('Berat Badan')" scope="col" class="table-head">Berat Badan</th>
+                        <th v-if="shouldShowColumn('Tinggi Badan')" scope="col" class="table-head">Tinggi Badan</th>
+                        <th v-if="shouldShowColumn('Lingkar Kepala')" scope="col" class="table-head">Lingkar Kepala</th>
+                        <th v-if="shouldShowColumn('Kelas Saat Ini')" scope="col" class="table-head">Kelas Saat Ini</th>
+                        <th v-if="shouldShowColumn('Status Siswa')" scope="col" class="table-head">Status Siswa</th>
+                        <th v-if="shouldShowColumn('Tahun Ajaran')" scope="col" class="table-head">Tahun Ajaran</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(siswa, index) in paginatedSiswaList" :key="siswa.id" class="row-hover">
                         <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
-                        <td>{{ siswa.no_kk ? siswa.no_kk : 'Data tidak ditemukan' }}</td>
-                        <td>{{ siswa.nisn ? siswa.nisn : 'Data tidak ditemukan' }}</td>
-                        <td>{{ siswa.nik_siswa }}</td>
-                        <td>{{ siswa.nama_siswa }}</td>
-                        <td>{{ siswa.jenis_kelamin }}</td>
-                        <td>{{ siswa.tempat_lahir }}</td>
-                        <td>{{ siswa.tanggal_lahir }}</td>
-                        <td>{{ siswa.agama }}</td>
-                        <td>{{ siswa.alamat }}</td>
-                        <td>{{ siswa.anak_ke }}</td>
-                        <td>{{ siswa.jumlah_saudara }}</td>
-                        <td>{{ siswa.berat_badan }}</td>
-                        <td>{{ siswa.tinggi_badan }}</td>
-                        <td>{{ siswa.lingkar_kepala }}</td>
-                        <td>{{ getKelasNama(siswa.kelas_id) }}</td>
-                        <td>{{ siswa.status ? siswa.status : 'Data tidak ditemukan' }}</td>
-                        <td>{{ getTahunAjar(siswa.tahun_ajaran_id) }}</td>
+                        <td v-if="shouldShowColumn('Nomor KK')">{{ siswa.no_kk ? siswa.no_kk : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('NIPD')">{{ siswa.nipd ? siswa.nipd : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('NISN')">{{ siswa.nisn ? siswa.nisn : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('NIK')">{{ siswa.nik_siswa }}</td>
+                        <td v-if="shouldShowColumn('Nama Lengkap')">{{ siswa.nama_siswa }}</td>
+                        <td v-if="shouldShowColumn('Jenis Kelamin')">{{ siswa.jenis_kelamin }}</td>
+                        <td v-if="shouldShowColumn('Tempat Lahir')">{{ siswa.tempat_lahir }}</td>
+                        <td v-if="shouldShowColumn('Tanggal Lahir')">{{ siswa.tanggal_lahir }}</td>
+                        <td v-if="shouldShowColumn('Agama')">{{ siswa.agama }}</td>
+                        <td v-if="shouldShowColumn('Alamat')">{{ siswa.alamat }}</td>
+                        <td v-if="shouldShowColumn('Anak Ke')">{{ siswa.anak_ke }}</td>
+                        <td v-if="shouldShowColumn('Jumlah Saudara')">{{ siswa.jumlah_saudara }}</td>
+                        <td v-if="shouldShowColumn('Berat Badan')">{{ siswa.berat_badan }}</td>
+                        <td v-if="shouldShowColumn('Tinggi Badan')">{{ siswa.tinggi_badan }}</td>
+                        <td v-if="shouldShowColumn('Lingkar Kepala')">{{ siswa.lingkar_kepala }}</td>
+                        <td v-if="shouldShowColumn('Kelas Saat Ini')">{{ getKelasNama(siswa.kelas_id) }}</td>
+                        <td v-if="shouldShowColumn('Status Siswa')">{{ siswa.status ? siswa.status : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('Tahun Ajaran')">{{ getTahunAjar(siswa.tahun_ajaran_id) }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -273,6 +272,20 @@
 <script>
 import Swal from "sweetalert2";
 import axios from 'axios';
+
+const paramsSerializer = params => {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+        if (Array.isArray(value)) {
+            value.forEach(v => searchParams.append(`${key}[]`, v));
+        } else if (value !== undefined && value !== null) {
+            searchParams.append(key, value);
+        }
+    }
+    return searchParams.toString();
+}
+
+import 'jspdf-autotable';
 import {
     ref,
     computed,
@@ -282,78 +295,130 @@ import {
 export default {
     data() {
         return {
-            maxVisiblePages: 5,
             rowsPerPage: 5,
             currentPage: 1,
+            showKelasModal: false,
             dropdownIndex: null,
             showModal: false,
             searchQuery: '', // for filtering
             siswaList: [],
-            selectedKelasIds: [], // Ini akan menampung array ID kelas yang dipilih
-            showKelasDropdown: false,
-            searchKelasQuery: '',
+            kelasList: [],
             selectedStatus: '',
             tahunAwal: '',
             tahunAkhir: '',
+            filter: {
+                kelas_ids: [],
+            },
+            selectedFilters: {
+                noKk: false,
+                nipd: false,
+                nisn: false,
+                nik: false,
+                nama: false,
+                tempatLahir: false,
+                tanggalLahir: false,
+                jenisKelamin: false,
+                agama: false,
+                anakKe: false,
+                jumlahSaudara: false,
+                beratBadan: false,
+                tinggiBadan: false,
+                lingkarKepala: false,
+                rombel: false,
+                status: false,
+                tahunAjar: false
+            },
             firstRowFilters: [
-                { key: "no_kk", label: "No KK" }, // Sesuaikan dengan nama kolom di database
-                { key: "nik_siswa", label: "NIK Siswa" },
-                { key: "nisn", label: "NISN" },
-                { key: "nama_siswa", label: "Nama Siswa" },
-                { key: "tempat_lahir", label: "Tempat Lahir" },
-                { key: "tanggal_lahir", label: "Tanggal Lahir" },
-                { key: "jenis_kelamin", label: "Jenis Kelamin" },
-                { key: "agama", label: "Agama" },
+                {
+                    key: 'noKk',
+                    label: 'Nomor KK'
+                },
+                {
+                    key: 'nipd',
+                    label: 'NIPD'
+                },
+                {
+                    key: 'nisn',
+                    label: 'NISN'
+                },
+                {
+                    key: 'nik',
+                    label: 'NIK'
+                },
+                {
+                    key: 'nama',
+                    label: 'Nama Lengkap'
+                },
+                {
+                    key: 'tempatLahir',
+                    label: 'Tempat Lahir'
+                },
+                {
+                    key: 'tanggalLahir',
+                    label: 'Tanggal Lahir'
+                },
+                {
+                    key: 'jenisKelamin',
+                    label: 'Jenis Kelamin'
+                },
+                {
+                    key: 'rombel',
+                    label: 'Kelas'
+                },
             ],
             secondRowFilters: [
-                { key: "alamat", label: "Alamat" },
-                { key: "anak_ke", label: "Anak Ke" },
-                { key: "jumlah_saudara", label: "Jumlah Saudara" },
-                { key: "berat_badan", label: "Berat Badan" },
-                { key: "tinggi_badan", label: "Tinggi Badan" },
-                { key: "lingkar_kepala", label: "Lingkar Kepala" },
-                { key: "kelas_id", label: "Kelas Saat Ini" }, // Menggunakan kelas_id
-                { key: "status", label: "Status Siswa" }, // Tambahkan ini
+                {
+                    key: 'agama',
+                    label: 'Agama'
+                },
+                {
+                    key: 'anakKe',
+                    label: 'Anak Ke'
+                },
+                {
+                    key: 'jumlahSaudara',
+                    label: 'Jumlah Saudara'
+                },
+                {
+                    key: 'beratBadan',
+                    label: 'Berat Badan'
+                },
+                {
+                    key: 'tinggiBadan',
+                    label: 'Tinggi Badan'
+                },
+                {
+                    key: 'lingkarKepala',
+                    label: 'Lingkar Kepala'
+                },
+                {
+                    key: 'status',
+                    label: 'Status'
+                },
+                {
+                    key: 'tahunAjar',
+                    label: 'Tahun Ajaran'
+                }
             ],
-            selectedFilters: {
-                no_kk: false,
-                nik_siswa: false,
-                nisn: false,
-                nama_siswa: false,
-                jenis_kelamin: false,
-                agama: false,
-                tempat_lahir: false,
-                tanggal_lahir: false,
-                alamat: false,
-                anak_ke: false,
-                jumlah_saudara: false,
-                berat_badan: false,
-                tinggi_badan: false,
-                lingkar_kepala: false,
-                kelas_id: false, // Perbarui dari 'rombel' menjadi 'kelas_id'
-                status: false,
-                tahun_ajaran_id: false, // Tambahkan ini agar bisa dicentang di filter
-            },
             showTahunAjaran: false,
-            // headerMapping: {
-            //     nis: 'Nomor Induk Siswa',
-            //     noKk: 'Nomor KK',
-            //     nama: 'Nama Lengkap',
-            //     jenisKelamin: 'Jenis Kelamin',
-            //     agama: 'Agama',
-            //     nik: 'NIK',
-            //     tempatLahir: 'Tempat Lahir',
-            //     tanggalLahir: 'Tanggal Lahir',
-            //     alamat: 'Alamat',
-            //     anakKe: 'Anak Ke',
-            //     jumlahSaudara: 'Jumlah Saudara',
-            //     beratBadan: 'Berat Badan',
-            //     tinggiBadan: 'Tinggi Badan',
-            //     lingkarKepala: 'Lingkar Kepala',
-            //     rombel: 'Kelas Saat Ini',
-            //     status: 'Status Siswa',
-            //     tahunAjar: 'Tahun Ajaran',
-            // }
+            headerMapping: {
+                no_kk: 'Nomor KK',
+                nik_siswa: 'NIK',
+                nipd: 'NIPD',
+                nis: 'NIS',
+                nama_siswa: 'Nama Lengkap',
+                tempat_lahir: 'Tempat Lahir',
+                tanggal_lahir: 'Tanggal Lahir',
+                jenis_kelamin: 'Jenis Kelamin',
+                agama: 'Agama',
+                anak_ke: 'Anak Ke',
+                jumlah_saudara: 'Jumlah Saudara',
+                berat_badan: 'Berat Badan (kg)',
+                tinggi_badan: 'Tinggi Badan (cm)',
+                lingkar_kepala: 'Lingkar Kepala (cm)',
+                status_siswa: 'Status Siswa',
+                tahun_ajaran: 'Tahun Ajaran'
+            }
         };
     },
     setup() {
@@ -364,10 +429,9 @@ export default {
         const fetchSiswaList = () => {
             axios.get('/siswa')
                 .then((res) => {
-                    console.log("Response dari API Siswa:", res.data); // Debugging
                     if (res.data && Array.isArray(res.data.data)) {
                         siswaList.value = res.data.data;
-                        console.log("Siswa List:", siswaList.value); // Cek apakah datanya tersimpan
+                        
                     } else {
                         console.error("Format data siswa tidak sesuai", res.data);
                         siswaList.value = [];
@@ -382,10 +446,9 @@ export default {
         const fetchKelasList = () => {
             axios.get('/kelas')
                 .then(res => {
-                    // console.log("Response dari API Kelas:", res.data); // Debugging
                     if (res.data && Array.isArray(res.data.data)) {
                         kelasList.value = res.data.data;
-                        // console.log("Kelas List:", kelasList.value); 
+                      
                     } else {
                         console.error("Format data kelas tidak sesuai", res.data);
                         kelasList.value = [];
@@ -398,7 +461,6 @@ export default {
             try {
                 const response = await axios.get('/tahunajaran');
                 tahunAjaranList.value = response.data;
-                console.log("Tahun Ajar List:", tahunAjaranList.value);
             } catch (error) {
                 console.error('Gagal mengambil data tahun ajaran', error);
             }
@@ -432,41 +494,6 @@ export default {
         };
     },
     methods: {
-        toggleKelasSelection(kelasId) {
-            const index = this.selectedKelasIds.indexOf(kelasId);
-            if (index > -1) {
-                // Hapus jika sudah ada (toggle off)
-                this.selectedKelasIds.splice(index, 1);
-            } else {
-                // Tambahkan jika belum ada (toggle on)
-                this.selectedKelasIds.push(kelasId);
-            }
-            this.searchKelasQuery = ''; // Bersihkan input setelah memilih
-            // Tidak perlu menutup dropdown secara langsung di sini, biarkan @blur yang menangani
-        },
-        removeKelas(kelasId) {
-            const index = this.selectedKelasIds.indexOf(kelasId);
-            if (index > -1) {
-                this.selectedKelasIds.splice(index, 1);
-            }
-        },
-        showKelasDropdown() {
-            this.showKelasDropdown = true;
-        },
-        hideKelasDropdown() {
-            // Beri sedikit delay agar event @mousedown.prevent di option sempat tereksekusi
-            setTimeout(() => {
-                this.showKelasDropdown = false;
-                this.searchKelasQuery = ''; // Bersihkan input setelah menutup dropdown
-            }, 100);
-        },
-        filterKelasOptions() {
-            // Fungsi ini akan secara otomatis memfilter opsi kelas yang ditampilkan
-            // saat searchKelasQuery berubah karena menggunakan computed property
-        },
-        saveFilter() {
-            this.closeModal();
-        },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
@@ -478,116 +505,447 @@ export default {
                 this.currentPage = page;
             }
         },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
-        getFilteredData() {
-            return this.siswaList.map((siswa, index) => {
-                const filteredSiswa = {
-                    No: index + 1
-                }; // Menambahkan nomor urut
-                Object.keys(this.selectedFilters).forEach(key => {
-                    if (this.selectedFilters[key]) {
-                        filteredSiswa[key] = siswa[key];
-                    }
-                });
-                return filteredSiswa;
-            });
-        },
-
         toggleFilterPopup() {
             this.showModal = !this.showModal;
         },
+      
+mapFrontendToBackendKey(frontendKey) {
+    const mapping = {
+        noKk: 'no_kk',
+        nipd: 'nipd',
+        nisn: 'nisn',
+        nik: 'nik_siswa',
+        nama: 'nama_siswa',
+        tempatLahir: 'tempat_lahir',
+        tanggalLahir: 'tanggal_lahir',
+        jenisKelamin: 'jenis_kelamin',
+        agama: 'agama',
+        anakKe: 'anak_ke',
+        jumlahSaudara: 'jumlah_saudara',
+        beratBadan: 'berat_badan',
+        tinggiBadan: 'tinggi_badan',
+        lingkarKepala: 'lingkar_kepala',
+        rombel: 'kelas_nama',
+        status: 'status',
+        tahunAjar: 'tahun_ajaran_nama'
+    };
 
-        getFilteredDataForExport() {
-        const selectedColumnKeys = Object.keys(this.selectedFilters).filter(
-            key => this.selectedFilters[key]
-        );
+    return mapping[frontendKey] || frontendKey;
+},
 
-        // Jika tidak ada filter kolom yang dipilih, kembalikan semua kolom (kecuali no, action)
-        if (selectedColumnKeys.length === 0) {
-            return this.filteredSiswaList.map(siswa => {
-                const { id, tahun_ajaran_id, kelas_id, ...rest } = siswa; // Exclude id, tahun_ajaran_id, kelas_id dari export langsung jika tidak dicentang
-                return {
-                    ...rest,
-                    'Kelas Saat Ini': this.getKelasNama(kelas_id),
-                    'Tahun Ajaran': this.getTahunAjar(tahun_ajaran_id)
-                };
-            });
+getColumnLabel(key) {
+    const allFilters = [...this.firstRowFilters, ...this.secondRowFilters];
+    const filter = allFilters.find(f => f.key === key);
+
+    const specialLabels = {
+        rombel: 'Kelas Saat Ini',
+        nama: 'Nama Lengkap'
+    };
+
+    return specialLabels[key] || (filter ? filter.label : key);
+},
+
+async applyFilters() {
+    try {
+        const kelasIds = Array.isArray(this.filter.kelas_ids) ? this.filter.kelas_ids : [this.filter.kelas_ids].filter(Boolean);
+        console.log('Kelas yang dipilih:', kelasIds);
+
+        const selectedKeys = Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key]);
+        console.log('Selected filter keys:', selectedKeys);
+
+        const columnMapping = {
+            'nipd': 'nipd',
+            'nisn': 'nisn',
+            'namaSiswa': 'nama_siswa',
+            'nama': 'nama_siswa', 
+            'nik': 'nik_siswa',
+            'tempatLahir': 'tempat_lahir',
+            'tanggalLahir': 'tanggal_lahir',
+            'jenisKelamin': 'jenis_kelamin',
+            'kelas': 'kelas_nama',
+            'kelasId': 'kelas_nama', 
+            'rombel': 'kelas_nama',
+            'tahunAjaran': 'tahun_ajaran_nama',
+            'status': 'status',
+            'noKk': 'no_kk',
+            'agama': 'agama'
+        };
+
+        const mappedColumns = selectedKeys.map(key => columnMapping[key] || key);
+        console.log('Mapped columns for API:', mappedColumns);
+
+        const params = {
+            columns: mappedColumns.length > 0 ? mappedColumns : undefined,
+            status: this.selectedStatus || undefined,
+            kelas_ids: kelasIds.length ? kelasIds : undefined,
+            tahun_awal: this.tahunAwal || undefined,
+            tahun_akhir: this.tahunAkhir || undefined
+        };
+
+        Object.keys(params).forEach(key => {
+            if (params[key] === undefined) {
+                delete params[key];
+            }
+        });
+
+        const response = await axios.get('/siswa/export', {
+            params,
+            paramsSerializer
+        });
+        return response.data.data;
+    } catch (error) {
+        console.error('Error applying filters:', error);
+        console.error('Error details:', error.response?.data); 
+        Swal.fire('Error', 'Gagal menerapkan filter: ' + (error.response?.data?.message || error.message), 'error');
+        return [];
+    }
+},
+
+async exportData(format) {
+    try {
+        Swal.fire({
+            title: 'Memproses...',
+            text: 'Sedang mengambil data untuk export',
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
+        });
+
+        const filteredData = await this.applyFilters();
+        
+        Swal.close();
+
+        if (!filteredData || filteredData.length === 0) {
+            Swal.fire('Info', 'Tidak ada data untuk diekspor', 'info');
+            return;
         }
 
-        return this.filteredSiswaList.map(siswa => {
-            const filteredSiswa = {};
-            selectedColumnKeys.forEach(key => {
-                // Mapping key internal ke key di data siswa jika berbeda (misal: 'nama' -> 'nama_siswa')
-                let actualKey = key;
-                if (key === 'noKk') actualKey = 'no_kk';
-                else if (key === 'nik') actualKey = 'nik_siswa';
-                else if (key === 'nama') actualKey = 'nama_siswa';
-                else if (key === 'tempatLahir') actualKey = 'tempat_lahir';
-                else if (key === 'tanggalLahir') actualKey = 'tanggal_lahir';
-                else if (key === 'jenisKelamin') actualKey = 'jenis_kelamin';
-                else if (key === 'agama') actualKey = 'agama';
-                else if (key === 'anakKe') actualKey = 'anak_ke';
-                else if (key === 'jumlahSaudara') actualKey = 'jumlah_saudara';
-                else if (key === 'beratBadan') actualKey = 'berat_badan';
-                else if (key === 'tinggiBadan') actualKey = 'tinggi_badan';
-                else if (key === 'lingkarKepala') actualKey = 'lingkar_kepala';
-                else if (key === 'rombel') actualKey = 'kelas_id'; // Untuk kelas_id
-                else if (key === 'tahunAjar') actualKey = 'tahun_ajaran_id'; // Untuk tahun_ajaran_id
+        if (format === 'pdf') {
+            await this.exportToPDF(filteredData);
+        } else if (format === 'excel') {
+            await this.exportToExcel(filteredData);
+        }
 
-                if (actualKey === 'kelas_id') {
-                    filteredSiswa['Kelas Saat Ini'] = this.getKelasNama(siswa[actualKey]);
-                } else if (actualKey === 'tahun_ajaran_id') {
-                    // Karena showTahunAjaran adalah checkbox terpisah, ini akan dieksekusi jika dicentang di "selectedFilters"
-                    filteredSiswa['Tahun Ajaran'] = this.getTahunAjar(siswa[actualKey]);
-                } else {
-                    filteredSiswa[this.getColumnLabel(key)] = siswa[actualKey] !== undefined ? siswa[actualKey] : 'Data tidak ditemukan';
+        Swal.fire('Sukses', 'Data berhasil diekspor', 'success');
+    } catch (error) {
+        console.error("Export error:", error);
+        Swal.close();
+        Swal.fire({
+            icon: 'error',
+            title: 'Gagal Mengekspor Data',
+            text: 'Terjadi kesalahan saat mengekspor data: ' + error.message
+        });
+    }
+},
+async exportToExcel() {
+    try {
+        const XLSX = await import('xlsx');
+        
+        const response = await axios.get('/siswa/export');
+        const data = response.data.data;
+
+        const columns = [
+            { key: 'no_kk', header: 'No KK' },
+            { key: 'nipd', header: 'NIPD' },
+            { key: 'nisn', header: 'NISN' },
+            { key: 'nama_siswa', header: 'Nama Siswa' },
+            { key: 'nik_siswa', header: 'NIK' },
+            { key: 'kelas_nama', header: 'Kelas' },
+            { key: 'tahun_ajaran_nama', header: 'Tahun Ajaran' },
+            { key: 'tanggal_lahir', header: 'Tanggal Lahir' },
+            { key: 'tempat_lahir', header: 'Tempat Lahir' },
+            { key: 'jenis_kelamin', header: 'Jenis Kelamin' },
+            { key: 'agama', header: 'Agama' },
+            { key: 'status', header: 'Status' },
+        ];
+
+        const excelData = data.map((item, index) => {
+            const row = { No: index + 1 };
+            
+            columns.forEach(col => {
+                if (col.key === 'tanggal_lahir') {
+                    if (item[col.key] && item[col.key] !== 'Invalid Date') {
+                        try {
+                            const date = new Date(item[col.key]);
+                            if (!isNaN(date.getTime())) {
+                                row[col.header] = date.toLocaleDateString('id-ID');
+                            } else {
+                                row[col.header] = '-';
+                            }
+                        } catch (e) {
+                            row[col.header] = '-';
+                        }
+                    } else {
+                        row[col.header] = '-';
+                    }
+                } 
+                else if (col.key === 'jenis_kelamin') {
+                    if (item[col.key]) {
+                        row[col.header] = item[col.key] === 'L' ? 'Laki-laki' : 'Perempuan';
+                    } else {
+                        row[col.header] = '-';
+                    }
+                }
+                else {
+                    const value = item[col.key];
+                    row[col.header] = (value !== null && value !== undefined && value !== '') ? value : '-';
                 }
             });
-            return filteredSiswa;
+            
+            return row;
         });
-    },
 
-    getColumnLabel(key) {
-        const allFilters = [...this.firstRowFilters, ...this.secondRowFilters];
-        const filter = allFilters.find(f => f.key === key);
-        return filter ? filter.label : key; // Menggunakan label jika ada, jika tidak gunakan key
-    },
+        const ws = XLSX.utils.json_to_sheet(excelData);
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, "Data Siswa");
 
-    exportData(format) {
-        const dataToExport = this.getFilteredDataForExport();
-        // Implementasi ekspor PDF/Excel di sini
-        // Misalnya, untuk PDF dengan jsPDF dan autoTable
-        if (format === 'pdf') {
-            console.log("Exporting to PDF with data:", dataToExport);
-            // Tambahkan kode untuk generate PDF di sini
-            // Kamu akan butuh library seperti jsPDF dan jspdf-autotable
-            // Contoh:
-            /*
-            import jsPDF from 'jspdf';
-            import 'jspdf-autotable';
+        const wscols = [
+            { wch: 5 },  // No
+            { wch: 10 }, // NISN
+            { wch: 30 }, // Nama Siswa
+            { wch: 20 }, // NIK
+            { wch: 15 }, // Kelas
+            { wch: 15 }, // Tahun Ajaran
+            { wch: 15 }, // Tanggal Lahir
+            { wch: 20 }, // Tempat Lahir
+            { wch: 15 }, // Jenis Kelamin
+            { wch: 10 }, // Agama
+            { wch: 10 }, // Status
+            { wch: 15 },
+            { wch: 10 }
+        ];
+        ws['!cols'] = wscols;
 
-            const doc = new jsPDF();
-            doc.autoTable({
-                head: [Object.keys(dataToExport[0] || {})],
-                body: dataToExport.map(row => Object.values(row))
-            });
-            doc.save('data_siswa.pdf');
-            */
-        } else if (format === 'excel') {
-            console.log("Exporting to Excel with data:", dataToExport);
-            // Tambahkan kode untuk generate Excel di sini
-            // Kamu akan butuh library seperti SheetJS (xlsx)
-            // Contoh:
-            /*
-            import * as XLSX from 'xlsx';
+        XLSX.writeFile(wb, `Data_Siswa_${new Date().toISOString().slice(0, 10)}.xlsx`);
 
-            const ws = XLSX.utils.json_to_sheet(dataToExport);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, "Data Siswa");
-            XLSX.writeFile(wb, "data_siswa.xlsx");
-            */
+        alert('Data berhasil diekspor ke Excel!');
+
+    } catch (error) {
+        console.error('Error generating Excel:', error);
+        alert('Terjadi kesalahan saat mengekspor data: ' + error.message);
+        throw error;
+    }
+},
+
+async exportToPDF(data) {
+    try {
+        const { jsPDF } = await import('jspdf');
+        await import('jspdf-autotable');
+
+        if (!data || data.length === 0) {
+            throw new Error('Tidak ada data untuk diekspor');
         }
-    },
+
+        const columnsToShow = ['nama_siswa', 'kelas_nama'];
+        const headerMapping = {
+            'nama_siswa': 'Nama Siswa',
+            'kelas_nama': 'Kelas'
+        };
+
+        const processedData = data.map((item, index) => {
+            const row = { no: index + 1 };
+            
+            columnsToShow.forEach(col => {
+                if (item[col] !== undefined) {
+                    row[col] = item[col] || '-';
+                }
+            });
+            
+            return row;
+        });
+
+        const doc = new jsPDF({ orientation: 'portrait', unit: 'mm' });
+
+        // Title
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('LAPORAN DATA SISWA', doc.internal.pageSize.width / 2, 20, { align: 'center' });
+
+        // Print date
+        const date = new Date().toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        doc.setFontSize(10);
+        doc.text(`Dicetak pada: ${date}`, 14, 25);
+
+        // Prepare headers and body
+        const headers = ['No', ...columnsToShow.map(col => headerMapping[col])];
+        const body = processedData.map(row => 
+            [row.no, ...columnsToShow.map(col => row[col] || '-')]
+        );
+
+        // Create table
+        doc.autoTable({
+            head: [headers],
+            body: body,
+            startY: 30,
+            styles: {
+                fontSize: 8,
+                cellPadding: 2
+            },
+            headStyles: {
+                fillColor: [41, 128, 185],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold'
+            },
+            didDrawPage: (data) => {
+                const pageCount = doc.internal.getNumberOfPages();
+                doc.setFontSize(8);
+                doc.text(
+                    `Halaman ${data.pageNumber} dari ${pageCount}`,
+                    doc.internal.pageSize.width / 2,
+                    doc.internal.pageSize.height - 10,
+                    { align: 'center' }
+                );
+            }
+        });
+
+        doc.save(`Data_Siswa_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        throw error;
+    }
+},
+        calculateDynamicColumnWidths(headers, data, availableWidth) {
+            const columnWidths = {};
+            const contentLengths = {};
+            const defaultWidths = {
+                'no': 10,
+                'no_kk': 25,
+                'nik_siswa': 20,
+                'nama_siswa': 30,
+                'kelas_id': 20,
+                'tahun_ajaran_id': 20
+            };
+
+            headers.forEach(header => {
+                let maxLength = defaultWidths[header] || 15; 
+                const headerLength = header.length * 1.5; 
+                if (headerLength > maxLength) maxLength = headerLength;
+
+                data.forEach(row => {
+                    const content = row[header] ?.toString() || '';
+                    const contentLength = content.length * 1.2; 
+                    if (contentLength > maxLength) maxLength = contentLength;
+                });
+
+                contentLengths[header] = Math.min(maxLength, 50); 
+            });
+
+            const totalNeededWidth = Object.values(contentLengths).reduce((a, b) => a + b, 0);
+
+            if (totalNeededWidth < availableWidth) {
+                const extraSpace = availableWidth - totalNeededWidth;
+                const extraPerColumn = extraSpace / headers.length;
+
+                headers.forEach(header => {
+                    columnWidths[header] = contentLengths[header] + extraPerColumn;
+                });
+            } else {
+                const scaleFactor = availableWidth / totalNeededWidth;
+
+                headers.forEach(header => {
+                    columnWidths[header] = contentLengths[header] * scaleFactor;
+                });
+            }
+
+            return columnWidths;
+        },
+        getColumnAlignment(header, data) {
+            if (!data || data.length === 0) return 'left';
+
+            const sampleValue = data[0][header];
+
+            if (typeof sampleValue === 'number') return 'right';
+
+            if (sampleValue instanceof Date) return 'center';
+
+            if (['no', 'anak_ke', 'jumlah_saudara', 'berat_badan', 'tinggi_badan'].includes(header)) {
+                return 'right';
+            }
+
+            return 'left';
+        },
+        generateColumnStyles(columns, data) {
+            const styles = {};
+            const defaultWidth = 20;
+
+            const specialWidths = {
+                'No': 8,
+                'Nomor KK': 25,
+                'NIK': 20,
+                'Nama Lengkap': 30,
+                'Kelas Saat Ini': 20
+            };
+
+            columns.forEach((col, index) => {
+                styles[index] = {
+                    cellWidth: specialWidths[col] || defaultWidth,
+                    halign: data && data[0] && typeof data[0][col] === 'number' ? 'right' : 'left'
+                };
+            });
+
+            return styles;
+        },
+        getFilteredDataForExport() {
+            const selectedColumnKeys = Object.keys(this.selectedFilters)
+                .filter(key => this.selectedFilters[key]
+            );
+
+            // Jika tidak ada filter kolom yang dipilih, kembalikan semua kolom
+            if (selectedColumnKeys.length === 0) {
+                return this.filteredSiswaList.map((siswa, index) => {
+                    const {
+                        id,
+                        tahun_ajaran_id,
+                        kelas_id,
+                        ...rest
+                    } = siswa;
+                    return {
+                        'No': index + 1,
+                        ...rest,
+                        'Kelas': this.getKelasNama(kelas_id),
+                        'Tahun Ajaran': this.getTahunAjar(tahun_ajaran_id),
+                        'Jenis Kelamin': siswa.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan'
+                    };
+                });
+            }
+
+            // Jika ada filter, hanya ambil kolom yang dipilih
+            return this.filteredSiswaList.map((siswa, index) => {
+                const filteredData = {
+                    'No': index + 1
+                };
+
+                selectedColumnKeys.forEach(key => {
+                    const backendKey = this.mapFrontendToBackendKey(key);
+
+                    if (backendKey === 'kelas_id') {
+                        filteredData['Kelas'] = this.getKelasNama(siswa[backendKey]);
+                    } else if (backendKey === 'tahun_ajaran_id') {
+                        filteredData['Tahun Ajaran'] = this.getTahunAjar(siswa[backendKey]);
+                    } else if (key === 'jenisKelamin') {
+                        filteredData['Jenis Kelamin'] = siswa.jenis_kelamin === 'L' ? 'Laki-laki' : 'Perempuan';
+                    } else {
+                        const label = this.getColumnLabel(key);
+                        const value = siswa[backendKey];
+
+                        // Format khusus untuk beberapa tipe data
+                        if (backendKey === 'tanggal_lahir' && value) {
+                            filteredData[label] = new Date(value).toLocaleDateString('id-ID');
+                        } else {
+                            filteredData[label] = value !== undefined ? value : '-';
+                        }
+                    }
+                });
+
+                return filteredData;
+            });
+        },
         editSiswa(id) {
             this.$router.push(`/adminmainsidebar/addStudents/${id}`);
         },
@@ -613,6 +971,48 @@ export default {
             } catch (error) {
                 Swal.fire('Error', 'Gagal menghapus data siswa!', 'error');
             }
+        },
+        shouldShowColumn(columnName) {
+            const columnToFilterMap = {
+                'Nomor KK': 'noKk',
+                'NIPD': 'nipd',
+                'NISN': 'nisn',
+                'NIK': 'nik',
+                'Nama Lengkap': 'nama',
+                'Jenis Kelamin': 'jenisKelamin',
+                'Tempat Lahir': 'tempatLahir',
+                'Tanggal Lahir': 'tanggalLahir',
+                'Agama': 'agama',
+                'Alamat': 'alamat',
+                'Anak Ke': 'anakKe',
+                'Jumlah Saudara': 'jumlahSaudara',
+                'Berat Badan': 'beratBadan',
+                'Tinggi Badan': 'tinggiBadan',
+                'Lingkar Kepala': 'lingkarKepala',
+                'Kelas Saat Ini': 'rombel',
+                'Status Siswa': 'statusSiswa',
+                'Tahun Ajaran': 'tahunAjaran'
+            };
+
+            const filterKey = columnToFilterMap[columnName];
+            if (filterKey) {
+                return this.selectedFilters[filterKey] ||
+                    this.displayedColumns.includes(columnName);
+            }
+            return this.displayedColumns.includes(columnName);
+        },
+        resetFilters() {
+            Object.keys(this.selectedFilters).forEach(key => {
+            this.selectedFilters[key] = false;
+            });
+
+            this.showTahunAjaran = false;
+            this.tahunAwal = '';
+            this.tahunAkhir = '';
+
+            this.selectedStatus = '';
+
+            this.filter.kelas_ids = [];
         },
     },
     computed: {
@@ -640,87 +1040,80 @@ export default {
             }
             return pages;
         },
-        filteredKelasOptions() {
-            if (!this.kelasList) return []; // Pastikan kelasList sudah terisi
-            const query = this.searchKelasQuery.toLowerCase();
-            return this.kelasList.filter(kelas => {
-                // Filter kelas berdasarkan query pencarian
-                const matchesSearch = kelas.nama_kelas.toLowerCase().includes(query);
-                // Jangan tampilkan kelas yang sudah dipilih di tag
-                const isAlreadySelected = this.selectedKelasIds.includes(kelas.id);
-                return matchesSearch && !isAlreadySelected;
-            });
+        selectedKelasLabel() {
+            if (!this.filter.kelas_ids.length) return '';
+            const selected = this.kelasList.filter(k => this.filter.kelas_ids.includes(k.id));
+            return selected.map(k => k.nama_kelas).join(', ');
         },
-
         filteredSiswaList() {
             let filtered = this.siswaList;
 
-            // 1. Filter Tahun Ajaran (tetap sama)
-            if (this.showTahunAjaran && this.tahunAwal && this.tahunAkhir) {
-                filtered = filtered.filter(siswa => {
-                    const tahun = this.getTahunAjar(siswa.tahun_ajaran_id);
-                    const tahunAjarParts = tahun.split('/');
-                    const tahunMulaiSiswa = parseInt(tahunAjarParts[0]);
-                    const tahunSelesaiSiswa = parseInt(tahunAjarParts[1]);
-
-                    const tahunMulaiFilter = parseInt(this.tahunAwal);
-                    const tahunSelesaiFilter = parseInt(this.tahunAkhir);
-
-                    return (tahunMulaiSiswa >= tahunMulaiFilter && tahunMulaiSiswa <= tahunSelesaiFilter) ||
-                           (tahunSelesaiSiswa >= tahunMulaiFilter && tahunSelesaiSiswa <= tahunSelesaiFilter) ||
-                           (tahunMulaiFilter >= tahunMulaiSiswa && tahunMulaiFilter <= tahunSelesaiSiswa);
-                });
-            }
-
-            // 2. Filter Kelas (Modifikasi untuk multi-select)
-            if (this.selectedKelasIds.length > 0) {
-                filtered = filtered.filter(siswa => this.selectedKelasIds.includes(siswa.kelas_id));
-            }
-
-            // 3. Filter Status Siswa (tetap sama)
-            if (this.selectedStatus) {
-                filtered = filtered.filter(siswa => siswa.status === this.selectedStatus);
-            }
-
-            // 4. Pencarian Global (searchQuery) (tetap sama)
             if (this.searchQuery) {
                 const query = this.searchQuery.toLowerCase();
+                filtered = filtered.filter(siswa =>
+                    siswa.nama_siswa.toLowerCase().includes(query) ||
+                    (siswa.nis && siswa.nis.toLowerCase().includes(query)) ||
+                    (siswa.nik_siswa && siswa.nik_siswa.toLowerCase().includes(query))
+                );
+            }
+
+            if (this.selectedStatus) {
+                filtered = filtered.filter(siswa =>
+                siswa.status && siswa.status.toLowerCase() === this.selectedStatus.toLowerCase()
+                );
+            }
+
+            if (this.filter.kelas_ids.length) {
+                filtered = filtered.filter(siswa =>
+                this.filter.kelas_ids.includes(siswa.kelas_id)
+                );
+            }
+
+            // Filter berdasarkan tahun ajaran
+            if (this.tahunAwal && this.tahunAkhir) {
                 filtered = filtered.filter(siswa => {
-                    const columnsToCheck = [
-                        'no_kk', 'nisn', 'nik_siswa', 'nama_siswa', 'jenis_kelamin',
-                        'tempat_lahir', 'tanggal_lahir', 'agama', 'alamat', 'anak_ke',
-                        'jumlah_saudara', 'berat_badan', 'tinggi_badan', 'lingkar_kepala',
-                        'status'
-                    ];
+                    const tahunAjaran = this.getTahunAjar(siswa.tahun_ajaran_id);
+                    if (!tahunAjaran) return false;
 
-                    const kelasNama = this.getKelasNama(siswa.kelas_id);
-                    const tahunAjarNama = this.getTahunAjar(siswa.tahun_ajaran_id);
-
-                    return columnsToCheck.some(key => {
-                        const value = siswa[key];
-                        return value && String(value).toLowerCase().includes(query);
-                    }) || (kelasNama && String(kelasNama).toLowerCase().includes(query)) ||
-                       (tahunAjarNama && String(tahunAjarNama).toLowerCase().includes(query));
+                    const [awal, akhir] = tahunAjaran.split('/');
+                    return awal >= this.tahunAwal && akhir <= this.tahunAkhir;
                 });
             }
 
             return filtered;
         },
-    paginatedSiswaList() {
-        const start = (this.currentPage - 1) * this.rowsPerPage;
-        const end = start + this.rowsPerPage;
-        // Gunakan filteredSiswaList di sini
-        return this.filteredSiswaList.slice(start, end);
-    },
-    totalPages() {
-        // Total halaman dihitung berdasarkan filteredSiswaList
-        return Math.ceil(this.filteredSiswaList.length / this.rowsPerPage);
-    },
-    pageInfo() {
-        const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-        const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredSiswaList.length);
-        return `Showing ${startRow} - ${endRow} of ${this.filteredSiswaList.length} entries`;
-    },
+
+        // Kolom yang ditampilkan di tabel
+        displayedColumns() {
+            const selected = Object.keys(this.selectedFilters)
+                .filter(key => this.selectedFilters[key]);
+
+            if (selected.length === 0) {
+                return [
+                    'No', 'Nomor KK', 'NIPD', 'NISN', 'NIK', 'Nama Lengkap', 'Jenis Kelamin',
+                    'Tempat Lahir', 'Tanggal Lahir', 'Agama', 'Alamat', 'Anak Ke',
+                    'Jumlah Saudara', 'Berat Badan', 'Tinggi Badan', 'Lingkar Kepala',
+                    'Kelas Saat Ini', 'Status Siswa', 'Tahun Ajaran'
+                ];
+            }
+
+            return selected.map(key => this.getColumnLabel(key));
+        },
+        paginatedSiswaList() {
+            const start = (this.currentPage - 1) * this.rowsPerPage;
+            const end = start + this.rowsPerPage;
+            // Gunakan filteredSiswaList di sini
+            return this.filteredSiswaList.slice(start, end);
+        },
+        totalPages() {
+            // Total halaman dihitung berdasarkan filteredSiswaList
+            return Math.ceil(this.filteredSiswaList.length / this.rowsPerPage);
+        },
+        pageInfo() {
+            const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredSiswaList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.filteredSiswaList.length} entries`;
+        },
         getKelasNama() {
             return (kelas_id) => {
                 const kelas = this.kelasList.find(k => k.id === kelas_id);
@@ -801,7 +1194,8 @@ export default {
 
 .multi-select-container {
     position: relative;
-    width: 100%; /* Sesuaikan lebar */
+    width: 100%;
+    /* Sesuaikan lebar */
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 5px;
@@ -831,24 +1225,29 @@ export default {
 }
 
 .multi-select-input {
-    flex-grow: 1; /* Agar input mengisi sisa ruang */
+    flex-grow: 1;
+    /* Agar input mengisi sisa ruang */
     border: none;
     outline: none;
     padding: 5px;
-    min-width: 100px; /* Lebar minimum untuk input */
+    min-width: 100px;
+    /* Lebar minimum untuk input */
 }
 
 .kelas-options-dropdown {
     position: absolute;
-    top: 100%; /* Di bawah container */
+    top: 100%;
+    /* Di bawah container */
     left: 0;
     right: 0;
     border: 1px solid #ccc;
     background-color: white;
-    z-index: 1000; /* Pastikan di atas elemen lain */
-    max-height: 200px; /* Batasi tinggi, tambahkan scroll */
+    z-index: 1000;
+    /* Pastikan di atas elemen lain */
+    max-height: 200px;
+    /* Batasi tinggi, tambahkan scroll */
     overflow-y: auto;
-    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 0 0 4px 4px;
 }
 
@@ -959,6 +1358,16 @@ label {
     background-color: #ffffff;
     box-shadow: 1px 1px 10px rgba(173, 173, 173, 0.15);
     transition: border-color 0.3s ease;
+}
+
+.btn-reset {
+  background-color: #dc3545; /* Merah */
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  margin-right: 8px;
+  cursor: pointer;
 }
 
 .filter-icon {

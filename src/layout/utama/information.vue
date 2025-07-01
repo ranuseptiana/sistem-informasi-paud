@@ -28,6 +28,12 @@
       <section class="no-answer">
         <h2>Tidak menemukan jawaban untuk pertanyaan Anda?</h2>
         <p>Hubungi kami melalui nomor yang tertera untuk mendapatkan lebih banyak informasi lebih lanjut</p>
+        <a href="https://wa.me/6281335305234"
+          class="btn-whatsapp"
+          target="_blank"
+          rel="noopener"> <i class="fa-brands fa-whatsapp"></i>
+          Hubungi via WhatsApp
+        </a>
       </section>
     </div>
     <Footer />
@@ -85,6 +91,23 @@
     align-items: center;
     width: 100%;
   }
+
+  .btn-whatsapp {
+  display: inline-block;
+  background-color: #075E54; /* warna hijau khas WhatsApp */
+  color: white;
+  padding: 10px 20px;
+  margin-top: 15px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-whatsapp:hover {
+  background-color: #1ebc59;
+}
+
   
   /* Header */
   .tentang-kami {

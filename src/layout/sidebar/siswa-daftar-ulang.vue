@@ -91,8 +91,8 @@
     <div v-else class="empty-payment-state">
       <div class="empty-payment-card">
         <i class="fas fa-exclamation-circle empty-icon"></i>
-        <h2>Hmm... Sepertinya Kamu Belum Melakukan Pembayaran</h2>
-        <p>Ayo segera lakukan pembayaran pendaftaran agar kamu bisa melanjutkan proses selanjutnya!</p>
+        <h2>Anda belum memiliki data pembayaran ini.</h2>
+        <p>Harap konfirmasi kembali dengan admin terkait.</p>
       </div>
     </div>
   </div>

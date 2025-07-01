@@ -40,6 +40,9 @@
                     <router-link to="/adminmainsidebar/activity" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'activity' }" @click="setActive('activity')">
                         Agenda
                     </router-link>
+                    <router-link to="/adminmainsidebar/users" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'users' }" @click="setActive('users')">
+                        Users
+                    </router-link>
                 </ul>
                 <!-- Profile icon -->
                 <div class="navbar-nav ms-auto">
@@ -139,13 +142,14 @@ export default {
                 this.activeMenu = 'teacher';
             } else if (currentPath.includes('class')) {
                 this.activeMenu = 'class';
-            }
-            else if (currentPath.includes('tuition')) {
-                this.activeMenu = 'tuition'; } 
-            else if (currentPath.includes('gallery')) {
+            } else if (currentPath.includes('tuition')) {
+                this.activeMenu = 'tuition';
+            } else if (currentPath.includes('gallery')) {
                 this.activeMenu = 'gallery';
             } else if (currentPath.includes('activity')) {
                 this.activeMenu = 'activity';
+            } else if (currentPath.includes('users')) {
+                this.activeMenu = 'users';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
             }

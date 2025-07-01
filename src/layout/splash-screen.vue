@@ -80,7 +80,7 @@
                     <h3>MENJADI BAGIAN DARI PAUD AL UMMAH</h3>
                     <div class="list-kelas">
                         <div class="kelas" data-aos="flip-left">
-                            <p class="nama-kelas">Playground / PG</p>
+                            <p class="nama-kelas">Playgroup / PG</p>
                             <p class="usia">(usia 4-5 tahun)</p>
                             <p class="jumlah-anak">20</p>
                             <p class="anak">anak</p>
@@ -588,6 +588,146 @@ ul {
     opacity: 1 !important;
 }
 
+/* Media query khusus untuk mobile */
+@media only screen and (max-width: 768px) {
+    /* Hero Section */
+    .content {
+        margin: 20px 15px;
+        align-items: center;
+        text-align: center;
+    }
+    
+    .content h2 {
+        font-size: 24px;
+        text-align: center;
+    }
+    
+    .content p {
+        margin-right: 0;
+        text-align: center;
+    }
+    
+    .foto-depan {
+        max-width: 90%;
+        margin: 0 auto 20px;
+    }
+    
+    /* Keunggulan */
+    .keunggulan-wrapper {
+        padding: 15px 0;
+    }
+    
+    .keunggulan {
+        flex-direction: column;
+        width: 100%;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    
+    .keunggulan .icon {
+        margin: 0 auto 10px;
+    }
+    
+    /* Tentang Kami */
+    .tentang-kami {
+        padding: 20px 15px;
+    }
+    
+    .tentang-kami-head,
+    .tentang-kami-title {
+        flex-direction: row;
+        gap: 10px;
+    }
+
+    .deskripsi {
+        margin: 10px 0px;
+    }
+    
+    .visi-misi {
+        flex-direction: column;
+    }
+    
+    .visi, .misi {
+        width: 100%;
+    }
+    
+    /* Kelas */
+    .list-kelas {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
+    }
+    
+    .kelas {
+        width: calc(50% - 15px);
+        min-width: 160px;
+        padding: 15px 10px;
+    }
+    
+    .nama-kelas {
+        font-size: 20px;
+    }
+    
+    .usia {
+        font-size: 14px;
+        margin-bottom: 10px;
+    }
+    
+    .jumlah-anak {
+        font-size: 24px;
+    }
+    
+    .anak {
+        font-size: 16px;
+    }
+    
+    /* Agenda */
+    .agenda-header {
+        flex-direction: row;
+        gap: 100px;
+    }
+    
+    .agenda-list {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .agenda-item {
+        width: 90%;
+        margin-bottom: 20px;
+    }
+    
+    .nama-agenda {
+        font-size: 14px;
+    }
+    
+    /* Maps */
+    .maps {
+        width: 95%;
+        margin-left: 0;
+        height: 250px;
+    }
+    
+    .sambutan-footer {
+        padding: 0 15px;
+    }
+}
+
+/* Tambahan untuk perangkat sangat kecil (opsional) */
+@media only screen and (max-width: 480px) {
+    .content h2 {
+        font-size: 22px;
+    }
+    
+    .tentang-kami-title h3 {
+        font-size: 18px;
+    }
+    
+    .kelas {
+        width: 100%;
+    }
+}
+
 @media (min-width: 768px) {
     .container {
         flex-direction: row;
@@ -683,21 +823,14 @@ ul {
     }
 
     .list-kelas p {
-        font-size: 8px;
+        font-size: 14px;
     }
 
     .list-kelas {
-        justify-content: center; 
-        gap: 10px; 
-        width: 100%; 
-        max-width: 100%; 
-        word-wrap: break-word; 
-        white-space: normal;
-        display: flex;
-        flex-wrap: wrap;
         flex-direction: row;
+        flex-wrap: wrap;
+        gap: 15px;
     }
-
     .maps {
         height: 180px;
         margin-left: 21px;

@@ -225,7 +225,7 @@ export default {
       },
       detailAlbum(id) {
         this.dropdownIndex = null;
-        this.$router.push(`/adminmainsidebar/detailGallery/${id}`);
+        this.$router.push(`/gurumainsidebar/detailGallery/${id}`);
       },
       async prepareEditAlbum(id) {
         this.dropdownIndex = null;

@@ -15,25 +15,6 @@
     <section class="content-1">
         <div class="card info-card" style="border-radius: 20px;">
             <div class="card-header" style="color: white; background-color: #3c680a;">
-                Data Username
-            </div>
-            <div class="card-body">
-                <form>
-                    <div class="row">
-                        <div class="form-group">
-                            <label for="username">Username</label>
-                            <input v-model="form.username" type="text" id="username" placeholder="Tambahkan username" required :disabled="isEdit" />
-                        </div>
-                        <div class="form-group">
-                            <label for="password">Password</label>
-                            <input v-model="form.password" type="text" id="password" placeholder="Tambahkan password" required :disabled="isEdit" />
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-        <div class="card info-card" style="border-radius: 20px;">
-            <div class="card-header" style="color: white; background-color: #3c680a;">
                 Data Guru
             </div>
             <div class="card-body">
@@ -64,7 +45,7 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="tempatLahir">Tempat Tanggal Lahir</label>
-                            <input v-model="form.tempat_lahir" type="text" id="tempatLahir" placeholder="Masukkan nomor hp" />
+                            <input v-model="form.tempat_lahir" type="text" id="tempatLahir" placeholder="Masukkan tempat tanggal lahir" />
                         </div>
                         <div class="form-group">
                             <label for="tgl_lahir">Tanggal Lahir</label>

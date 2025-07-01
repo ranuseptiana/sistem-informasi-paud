@@ -77,40 +77,36 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nip">NIP</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.username">Username</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.password">Password</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaGuru">Nama Lengkap</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.gender">Jenis Kelamin</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tempatLahir">Tempat Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tglLahir">Tanggal Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.agama">Agama</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.alamat">Alamat</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.noTelp">No Telp</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jabatan">Jabatan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.kelas">Kelas Yang Diajar</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jmlHari">Jumlah Hari Mengajar</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tugasMengajar">Tugas Mengajar</th>
+                        <th scope="col" class="table-head">NIP</th>
+                        <th scope="col" class="table-head">Nama Lengkap</th>
+                        <th scope="col" class="table-head">Jenis Kelamin</th>
+                        <th scope="col" class="table-head">Tempat Lahir</th>
+                        <th scope="col" class="table-head">Tanggal Lahir</th>
+                        <th scope="col" class="table-head">Agama</th>
+                        <th scope="col" class="table-head">Alamat</th>
+                        <th scope="col" class="table-head">No Telp</th>
+                        <th scope="col" class="table-head">Jabatan</th>
+                        <th scope="col" class="table-head">Kelas Yang Diajar</th>
+                        <th scope="col" class="table-head">Jumlah Hari Mengajar</th>
+                        <th scope="col" class="table-head">Tugas Mengajar</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(guru, index) in paginatedGuruList" :key="guru.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.nip">{{ guru.nip }}</td>
-                        <td v-if="selectedFilters.username">{{ guru.username }}</td>
-                        <td v-if="selectedFilters.password">{{ guru.password }}</td>
-                        <td v-if="selectedFilters.namaGuru">{{ guru.nama_lengkap }}</td>
-                        <td v-if="selectedFilters.gender">{{ guru.gender }}</td>
-                        <td v-if="selectedFilters.tempatLahir">{{ guru.tempat_lahir }}</td>
-                        <td v-if="selectedFilters.tglLahir">{{ guru.tgl_lahir }}</td>
-                        <td v-if="selectedFilters.agama">{{ guru.agama }}</td>
-                        <td v-if="selectedFilters.alamat">{{ guru.alamat }}</td>
-                        <td v-if="selectedFilters.noTelp">{{ guru.no_telp }}</td>
-                        <td v-if="selectedFilters.jabatan">{{ guru.jabatan }}</td>
-                        <td v-if="selectedFilters.kelas">{{ guru.kelasDiampu }}</td>
-                        <td v-if="selectedFilters.jmlHari">{{ guru.jumlah_hari_mengajar }}</td>
-                        <td v-if="selectedFilters.tugasMengajar">{{ guru.tugas_mengajar }}</td>
+                        <td>{{ guru.nip }}</td>
+                        <td>{{ guru.nama_lengkap }}</td>
+                        <td>{{ guru.gender }}</td>
+                        <td>{{ guru.tempat_lahir }}</td>
+                        <td>{{ guru.tgl_lahir }}</td>
+                        <td>{{ guru.agama }}</td>
+                        <td>{{ guru.alamat }}</td>
+                        <td>{{ guru.no_telp }}</td>
+                        <td>{{ guru.jabatan }}</td>
+                        <td>{{ guru.kelasDiampu }}</td>
+                        <td>{{ guru.jumlah_hari_mengajar }}</td>
+                        <td>{{ guru.tugas_mengajar }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">

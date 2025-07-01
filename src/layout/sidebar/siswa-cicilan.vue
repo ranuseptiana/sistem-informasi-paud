@@ -35,7 +35,7 @@
             <td>{{ cicilan.keterangan }}</td>
           </tr>
           <tr v-if="paginatedCicilanList.length === 0" class="no-data">
-            <td colspan="6" class="no-data-cell"> <div class="no-data-content">
+            <td colspan="10" class="no-data-cell"> <div class="no-data-content">
                 <img src="/src/assets/images/no-data.svg" alt="no data here" class="no-data-img">
                 <p class="no-data-text">Tidak ada data cicilan ditemukan.</p>
               </div>
@@ -97,10 +97,10 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log('Data yang diterima:', res.data);
+        // console.log('Data yang diterima:', res.data);
         cicilanList.value = res.data.data;
       } catch (error) {
-        console.error("Gagal mengambil data cicilan:", error.response?.data || error.message);
+        //console.error("Gagal mengambil data cicilan:", error.response?.data || error.message);
         if (typeof Swal !== 'undefined') {
           Swal.fire({
             icon: 'error',
@@ -274,6 +274,35 @@ export default {
 
 .data-table tr:nth-child(even) {
     background-color: #f9f9f9;
+}
+.no-data-cell {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    height: 150px;
+}
+
+.no-data-content {
+    display: flex;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
+.no-data-text {
+    font-size: 16px;
+    color: #6c757d;
 }
 .pagination-info-ortu {
     display: flex;

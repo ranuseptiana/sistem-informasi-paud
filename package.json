@@ -18,11 +18,15 @@
     "bootstrap": "^5.3.3",
     "bootstrap-icons": "^1.11.3",
     "chart.js": "^4.4.8",
+    "datatables.net-dt": "^2.3.2",
+    "exceljs": "^4.4.0",
+    "file-saver": "^2.0.5",
     "jspdf": "^2.5.2",
     "jspdf-autotable": "^3.8.4",
     "mdb-ui-kit": "^7.3.0",
     "mdb-vue-ui-kit": "^5.0.0",
     "papaparse": "^5.4.1",
+    "qs": "^6.14.0",
     "sweetalert2": "^11.14.5",
     "vue": "^3.4.21",
     "vue-axios": "^3.5.2",
@@ -31,7 +35,8 @@
     "vue-router": "^4.5.1",
     "vue3-perfect-scrollbar": "^2.0.0",
     "vue3-select": "^0.1.2",
-    "vuetify": "^3.6.8"
+    "vuetify": "^3.6.8",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.0.4",

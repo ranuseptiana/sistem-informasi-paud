@@ -20,12 +20,14 @@ import Cicilan from "../layout/sidebar/cicilan.vue";
 import Gallery from "../layout/sidebar/album.vue";
 import DetailGallery from "../layout/sidebar/album-detail.vue";
 import Activity from "../layout/sidebar/agenda.vue";
+import Users from "../layout/sidebar/users.vue";
 // bagian guru
 import GuruMainSidebar from "../layout/sidebar/guru-main.vue";
 import GuruDashboard from "../layout/sidebar/guru-dashboard.vue";
 import GuruClasses from "../layout/sidebar/guru-class.vue";
 // import GuruTuition from "../layout/sidebar/guru-spp.vue";
 import GuruGallery from "../layout/sidebar/guru-gallery.vue";
+import GuruDetailGallery from "../layout/sidebar/guru-gallery-detail.vue";
 // bagian siswa
 import SiswaMainSidebar from "../layout/sidebar/siswa-main.vue";
 import SiswaDashboard from "../layout/sidebar/siswa-dashboard.vue";
@@ -123,6 +125,11 @@ const routes = [
                 component: AddTeachers,
                 props: true
             },
+            {
+                path: "users",
+                component: Users,
+                props: true
+            }
         ],
     },
     {
@@ -143,7 +150,7 @@ const routes = [
             },
             {
                 path: "detailGallery/:id?", 
-                component: DetailGallery,
+                component: GuruDetailGallery,
                 props: true, 
             },
         ],

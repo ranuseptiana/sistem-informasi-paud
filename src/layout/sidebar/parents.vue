@@ -17,36 +17,45 @@
     <section class="content">
         <!-- Filter section -->
         <div class="filter-section">
-                <div class="row-filter-wrapper">
-                    <div class="tampil-baris">
-                        Show
-                        <select v-model="rowsPerPage" class="select-rows">
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="20">20</option>
-                            <option value="100">All</option>
-                        </select>
-                    </div>
-                    <div class="filter">
-                        <button @click="showModal = true" class="filter-btn">
-                            Filter
-                            <i class="fa-solid fa-filter filter-icon"></i>
-                        </button>
-                        <!-- Filter Popup -->
-                        <div>
-                            <!-- Modal Filter -->
-                            <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
-                                <div class="modal-content-ortu">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title">Filter Data Ortu</h5>
-                                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
-                                    </div>
-                                    <hr>
-                                    <div class="filter-rows">
-                                        <!-- First row -->
-                                        <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
+            <div class="row-filter-wrapper">
+                <div class="tampil-baris">
+                    Show
+                    <select v-model="rowsPerPage" class="select-rows">
+                        <option value="5">5</option>
+                        <option value="10">10</option>
+                        <option value="20">20</option>
+                        <option value="100">All</option>
+                    </select>
+                </div>
+                <div class="filter">
+                    <button @click="showModal = true" class="filter-btn">
+                        Filter
+                        <i class="fa-solid fa-filter filter-icon"></i>
+                    </button>
+                    <!-- Filter Popup -->
+                    <div>
+                        <!-- Modal Filter -->
+                        <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
+                            <div class="modal-content-ortu">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Filter Data Ortu</h5>
+                                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                                </div>
+                                <hr>
+                                <!-- Filter Checkbox dalam Dua Kolom -->
+                                <div class="filter-container">
+                                    <div class="column">
+                                        <div v-for="(filter, index) in firstRowFilters" :key="index">
                                             <label>
-                                                <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
+                                                <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
+                                                {{ filter.label }}
+                                            </label>
+                                        </div>
+                                    </div>
+                                    <div class="column">
+                                        <div v-for="(filter, index) in secondRowFilters" :key="index">
+                                            <label>
+                                                <input type="checkbox" v-model="selectedFilters[filter.key]" class="checkbox" />
                                                 {{ filter.label }}
                                             </label>
                                         </div>
@@ -55,63 +64,64 @@
                             </div>
                         </div>
                     </div>
-                    <div class="export-section">
-                        <button class="btn btn-danger" @click="exportData('pdf')">
-                            <i class="fa fa-file-pdf" aria-hidden="true"></i>
-                            PDF
-                        </button>
-                        <button class="btn btn-success" @click="exportData('excel')">
-                            <i class="fa fa-file-excel" aria-hidden="true"></i>
-                            Excel
-                        </button>
-                    </div>
                 </div>
-                <div class="search-bar-container">
-                    <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
-                    <i class="fas fa-search search-icon"></i>
+                <div class="export-section">
+                    <button class="btn btn-danger" @click="exportData('pdf')">
+                        <i class="fa fa-file-pdf" aria-hidden="true"></i>
+                        PDF
+                    </button>
+                    <button class="btn btn-success" @click="exportData('excel')">
+                        <i class="fa fa-file-excel" aria-hidden="true"></i>
+                        Excel
+                    </button>
                 </div>
             </div>
+            <div class="search-bar-container">
+                <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
+                <i class="fas fa-search search-icon"></i>
+            </div>
+        </div>
         <div class="table-wrapper-ortu">
             <!-- Table Section -->
             <table class="table data-table table-hover">
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.noKK">No Kartu Keluarga</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.nikAyah">NIK Ayah</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaAyah">Nama Ayah</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tahunLahirAyah">Tahun Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pendidikanAyah">Jenjang Pendidikan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pekerjaanAyah">Pekerjaan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.penghasilanAyah">Penghasilan</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('No KK')">No Kartu Keluarga</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('NIK Ayah')">NIK Ayah</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Nama Ayah')">Nama Ayah</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Tahun Lahir Ayah')">Tahun Lahir</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Pendidikan Ayah')">Jenjang Pendidikan</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Pekerjaan Ayah')">Pekerjaan</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Penghasilan Ayah')">Penghasilan</th>
 
-                        <th scope="col" class="table-head" v-if="selectedFilters.nikIbu">NIK Ibu</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaIbu">Nama Ibu</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.tahunLahirIbu">Tahun Lahir</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pendidikanIbu">Jenjang Pendidikan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pekerjaanIbu">Pekerjaan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.penghasilanIbu">Penghasilan</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.noHp">Nomor Hp</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('NIK Ibu')">NIK Ibu</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Nama Ibu')">Nama Ibu</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Tahun Lahir Ibu')">Tahun Lahir</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Pendidikan Ibu')">Jenjang Pendidikan</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Pekerjaan Ibu')">Pekerjaan</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Penghasilan Ibu')">Penghasilan</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Nomor Telp')">Nomor Hp</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(ortu, index) in paginatedOrtuList" :key="ortu.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.noKK">{{ ortu.no_kk ? ortu.no_kk : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.nikAyah">{{ ortu.nik_ayah ? ortu.nik_ayah : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.namaAyah">{{ ortu.nama_ayah ? ortu.nama_ayah : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.tahunLahirAyah">{{ ortu.tahun_lahir_ayah }}</td>
-                        <td v-if="selectedFilters.pendidikanAyah">{{ ortu.pendidikan_ayah }}</td>
-                        <td v-if="selectedFilters.pekerjaanAyah">{{ ortu.pekerjaan_ayah }}</td>
-                        <td v-if="selectedFilters.penghasilanAyah">{{ ortu.penghasilan_ayah }}</td>
-                        <td v-if="selectedFilters.nikIbu">{{ ortu.nik_ibu ? ortu.nik_ibu : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.namaIbu">{{ ortu.nama_ibu ? ortu.nama_ibu : 'Data tidak ditemukan' }}</td>
-                        <td v-if="selectedFilters.tahunLahirIbu">{{ ortu.tahun_lahir_ibu }}</td>
-                        <td v-if="selectedFilters.pendidikanIbu">{{ ortu.pendidikan_ibu }}</td>
-                        <td v-if="selectedFilters.pekerjaanIbu">{{ ortu.pekerjaan_ibu }}</td>
-                        <td v-if="selectedFilters.penghasilanIbu">{{ ortu.penghasilan_ibu }}</td>
-                        <td v-if="selectedFilters.noHp">{{ ortu.no_telp ? ortu.no_telp : 'Data tidak ditemukan'}}</td>
+                        <td v-if="shouldShowColumn('No KK')">{{ ortu.no_kk ? ortu.no_kk : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('NIK Ayah')">{{ ortu.nik_ayah ? ortu.nik_ayah : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('Nama Ayah')">{{ ortu.nama_ayah ? ortu.nama_ayah : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('Tahun Lahir Ayah')">{{ ortu.tahun_lahir_ayah }}</td>
+                        <td v-if="shouldShowColumn('Pendidikan Ayah')">{{ ortu.pendidikan_ayah }}</td>
+                        <td v-if="shouldShowColumn('Pekerjaan Ayah')">{{ ortu.pekerjaan_ayah }}</td>
+                        <td v-if="shouldShowColumn('Penghasilan Ayah')">{{ ortu.penghasilan_ayah }}</td>
+                        <td v-if="shouldShowColumn('NIK Ibu')">{{ ortu.nik_ibu ? ortu.nik_ibu : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('Nama Ibu')">{{ ortu.nama_ibu ? ortu.nama_ibu : 'Data tidak ditemukan' }}</td>
+                        <td v-if="shouldShowColumn('Tahun Lahir Ibu')">{{ ortu.tahun_lahir_ibu }}</td>
+                        <td v-if="shouldShowColumn('Pendidikan Ibu')">{{ ortu.pendidikan_ibu }}</td>
+                        <td v-if="shouldShowColumn('Pekerjaan Ibu')">{{ ortu.pekerjaan_ibu }}</td>
+                        <td v-if="shouldShowColumn('Penghasilan Ibu')">{{ ortu.penghasilan_ibu }}</td>
+                        <td v-if="shouldShowColumn('Nomor Telp')">{{ ortu.no_telp ? ortu.no_telp : 'Data tidak ditemukan'}}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -183,15 +193,26 @@
 </template>
 
 <script>
-import jsPDF from "jspdf";
 import "jspdf-autotable";
 import Swal from "sweetalert2";
-import Papa from "papaparse";
 import axios from 'axios';
 import {
     ref,
-    onMounted
+    onMounted,
+    computed
 } from 'vue';
+
+const paramsSerializer = params => {
+    const searchParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(params)) {
+        if (Array.isArray(value)) {
+            value.forEach(v => searchParams.append(`${key}[]`, v));
+        } else if (value !== undefined && value !== null) {
+            searchParams.append(key, value);
+        }
+    }
+    return searchParams.toString();
+}
 
 export default {
     data() {
@@ -205,20 +226,20 @@ export default {
             dropdownIndex: null,
             searchQuery: '', // for filtering
             selectedFilters: {
-                noKK: true,
-                nikAyah: true,
-                namaAyah: true,
+                noKK: false,
+                nikAyah: false,
+                namaAyah: false,
                 tahunLahirAyah: false,
                 pendidikanAyah: false,
-                pekerjaanAyah: true,
+                pekerjaanAyah: false,
                 penghasilanAyah: false,
-                nikIbu: true,
-                namaIbu: true,
+                nikIbu: false,
+                namaIbu: false,
                 tahunLahirIbu: false,
                 pendidikanIbu: false,
-                pekerjaanIbu: true,
+                pekerjaanIbu: false,
                 penghasilanIbu: false,
-                noHp: false,
+                noTelp: false,
             },
             ortuList: [],
             firstRowFilters: [{
@@ -228,6 +249,10 @@ export default {
                 {
                     key: "nikAyah",
                     label: "NIK Ayah"
+                },
+                {
+                    key: "namaAyah",
+                    label: "Nama Ayah"
                 },
                 {
                     key: "tahunLahirAyah",
@@ -244,14 +269,19 @@ export default {
                 {
                     key: "penghasilanAyah",
                     label: "Penghasilan Ayah"
-                },
-                {
-                    key: "noHp",
-                    label: "No HP"
+                }
+            ],
+            secondRowFilters: [{
+                    key: "noTelp",
+                    label: "Nomor Telepon"
                 },
                 {
                     key: "nikIbu",
                     label: "NIK Ibu"
+                },
+                {
+                    key: "namaIbu",
+                    label: "Nama Ibu"
                 },
                 {
                     key: "tahunLahirIbu",
@@ -270,6 +300,22 @@ export default {
                     label: "Penghasilan Ibu"
                 },
             ],
+            headerMapping: {
+                "noKK": "No KK",
+                "nikAyah": "NIK Ayah",
+                "namaAyah": "Nama Ayah",
+                "tahunLahirAyah": "Tahun Lahir Ayah",
+                "pendidikanAyah": "Pendidikan Ayah",
+                "pekerjaanAyah": "Pekerjaan Ayah",
+                "penghasilanAyah": "Penghasilan Ayah",
+                "noTelp": "Nomor Telepon",
+                "nikIbu": "NIK Ibu",
+                "namaIbu": "Nama Ibu",
+                "tahunLahirIbu": "Tahun Lahir Ibu",
+                "pendidikanIbu": "Pendidikan Ibu",
+                "pekerjaanIbu": "Pekerjaan Ibu",
+                "penghasilanIbu": "Penghasilan Ibu",
+            }
         };
     },
     //untuk menampilkan data orangtua
@@ -294,7 +340,7 @@ export default {
 
         return {
             ortuList,
-            fetchOrtuList 
+            fetchOrtuList
         };
     },
     methods: {
@@ -331,13 +377,497 @@ export default {
                 return filteredOrtu;
             });
         },
+
         // Fungsi ekspor data berdasarkan filter aktif
-        exportData(format) {
-            
+        getFilteredDataForExport() {
+            const selectedColumnKeys = Object.keys(this.selectedFilters)
+                .filter(key => this.selectedFilters[key]);
+
+            // Jika tidak ada filter kolom yang dipilih, kembalikan semua kolom
+            if (selectedColumnKeys.length === 0) {
+                return this.filteredOrtuList.map((ortu, index) => {
+                    const {
+                        id,
+                        no_kk,
+                        nik_ayah,
+                        nama_ayah,
+                        pendidikan_ayah,
+                        tahun_lahir_ayah,
+                        pekerjaan_ayah,
+                        penghasilan_ayah,
+                        nik_ibu,
+                        nama_ibu,
+                        pendidikan_ibu,
+                        tahun_lahir_ibu,
+                        pekerjaan_ibu,
+                        penghasilan_ibu,
+                        no_telp
+                    } = ortu;
+                    return {
+                        'No': index + 1,
+                        ...rest,
+                    };
+                });
+            }
+
+            return this.ortuList.map((ortu, index) => {
+                const filteredData = {
+                    'No': index + 1
+                };
+
+                selectedColumnKeys.forEach(key => {
+                    const backendKey = this.mapFrontendToBackendKey(key);
+                    const label = this.getColumnLabel(key);
+                    filteredData[label] = ortu[backendKey] ?? '-';
+                });
+
+                return filteredData;
+            });
+        },
+
+        getColumnLabel(key) {
+            const allFilters = [...this.firstRowFilters, ...this.secondRowFilters];
+            const filter = allFilters.find(f => f.key === key);
+            return filter ? filter.label : key;
+        },
+
+        async applyFilters() {
+            try {
+                // Map frontend keys to backend column names
+                const columns = Object.keys(this.selectedFilters)
+                    .filter(key => this.selectedFilters[key])
+                    .map(key => this.mapFrontendToBackendKey(key));
+
+                // If no columns selected, return all data
+                if (columns.length === 0) {
+                    return this.ortuList;
+                }
+
+                const response = await axios.get('/orangtua/export', {
+                    params: {
+                        columns
+                    },
+                    paramsSerializer: params => {
+                        const searchParams = new URLSearchParams();
+                        columns.forEach(col => searchParams.append('columns[]', col));
+                        return searchParams.toString();
+                    }
+                });
+
+                return response.data.data;
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                Swal.fire('Error', 'Gagal menerapkan filter', 'error');
+                return this.ortuList; // Return full list as fallback
+            }
+        },
+
+        mapFrontendToBackendKey(frontendKey) {
+            const mapping = {
+                noKK: 'no_kk',
+                nikAyah: 'nik_ayah',
+                namaAyah: 'nama_ayah',
+                tahunLahirAyah: 'tahun_lahir_ayah',
+                pendidikanAyah: 'pendidikan_ayah',
+                pekerjaanAyah: 'pekerjaan_ayah',
+                penghasilanAyah: 'penghasilan_ayah',
+                noTelp: 'no_telp',
+                nikIbu: 'nik_ibu',
+                namaIbu: 'nama_ibu',
+                tahunLahirIbu: 'tahun_lahir_ibu',
+                pendidikanIbu: 'pendidikan_ibu',
+                pekerjaanIbu: 'pekerjaan_ibu',
+                penghasilanIbu: 'penghasilan_ibu',
+            };
+            return mapping[frontendKey] || frontendKey;
+        },
+
+        mapBackendToFrontendKey(backendKey) {
+            const mapping = {
+                'no_kk': 'noKK',
+                'nik_ayah': 'nikAyah',
+                'nama_ayah': 'namaAyah',
+                'tahun_lahir_ayah': 'tahunLahirAyah',
+                'pendidikan_ayah': 'pendidikanAyah',
+                'pekerjaan_ayah': 'pekerjaanAyah',
+                'penghasilan_ayah': 'penghasilanAyah',
+                'no_telp': 'noTelp',
+                'nik_ibu': 'nikIbu',
+                'nama_ibu': 'namaIbu',
+                'tahun_lahir_ibu': 'tahunLahirIbu',
+                'pendidikan_ibu': 'pendidikanIbu',
+                'pekerjaan_ibu': 'pekerjaanIbu',
+                'penghasilan_ibu': 'penghasilanIbu',
+            };
+            return mapping[backendKey] || backendKey;
+        },
+        async exportData(format) {
+            try {
+                // Ambil data dengan filter yang diterapkan
+                const filteredData = await this.applyFilters();
+
+                if (format === 'pdf') {
+                    await this.exportToPDF(filteredData);
+                } else if (format === 'excel') {
+                    await this.exportToExcel(filteredData);
+                }
+            } catch (error) {
+                console.error("Export error:", error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengekspor Data',
+                    text: 'Terjadi kesalahan saat mengekspor data'
+                });
+            }
+        },
+
+        async exportToPDF(originalData) {
+    try {
+        const { jsPDF } = await import('jspdf');
+        await import('jspdf-autotable');
+
+        // Get selected columns
+        const selectedColumns = Object.keys(this.selectedFilters)
+            .filter(key => this.selectedFilters[key])
+            .map(key => this.mapFrontendToBackendKey(key));
+
+        // If no columns selected, use all columns
+        const columnsToShow = selectedColumns.length > 0 ? selectedColumns : [
+            'no_kk', 'nik_ayah', 'nama_ayah', 'tahun_lahir_ayah', 'pendidikan_ayah',
+            'pekerjaan_ayah', 'penghasilan_ayah', 'nik_ibu', 'nama_ibu',
+            'tahun_lahir_ibu', 'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ibu', 'no_telp'
+        ];
+
+        // --- Perbaikan di sini ---
+        // Tambahkan 'No' ke dalam daftar kolom yang akan ditampilkan di header PDF
+        const pdfColumnKeys = ['no', ...columnsToShow];
+        const columnCount = pdfColumnKeys.length; // Hitung jumlah kolom
+        // --- Akhir Perbaikan ---
+
+
+        // Prepare data with sequential numbers
+        const data = originalData.map((item, index) => {
+            const row = { no: index + 1 };
+            columnsToShow.forEach(col => {
+                row[col] = item[col] ?? '-';
+            });
+            return row;
+        });
+
+        // Determine orientation
+        const orientation = columnsToShow.length > 5 ? 'landscape' : 'portrait';
+        const doc = new jsPDF({ orientation, unit: 'mm' });
+
+        // Report title
+        doc.setFontSize(16);
+        doc.setFont('helvetica', 'bold');
+        doc.text('LAPORAN DATA ORANGTUA SISWA', doc.internal.pageSize.width / 2, 15, {
+            align: 'center'
+        });
+
+        // Print date
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        const date = new Date().toLocaleDateString('id-ID', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
+        doc.text(`Dicetak pada: ${date}`, 14, 22);
+
+        // Prepare headers
+        const headers = [
+            'No', // Pastikan 'No' ada di sini juga
+            ...columnsToShow.map(col => {
+                const headerMap = {
+                    'no_kk': 'No KK',
+                    'nik_ayah': 'NIK Ayah',
+                    'nama_ayah': 'Nama Ayah',
+                    'tahun_lahir_ayah': 'Tahun Lahir Ayah',
+                    'pendidikan_ayah': 'Pendidikan Ayah',
+                    'pekerjaan_ayah': 'Pekerjaan Ayah',
+                    'penghasilan_ayah': 'Penghasilan Ayah',
+                    'nik_ibu': 'NIK Ibu',
+                    'nama_ibu': 'Nama Ibu',
+                    'tahun_lahir_ibu': 'Tahun Lahir Ibu',
+                    'pendidikan_ibu': 'Pendidikan Ibu',
+                    'pekerjaan_ibu': 'Pekerjaan Ibu',
+                    'penghasilan_ibu': 'Penghasilan Ibu',
+                    'no_telp': 'No Telepon'
+                };
+                return headerMap[col] || col;
+            })
+        ];
+
+        // Prepare table body
+        const body = data.map(row => {
+            return [
+                row.no, // Pastikan row.no ada di sini
+                ...columnsToShow.map(col => row[col] ?? '-')
+            ];
+        });
+
+        // Calculate column widths
+        const pageWidth = doc.internal.pageSize.width;
+        const margin = 14;
+        const availableWidth = pageWidth - (margin * 2);
+
+        // --- Perbaikan di sini: Menggunakan fungsi yang sudah ada untuk menghitung lebar kolom
+        const columnWidthsMap = this.calculateDynamicColumnWidths(headers, data, availableWidth);
+        const scaledWidths = headers.map(header => columnWidthsMap[header]);
+
+        // Perbaikan: yPosition harus didefinisikan
+        const yPosition = 30; // Sesuaikan posisi Y awal tabel
+        // --- Akhir Perbaikan ---
+
+        // Create table
+        doc.autoTable({
+            head: [headers],
+            body: body,
+            startY: yPosition + 10,
+            margin: {
+                left: margin,
+                right: margin
+            },
+            styles: {
+                fontSize: 8,
+                cellPadding: 2,
+                overflow: 'linebreak',
+                font: 'helvetica',
+                textColor: [0, 0, 0],
+                minCellHeight: 6
+            },
+            headStyles: {
+                fillColor: [41, 128, 185],
+                textColor: [255, 255, 255],
+                fontStyle: 'bold',
+                fontSize: 9,
+                halign: 'center'
+            },
+            columnStyles: headers.reduce((styles, header, index) => { // Perhatikan perubahan dari index ke header
+                styles[index] = {
+                    cellWidth: scaledWidths[index],
+                    halign: this.getColumnAlignment(header, data) // Gunakan helper alignment
+                };
+                return styles;
+            }, {}),
+            didDrawPage: (data) => {
+                // Footer
+                const pageCount = doc.internal.getNumberOfPages();
+                doc.setFontSize(8);
+                doc.text(
+                    `Halaman ${data.pageNumber} dari ${pageCount}`,
+                    doc.internal.pageSize.width / 2,
+                    doc.internal.pageSize.height - 10, {
+                        align: 'center'
+                    }
+                );
+            }
+        });
+
+        doc.save(`Data_Orangtua_${new Date().toISOString().slice(0, 10)}.pdf`);
+    } catch (error) {
+        console.error('Error generating PDF:', error);
+        Swal.fire('Error', 'Gagal membuat PDF', 'error');
+    }
+},
+        // New helper method to calculate dynamic column widths
+        calculateDynamicColumnWidths(headers, data, availableWidth) {
+            const columnWidths = {};
+            const contentLengths = {};
+
+            // Default widths for known columns
+            const defaultWidths = {
+                'no': 10,
+                'no_kk': 25,
+                'nik_ayah': 20,
+                'nama_ayah': 30,
+                'nik_ibu': 20,
+                'nama_ibu': 30,
+            };
+
+            // First calculate content length for each column
+            headers.forEach(header => {
+                let maxLength = defaultWidths[header] || 15; // default minimum width
+
+                // Check header length
+                const headerLength = header.length * 1.5; // approximate width in mm
+                if (headerLength > maxLength) maxLength = headerLength;
+
+                // Check data content length
+                data.forEach(row => {
+                    const content = row[header] ?.toString() || '';
+                    const contentLength = content.length * 1.2; // approximate width in mm
+                    if (contentLength > maxLength) maxLength = contentLength;
+                });
+
+                contentLengths[header] = Math.min(maxLength, 50); // cap at 50mm
+            });
+
+            // Calculate total needed width
+            const totalNeededWidth = Object.values(contentLengths).reduce((a, b) => a + b, 0);
+
+            // If total needed width is less than available width, distribute extra space
+            if (totalNeededWidth < availableWidth) {
+                const extraSpace = availableWidth - totalNeededWidth;
+                const extraPerColumn = extraSpace / headers.length;
+
+                headers.forEach(header => {
+                    columnWidths[header] = contentLengths[header] + extraPerColumn;
+                });
+            } else {
+                // If content is wider than available space, scale down proportionally
+                const scaleFactor = availableWidth / totalNeededWidth;
+
+                headers.forEach(header => {
+                    columnWidths[header] = contentLengths[header] * scaleFactor;
+                });
+            }
+
+            return columnWidths;
+        },
+
+        // Helper method to determine column alignment
+        getColumnAlignment(header, data) {
+            if (!data || data.length === 0) return 'left';
+
+            const sampleValue = data[0][header];
+
+            // Numbers should be right-aligned
+            if (typeof sampleValue === 'number') return 'right';
+
+            // Dates should be center-aligned
+            if (sampleValue instanceof Date) return 'center';
+
+            // Specific columns
+            // if (['no', 'anak_ke', 'jumlah_saudara', 'berat_badan', 'tinggi_badan'].includes(header)) {
+            //     return 'right';
+            // }
+
+            return 'left';
+        },
+
+        generateColumnStyles(columns, data) {
+            const styles = {};
+            const defaultWidth = 20;
+
+            const specialWidths = {
+                'No': 8,
+                'Nomor KK': 25,
+                'NIK Ayah': 20,
+                'Nama Ayah': 30,
+                'NIK Ibu': 20,
+                'Nama Ibu': 30,
+            };
+
+            columns.forEach((col, index) => {
+                styles[index] = {
+                    cellWidth: specialWidths[col] || defaultWidth,
+                    halign: data && data[0] && typeof data[0][col] === 'number' ? 'right' : 'left'
+                };
+            });
+
+            return styles;
+        },
+
+        async exportToExcel(data) {
+            try {
+                const XLSX = await import('xlsx');
+
+                // Format data untuk Excel
+                const excelData = data.map(row => {
+                    const formattedRow = {};
+                    Object.keys(row).forEach(key => {
+                        // Gunakan headerMapping jika ada
+                        const headerLabel = this.headerMapping[key] || key;
+
+                        // Handle null/undefined
+                        if (row[key] === undefined || row[key] === null) {
+                            formattedRow[headerLabel] = '-';
+                            return;
+                        }
+
+                        // Format khusus untuk beberapa tipe data
+                        switch (key) {
+                            case 'tahunLahirAyah':
+                            case 'tahunLahirIbu':
+                                formattedRow[headerLabel] = row[key].toString();
+                                break;
+                            case 'penghasilanAyah':
+                            case 'penghasilanIbu':
+                                formattedRow[headerLabel] = typeof row[key] === 'number' ?
+                                    row[key].toLocaleString('id-ID') :
+                                    row[key];
+                                break;
+                            default:
+                                formattedRow[headerLabel] = row[key];
+                        }
+                    });
+                    return formattedRow;
+                });
+
+                // Buat worksheet
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Data Orangtua");
+
+                // Set lebar kolom dinamis
+                const columnWidths = {};
+                excelData.forEach(row => {
+                    Object.keys(row).forEach(key => {
+                        const length = String(row[key]).length;
+                        if (!columnWidths[key] || length > columnWidths[key]) {
+                            columnWidths[key] = Math.min(Math.max(length, 10), 50); // Min 10, Max 50
+                        }
+                    });
+                });
+
+                ws['!cols'] = Object.keys(columnWidths).map(key => ({
+                    wch: columnWidths[key]
+                }));
+
+                // Simpan file
+                XLSX.writeFile(wb, `Data_Orangtua_${new Date().toISOString().slice(0, 10)}.xlsx`);
+
+            } catch (error) {
+                console.error('Error generating Excel:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengekspor Excel',
+                    text: error.message
+                });
+                throw error;
+            }
+        },
+        shouldShowColumn(columnName) {
+            const columnToFilterMap = {
+                'Nomor KK': 'noKk',
+                'Nama Ayah': 'namaAyah',
+                'NIK Ayah': 'nikAyah',
+                'Tahun Lahir Ayah': 'tahunLahirAyah',
+                'Pekerjaan Ayah': 'pekerjaanAyah',
+                'Pendidikan Ayah': 'pendidikanAyah',
+                'Penghasilan Ayah': 'penghasilanAyah',
+                'NIK Ibu': 'nikIbu',
+                'Nama Ibu': 'namaIbu',
+                'Pendidikan Ibu': 'pendidikanIbu',
+                'Tahun Lahir Ibu': 'tahunLahirIbu',
+                'Pekerjaan Ibu': 'pekerjaanIbu',
+                'Penghasilan Ibu': 'penghasilanIbu',
+                'Nomor Telepon': 'noTelp'
+            };
+
+            const filterKey = columnToFilterMap[columnName];
+            if (filterKey) {
+                return this.selectedFilters[filterKey] ||
+                    this.displayedColumns.includes(columnName);
+            }
+            return this.displayedColumns.includes(columnName);
         },
         editOrtu(id) {
             this.dropdownIndex = null;
-            
+
             this.$router.push(`/adminmainsidebar/addParents/${id}`);
         },
         async deleteOrtu(orangtuaId) {
@@ -363,6 +893,20 @@ export default {
         },
     },
     computed: {
+        displayedColumns() {
+            const selected = Object.keys(this.selectedFilters)
+                .filter(key => this.selectedFilters[key]);
+
+            if (selected.length === 0) {
+                return [
+                    'No', 'Nomor KK', 'NIK Ayah', 'NIK Ibu', 'Nama Ayah', 'Nama Ibu', 'Tahun Lahir Ayah',
+                    'Tahun Lahir Ibu', 'Pendidikan Ayah', 'Pendidikan Ibu', 'Pekerjaan Ayah', 'Pekerjaan Ibu',
+                    'Penghasilan Ayah', 'Penghasilan Ibu', 'No Telp'
+                ];
+            }
+
+            return selected.map(key => this.getColumnLabel(key));
+        },
         showLeftEllipsis() {
             return this.currentPage > 4;
         },
@@ -429,23 +973,23 @@ export default {
 <style scoped>
 .modal-overlay {
     position: fixed;
+    z-index: 1200;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.5);
+    background: rgba(0, 0, 0, 0.5);
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 1050;
 }
 
+/* Konten modal */
 .modal-content-ortu {
-    background: rgb(255, 255, 255);
-    padding: 1.5rem;
-    border-radius: 10px;
-    width: 30%;
-    max-width: 250px;
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 500px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: left;
 }
@@ -462,6 +1006,17 @@ export default {
     margin-bottom: 0.3rem;
     align-items: center;
 }
+
+/* Layout dua kolom */
+.filter-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.column {
+    width: 48%;
+}
+
 
 .checkbox {
     margin-right: 0.5rem;
@@ -673,7 +1228,7 @@ label {
 }
 
 .table-wrapper-ortu {
-    width: 73rem; 
+    width: 73rem;
     max-width: 150rem;
     overflow-x: auto;
     background-color: white;
@@ -746,9 +1301,9 @@ label {
 
 .popup-menu {
     position: absolute;
-    top: 100%; 
-    transform: translateX(-30px);    
-    left: 0; 
+    top: 100%;
+    transform: translateX(-30px);
+    left: 0;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     padding: 10px;
@@ -862,7 +1417,9 @@ label {
     font-size: 16px;
     color: #6c757d;
     /* Warna teks abu-abu */
-}.no-data-cell {
+}
+
+.no-data-cell {
     text-align: center;
     padding: 20px;
     position: relative;

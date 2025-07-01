@@ -24,7 +24,7 @@
         </div>
     
         <div class="card-container">
-            <router-link to="/guru/my-students" class="card-dashboard">
+            <router-link to="#" class="card-dashboard">
                 <img src="/src/assets/stud-green.png" alt="Student Icon" class="dashboard-icon" />
                 <div class="text-content">
                     <h2>Siswa Saya</h2>
@@ -32,7 +32,7 @@
                 </div>
             </router-link>
     
-            <router-link to="/guru/attendance" class="card-dashboard">
+            <router-link to="#" class="card-dashboard">
                 <i class="fas fa-clipboard-check dashboard-icon-fa"></i>
                 <div class="text-content">
                     <h2>Absensi Hari Ini</h2>
@@ -40,7 +40,7 @@
                 </div>
             </router-link>
     
-            <router-link to="/guru/daily-journal" class="card-dashboard">
+            <router-link to="#" class="card-dashboard">
                 <i class="fas fa-book-open dashboard-icon-fa"></i>
                 <div class="text-content">
                     <h2>Jurnal Mengajar</h2>
@@ -48,7 +48,7 @@
                 </div>
             </router-link>
     
-            <router-link to="/guru/lesson-materials" class="card-dashboard">
+            <router-link to="#" class="card-dashboard">
                 <i class="fas fa-folder-open dashboard-icon-fa"></i>
                 <div class="text-content">
                     <h2>Materi Pembelajaran</h2>
@@ -56,7 +56,7 @@
                 </div>
             </router-link>
     
-            <router-link to="/guru/parent-communication" class="card-dashboard">
+            <router-link to="#" class="card-dashboard">
                 <i class="fas fa-comments dashboard-icon-fa"></i>
                 <div class="text-content">
                     <h2>Komunikasi Ortu</h2>
@@ -101,9 +101,9 @@ export default {
             userName: "",
             kelasList: {},
             siswaList: [],
-            tahunAjaranList: [], // Akan diisi dari API
-            attendanceData: [], // Akan dibuat berdasarkan siswaList dari API
-            dailySchedule: [ // Dummy data untuk jadwal
+            tahunAjaranList: [], 
+            attendanceData: [], 
+            dailySchedule: [
                 { time: '07:30 - 08:00', activity: 'Circle Time & Berdoa' },
                 { time: '08:00 - 09:00', activity: 'Materi Utama: Mengenal Warna' },
                 { time: '09:00 - 09:30', activity: 'Snack Time & Istirahat' },
@@ -111,7 +111,7 @@ export default {
                 { time: '10:30 - 11:30', activity: 'Aktivitas Seni: Mewarnai Gambar' },
                 { time: '11:30 - 12:00', activity: 'Persiapan Pulang & Lagu Penutup' },
             ],
-            announcements: [ // Dummy data untuk pengumuman
+            announcements: [
                 { id: 1, title: 'Rapat Guru Mingguan', date: '15 Juni 2025', content: 'Rapat rutin guru akan dilaksanakan pada hari Jumat, 15 Juni 2025 pukul 13.00 di ruang guru.' },
                 { id: 2, title: 'Kunjungan Edukasi ke Kebun Binatang', date: '20 Juni 2025', content: 'Diinformasikan kepada seluruh guru bahwa akan ada kunjungan edukasi ke Kebun Binatang pada tanggal 20 Juni 2025. Mohon persiapkan kebutuhan siswa.' },
                 { id: 3, title: 'Penilaian Akhir Semester', date: '25 Juni 2025', content: 'Periode penilaian akhir semester akan dimulai pada tanggal 25 Juni 2025. Mohon lengkapi semua catatan perkembangan siswa.' },
@@ -123,14 +123,13 @@ export default {
         this.fetchUserData();
         const idGuru = localStorage.getItem("user_id");
 
-        console.log('ID Guru dari localStorage:', idGuru);
+        // console.log('ID Guru dari localStorage:', idGuru);
 
         if (idGuru) {
             this.fetchKelasByGuruId(idGuru);
-            this.fetchTahunAjaranList(); // Ambil daftar tahun ajaran
+            this.fetchTahunAjaranList(); 
         } else {
             console.error("ID guru tidak ditemukan di localStorage. Pastikan guru sudah login.");
-            // Handle jika ID guru tidak ada (misal: redirect ke login page)
         }
     },
     methods: {
@@ -153,7 +152,7 @@ export default {
         async fetchKelasByGuruId(idGuru) {
             try {
                 const response = await axios.get(`http://localhost:8000/api/guru/${idGuru}/kelas`);
-                console.log("Response Guru Kelas:", response.data);
+                // console.log("Response Guru Kelas:", response.data);
 
                 if (!response.data || !response.data.data || !response.data.data.daftar_kelas) {
                     throw new Error('Response tidak valid dari server: Struktur data tidak sesuai');
@@ -163,16 +162,14 @@ export default {
                     this.kelasList = response.data.data.daftar_kelas[0];
                     this.siswaList = response.data.data.daftar_kelas[0].siswa || [];
 
-                    // --- Perbaikan: Buat attendanceData dummy berdasarkan siswaList ---
                     this.attendanceData = this.siswaList.map(siswa => {
-                        // Simulasi status kehadiran (misal: 90% hadir, 10% lainnya)
                         const rand = Math.random();
                         let status;
-                        if (rand < 0.9) { // 90% kemungkinan hadir
+                        if (rand < 0.9) { 
                             status = 'hadir';
-                        } else if (rand < 0.95) { // 5% kemungkinan sakit
+                        } else if (rand < 0.95) {
                             status = 'sakit';
-                        } else { // 5% kemungkinan izin
+                        } else { 
                             status = 'izin';
                         }
                         return {
@@ -180,12 +177,11 @@ export default {
                             status: status
                         };
                     });
-                    // --- Akhir perbaikan attendanceData dummy ---
 
                 } else {
                     this.kelasList = {};
                     this.siswaList = [];
-                    this.attendanceData = []; // Reset attendanceData jika tidak ada kelas
+                    this.attendanceData = []; 
                     console.warn("Guru tidak mengampu kelas apapun.");
                 }
 
@@ -198,18 +194,17 @@ export default {
                 alert(`Gagal memuat data kelas: ${error.response?.data?.message || error.message}`);
                 this.kelasList = {};
                 this.siswaList = [];
-                this.attendanceData = []; // Reset attendanceData jika ada error
+                this.attendanceData = []; 
             }
         },
 
         async fetchTahunAjaranList() {
             try {
-                // Pastikan URL ini benar dan mengembalikan format yang diharapkan
                 const response = await axios.get('http://localhost:8000/api/tahunajaran');
-                console.log("Response Tahun Ajaran:", response.data); // Debugging
+                //console.log("Response Tahun Ajaran:", response.data); 
                 if (response.data && Array.isArray(response.data.data)) {
                     this.tahunAjaranList = response.data.data;
-                } else if (response.data && Array.isArray(response.data)) { // Jika respons langsung array
+                } else if (response.data && Array.isArray(response.data)) { 
                     this.tahunAjaranList = response.data;
                 } else {
                     console.error("Format data tahun ajaran tidak sesuai", response.data);
@@ -230,7 +225,6 @@ export default {
         },
         attendancePercentage() {
             if (this.siswaList.length === 0) return 0;
-            // Hitung dari attendanceData yang sudah disesuaikan dengan siswaList
             const presentCount = this.attendanceData.filter(s => s.status === 'hadir').length;
             return ((presentCount / this.siswaList.length) * 100).toFixed(0);
         },
@@ -257,10 +251,9 @@ export default {
 }
 
 h4 {
-    margin-bottom: 25px; /* Jarak bawah dari salam sapa */
+    margin-bottom: 25px; 
 }
 
-/* Bagian Informasi Kelas */
 .class-info-section {
     margin-bottom: 30px;
     width: 94%;
@@ -301,13 +294,12 @@ h4 {
     color: #555;
 }
 
-/* Card Dashboard */
 .card-container {
     display: flex;
     width: 94%;
     gap: 20px;
     flex-wrap: wrap;
-    margin-bottom: 30px; /* Jarak bawah untuk section ini */
+    margin-bottom: 30px; 
 }
 
 .card-dashboard {
@@ -318,13 +310,13 @@ h4 {
     background-color: #fff;
     border: 1px solid #D5D5D5;
     border-radius: 8px;
-    min-width: 250px; /* Gunakan min-width agar responsif */
-    flex: 1; /* Agar card bisa mengisi ruang yang tersedia */
+    min-width: 250px; 
+    flex: 1;
     gap: 20px;
     text-decoration: none;
     color: inherit;
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); /* Tambahkan shadow awal */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); 
 }
 
 .card-dashboard:hover {
@@ -339,7 +331,7 @@ h4 {
     margin-left: 0.5rem;
 }
 
-.dashboard-icon-fa { /* Untuk Font Awesome icons */
+.dashboard-icon-fa { 
     font-size: 48px;
     color: #336C2A;
     margin-left: 0.5rem;
