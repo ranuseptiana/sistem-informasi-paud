@@ -34,6 +34,10 @@
                             <input type="text" v-model="form.nik_siswa" id="nik" placeholder="Masukkan NIK siswa" required :disabled="isEdit" />
                         </div>
                         <div class="form-group">
+                            <label for="nipd">NIPD</label>
+                            <input type="text" v-model="form.nipd" id="nipd" placeholder="Masukkan NIPD siswa" :disabled="isEdit" />
+                        </div>
+                        <div class="form-group">
                             <label for="nisn">NISN</label>
                             <input type="text" v-model="form.nisn" id="nisn" placeholder="Masukkan NISN siswa" :disabled="isEdit" />
                         </div>
