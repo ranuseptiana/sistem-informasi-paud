@@ -102,7 +102,7 @@
         <div class="container">
             <div class="agenda-header" data-aos="fade-down">
                 <h4 class="agenda-title">Galeri Kegiatan</h4>
-                <a href="import.meta.env.FRONT_END_URL/album" class="selengkapnya-agenda">
+                <a href="/album" class="selengkapnya-agenda">
                     Selengkapnya <span class="material-symbols-outlined">chevron_right</span>
                 </a>
             </div>
