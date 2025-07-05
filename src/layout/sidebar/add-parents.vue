@@ -207,10 +207,10 @@ export default {
                 let response;
                 if (this.isEdit) {
                     // Edit Data Orangtua (gunakan PUT)
-                    response = await axios.put(`http://localhost:8000/api/orangtua/${this.$route.params.id}`, payload);
+                    response = await axios.put(`import.meta.env.VITE_API_URL/api/orangtua/${this.$route.params.id}`, payload);
                 } else {
                     // Tambah Data Orangtua (gunakan POST)
-                    response = await axios.post('http://localhost:8000/api/orangtua/', payload);
+                    response = await axios.post('import.meta.env.VITE_API_URL/api/orangtua/', payload);
                 }
 
                 Swal.fire("Sukses", this.isEdit ? "Data orang tua berhasil diperbarui!" : "Data orang tua berhasil disimpan!", "success");
@@ -223,7 +223,7 @@ export default {
 
         async getOrangtuaData() {
             try {
-                const response = await axios.get(`http://localhost:8000/api/orangtua/${this.$route.params.id}`);
+                const response = await axios.get(`import.meta.env.VITE_API_URL/api/orangtua/${this.$route.params.id}`);
                 console.log('Data Orangtua:', response.data); // Debugging log
                 this.form = response.data.data; // Isi data form dengan data orangtua yang ada
                 this.isEdit = true; // Menandakan mode edit

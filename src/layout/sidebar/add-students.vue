@@ -195,7 +195,7 @@ export default {
     methods: {
         async getSiswaData() {
             try {
-                const response = await axios.get(`http://localhost:8000/api/siswa/${this.$route.params.id}`);
+                const response = await axios.get(`import.meta.env.VITE_API_URL/api/siswa/${this.$route.params.id}`);
                 console.log('Data Siswa:', response.data);
 
                 let siswa = response.data.data;
@@ -215,7 +215,7 @@ export default {
         },
         async getNomorKartuList() {
             try {
-                const response = await axios.get(`http://localhost:8000/api/orangtua/${this.$route.params.id}`);
+                const response = await axios.get(`import.meta.env.VITE_API_URL/api/orangtua/${this.$route.params.id}`);
                 console.log('Data No KK:', response.data);
 
                 if (response.data && response.data.data) {
@@ -230,7 +230,7 @@ export default {
         },
         async getKelasList() {
             try {
-                const response = await axios.get('http://localhost:8000/api/kelas');
+                const response = await axios.get('import.meta.env.VITE_API_URL/api/kelas');
                 console.log("Response API Kelas:", response.data);
 
                 this.kelasList = response.data.data;
@@ -241,7 +241,7 @@ export default {
         },
         async getTahunAjaranList() {
             try {
-                const response = await axios.get('http://localhost:8000/api/tahunajaran');
+                const response = await axios.get('import.meta.env.VITE_API_URL/api/tahunajaran');
                 console.log("Response API Tahun Ajaran:", response.data);
 
                 if (response.data && response.data) {
@@ -273,9 +273,9 @@ export default {
                 let response;
 
                 if (this.isEdit) {
-                    response = await axios.put(`http://localhost:8000/api/siswa/${this.$route.params.id}`, payload);
+                    response = await axios.put(`import.meta.env.VITE_API_URL/api/siswa/${this.$route.params.id}`, payload);
                 } else {
-                    response = await axios.post('http://localhost:8000/api/siswa', payload);
+                    response = await axios.post('import.meta.env.VITE_API_URL/api/siswa', payload);
                 }
 
                 Swal.fire("Sukses", this.isEdit ? "Data siswa berhasil diperbarui!" : "Data siswa berhasil disimpan!", "success");

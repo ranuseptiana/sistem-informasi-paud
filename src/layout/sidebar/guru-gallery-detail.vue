@@ -307,7 +307,7 @@ resetForm() {
     // --- Utility Methods ---
     getFotoUrl(path) {
       if (path) {
-        return `http://localhost:8000/storage/${path}`;
+        return `import.meta.env.VITE_API_URL/storage/${path}`;
       }
       return '/src/assets/images/placeholder.png'; 
     },

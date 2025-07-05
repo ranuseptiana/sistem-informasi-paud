@@ -105,7 +105,7 @@ export default {
   data() {
     return {
       userData: {},
-      baseServerUrl: 'http://localhost:8000/', // Sesuaikan dengan URL server Laravel Anda
+      baseServerUrl: 'import.meta.env.VITE_API_URL/', // Sesuaikan dengan URL server Laravel Anda
     };
   },
 

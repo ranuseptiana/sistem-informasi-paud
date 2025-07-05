@@ -45,7 +45,7 @@
                 <!-- tentang kami -->
                 <div class="tentang-kami-head" data-aos="fade-down">
                     <h4 class="judul">TENTANG KAMI</h4>
-                    <a href="http://localhost:5173/about" class="selengkapnya">
+                    <a href="import.meta.env.FRONT_END_URL/about" class="selengkapnya">
                         Selengkapnya <span class="material-symbols-outlined">chevron_right</span>
                     </a>
                 </div>
@@ -102,7 +102,7 @@
         <div class="container">
             <div class="agenda-header" data-aos="fade-down">
                 <h4 class="agenda-title">Galeri Kegiatan</h4>
-                <a href="http://localhost:5173/album" class="selengkapnya-agenda">
+                <a href="import.meta.env.FRONT_END_URL/album" class="selengkapnya-agenda">
                     Selengkapnya <span class="material-symbols-outlined">chevron_right</span>
                 </a>
             </div>

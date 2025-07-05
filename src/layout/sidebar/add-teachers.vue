@@ -143,13 +143,13 @@ export default {
                 };
                 let response;
                 if (this.isEdit) {
-                    response = await axios.put(`http://localhost:8000/api/guru/${this.$route.params.id}`, payload);
+                    response = await axios.put(`import.meta.env.VITE_API_URL/api/guru/${this.$route.params.id}`, payload);
                 } else {
-                    response = await axios.post('http://localhost:8000/api/guru/', payload);
+                    response = await axios.post('import.meta.env.VITE_API_URL/api/guru/', payload);
 
                     // Setelah berhasil buat guru, buat relasi guru-kelas
                     const guruId = response.data.data.id; // pastikan API kamu mengembalikan ID guru yang baru
-                    await axios.post('http://localhost:8000/api/relasikelas', {
+                    await axios.post('import.meta.env.VITE_API_URL/api/relasikelas', {
                         guru_id: guruId,
                         kelas_id: this.form.kelas_id
                     });
@@ -166,7 +166,7 @@ export default {
         async getGuruData() {
             console.log("Mencari guru dengan ID:", this.$route.params.id); // Debugging
             try {
-                const response = await axios.get(`http://localhost:8000/api/guru/${this.$route.params.id}`);
+                const response = await axios.get(`import.meta.env.VITE_API_URL/api/guru/${this.$route.params.id}`);
                 console.log('Data Guru:', response.data); // Debugging log
 
                 this.form = response.data.data; // Isi data form dengan data guru yang ada
@@ -179,7 +179,7 @@ export default {
 
         async getKelasList() {
             try {
-                const response = await axios.get('http://localhost:8000/api/kelas');
+                const response = await axios.get('import.meta.env.VITE_API_URL/api/kelas');
                 console.log("Response API Kelas:", response.data);
 
                 this.kelasList = response.data.data;

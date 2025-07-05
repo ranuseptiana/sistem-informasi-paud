@@ -14,7 +14,7 @@
       </div>
       <div class="galeri">
         <div v-for="foto in fotoList" :key="foto.id" class="item-galeri" @click="showImage(foto)">
-          <img :src="`http://localhost:8000/storage/${foto.path_foto.replace(/\\/g, '/')}`" alt="Foto Album" />
+          <img :src="`import.meta.env.VITE_API_URL/storage/${foto.path_foto.replace(/\\/g, '/')}`" alt="Foto Album" />
         </div>
       </div>
   
@@ -45,7 +45,7 @@
   // **Fungsi untuk menampilkan modal gambar**
   function showImage(foto) {
     // Path gambar disesuaikan di sini juga
-    selectedImage.value = `http://localhost:8000/storage/${foto.path_foto.replace(/\\/g, '/')}`;
+    selectedImage.value = `import.meta.env.VITE_API_URL/storage/${foto.path_foto.replace(/\\/g, '/')}`;
   }
   
   // **Fungsi untuk menutup modal gambar**
@@ -67,13 +67,13 @@
     try {
       // Ambil data album
       // Perhatikan penggunaan `/api/album/${albumId}` jika base URL axios sudah diatur
-      // Jika tidak, tetap gunakan `http://localhost:8000/api/album/${albumId}`
-      const albumRes = await axios.get(`http://localhost:8000/api/album/${albumId}`);
+      // Jika tidak, tetap gunakan `import.meta.env.VITE_API_URL/api/album/${albumId}`
+      const albumRes = await axios.get(`import.meta.env.VITE_API_URL/api/album/${albumId}`);
       album.value = albumRes.data.data;
   
       // Ambil daftar foto untuk album ini
       // Pastikan rute di Laravel Anda adalah `Route::get('/album/{id}/foto', ...)`
-      const fotoRes = await axios.get(`http://localhost:8000/api/album/${albumId}/foto`);
+      const fotoRes = await axios.get(`import.meta.env.VITE_API_URL/api/album/${albumId}/foto`);
       fotoList.value = fotoRes.data.data;
     } catch (error) {
       console.error("Error fetching data:", error);

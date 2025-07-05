@@ -153,7 +153,7 @@ export default {
 
         async fetchKelasByGuruId(idGuru) {
             try {
-                const response = await axios.get(`http://localhost:8000/api/guru/${idGuru}/kelas`);
+                const response = await axios.get(`import.meta.env.VITE_API_URL/api/guru/${idGuru}/kelas`);
                 console.log("Response:", response);
                 console.log("Response Data:", response.data.data.daftar_kelas);
 

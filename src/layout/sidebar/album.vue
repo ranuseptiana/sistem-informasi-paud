@@ -243,7 +243,7 @@
             this.form = {
               id: album.id,
               photo_cover: null, // Jangan langsung isi dengan path, hanya untuk file baru
-              photo_cover_preview: album.photo_cover ? `http://localhost:8000/storage/${album.photo_cover}` : '', // Tampilkan preview
+              photo_cover_preview: album.photo_cover ? `import.meta.env.VITE_API_URL/storage/${album.photo_cover}` : '', // Tampilkan preview
               nama_album: album.nama_album,
               deskripsi: album.deskripsi,
               tanggal_kegiatan: album.tanggal_kegiatan, // Isi data
@@ -353,7 +353,7 @@
       getCoverAlbumUrl(path) {
         // Helper untuk mendapatkan URL gambar cover
         if (path) {
-          return `http://localhost:8000/storage/${path}`;
+          return `import.meta.env.VITE_API_URL/storage/${path}`;
         }
         return '/src/assets/images/placeholder.png'; // Placeholder jika tidak ada foto
       },

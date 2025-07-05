@@ -151,7 +151,7 @@ export default {
 
         async fetchKelasByGuruId(idGuru) {
             try {
-                const response = await axios.get(`http://localhost:8000/api/guru/${idGuru}/kelas`);
+                const response = await axios.get(`import.meta.env.VITE_API_URL/api/guru/${idGuru}/kelas`);
                 // console.log("Response Guru Kelas:", response.data);
 
                 if (!response.data || !response.data.data || !response.data.data.daftar_kelas) {
@@ -200,7 +200,7 @@ export default {
 
         async fetchTahunAjaranList() {
             try {
-                const response = await axios.get('http://localhost:8000/api/tahunajaran');
+                const response = await axios.get('import.meta.env.VITE_API_URL/api/tahunajaran');
                 //console.log("Response Tahun Ajaran:", response.data); 
                 if (response.data && Array.isArray(response.data.data)) {
                     this.tahunAjaranList = response.data.data;

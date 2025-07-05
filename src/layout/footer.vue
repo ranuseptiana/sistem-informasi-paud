@@ -13,21 +13,21 @@
                  <div class="footer-column">
                      <h3>Tentang Kami</h3>
                      <ul>
-                         <li><a href="import.meta.env.VITE_API_URL/about">Tentang PAUD Al-Ummah</a></li>
-                         <li><a href="import.meta.env.VITE_API_URL/about">Visi dan Misi</a></li>
+                         <li><a href="import.meta.env.FRONT_END_URL/about">Tentang PAUD Al-Ummah</a></li>
+                         <li><a href="import.meta.env.FRONT_END_URL/about">Visi dan Misi</a></li>
                      </ul>
                  </div>
                  <div class="footer-column">
                      <h3>Informasi Kegiatan</h3>
                      <ul>
-                         <li><a href="import.meta.env.VITE_API_URL/album">Galeri Kegiatan</a></li>
-                         <li><a href="import.meta.env.VITE_API_URL/agenda">Agenda Kegiatan</a></li>
+                         <li><a href="import.meta.env.FRONT_END_URL/album">Galeri Kegiatan</a></li>
+                         <li><a href="import.meta.env.FRONT_END_URL/agenda">Agenda Kegiatan</a></li>
                      </ul>
                  </div>
                  <div class="footer-column">
                      <h3>Layanan</h3>
                      <ul>
-                         <li><a href="import.meta.env.VITE_API_URL/information">FAQ</a></li>
+                         <li><a href="import.meta.env.FRONT_END_URL/information">FAQ</a></li>
                      </ul>
                  </div>
                  <div class="footer-column">

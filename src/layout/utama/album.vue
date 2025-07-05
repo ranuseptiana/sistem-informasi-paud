@@ -16,7 +16,7 @@
             <router-link :to="`/album/${album.id}`" class="album-link">
               <div class="album-cover-wrapper">
                 <img
-                  :src="`http://localhost:8000/storage/${album.photo_cover}`"
+                  :src="`import.meta.env.VITE_API_URL/storage/${album.photo_cover}`"
                   alt="Cover Album"
                   class="album-cover"
                 />
@@ -67,7 +67,7 @@ export default {
 
     const fetchAlbumList = () => {
       axios
-        .get("http://localhost:8000/api/album") // Pastikan pakai /api/album
+        .get("import.meta.env.VITE_API_URL/api/album") // Pastikan pakai /api/album
         .then((res) => {
           if (res.data && Array.isArray(res.data.data)) {
             albumList.value = res.data.data;

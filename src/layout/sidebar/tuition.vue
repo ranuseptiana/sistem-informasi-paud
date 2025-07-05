@@ -177,7 +177,7 @@
                         <td>{{ pembayaran.sisa_pembayaran ? formatRupiah(pembayaran.sisa_pembayaran) : 'Tidak AdaSisa Pembayaran' }}</td>
                         <td>
                             <template v-if="pembayaran.bukti_pembayaran_url">
-                                <img :src="`http://localhost:8000/storage/${pembayaran.bukti_pembayaran}`" alt="Bukti Pembayaran" class="img-thumbnail cursor-pointer" style="max-width: 80px; max-height: 150px; object-fit: cover;" @click="openImageModal(`http://localhost:8000/storage/${pembayaran.bukti_pembayaran}`)">
+                                <img :src="`import.meta.env.VITE_API_URL/storage/${pembayaran.bukti_pembayaran}`" alt="Bukti Pembayaran" class="img-thumbnail cursor-pointer" style="max-width: 80px; max-height: 150px; object-fit: cover;" @click="openImageModal(`import.meta.env.VITE_API_URL/storage/${pembayaran.bukti_pembayaran}`)">
                             </template>
                             <span v-else>Tidak Ada</span>
                         </td>
@@ -268,7 +268,7 @@
                                             }}</span>
                                     <div v-if="isEdit && form.bukti_pembayaran_url && !form.bukti_pembayaran" class="mt-2">
                                         <p>Bukti pembayaran saat ini:</p>
-                                        <img :src="`http://localhost:8000/storage/${form.bukti_pembayaran_url}`" alt="Bukti Pembayaran Lama" style="max-width: 150px; height: auto;">
+                                        <img :src="`import.meta.env.VITE_API_URL/storage/${form.bukti_pembayaran_url}`" alt="Bukti Pembayaran Lama" style="max-width: 150px; height: auto;">
                                         <button type="button" class="btn btn-sm btn-outline-danger mt-1" @click="removeBuktiPembayaran">Hapus Bukti</button>
                                     </div>
                                 </div>
