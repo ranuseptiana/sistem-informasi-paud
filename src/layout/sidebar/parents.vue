@@ -326,11 +326,11 @@ export default {
             axios
                 .get('/orangtua')
                 .then((res) => {
-                    // console.log('Data yang diterima:', res.data);
+                    // ('Data yang diterima:', res.data);
                     ortuList.value = res.data.data; // Perbarui data ortu
                 })
                 .catch((error) => {
-                    console.log(error.response.data);
+                    (error.response.data);
                 });
         };
 
@@ -960,7 +960,7 @@ export default {
         },
     },
     mounted() {
-        console.log(this.ortuList);
+        (this.ortuList);
 
         // Hapus duplikasi berdasarkan ID
         this.ortuList = this.ortuList.filter(

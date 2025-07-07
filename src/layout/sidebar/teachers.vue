@@ -267,7 +267,7 @@ export default {
                 .then((res) => {
                     guruList.value = res.data.data;
                 })
-                .catch((error) => console.log(error.response.data));
+                .catch((error) => (error.response.data));
         };
 
         const fetchKelasList = () => {

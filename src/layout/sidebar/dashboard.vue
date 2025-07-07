@@ -273,7 +273,7 @@ export default {
                 .then((res) => {
                     guruList.value = res.data.data;
                 })
-                .catch((error) => console.log(error.response.data));
+                .catch((error) => (error.response.data));
         };
 
         const fetchKelasList = () => {
@@ -341,7 +341,7 @@ export default {
                 const token = localStorage.getItem('token');
 
                 if (!token) {
-                    console.log('Token tidak ditemukan');
+                    ('Token tidak ditemukan');
                     return;
                 }
 

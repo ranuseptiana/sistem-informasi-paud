@@ -187,7 +187,7 @@ export default {
                 penghasilan_ibu: '',
                 no_telp: ''
             },
-            ortuList: [], // Daftar data ortu
+            ortuList: [], 
             pendidikanAyah: "",
             pendidikanIbu: "",
             penghasilanAyah: "",
@@ -206,16 +206,14 @@ export default {
 
                 let response;
                 if (this.isEdit) {
-                    // Edit Data Orangtua (gunakan PUT)
-                    response = await axios.put(`import.meta.env.VITE_API_URL/api/orangtua/${this.$route.params.id}`, payload);
+                    response = await axios.put(`${import.meta.env.VITE_API_URL}/api/orangtua/${this.$route.params.id}`, payload);
                 } else {
-                    // Tambah Data Orangtua (gunakan POST)
-                    response = await axios.post('import.meta.env.VITE_API_URL/api/orangtua/', payload);
+                    response = await axios.post(`${import.meta.env.VITE_API_URL}/api/orangtua/`, payload);
                 }
 
                 Swal.fire("Sukses", this.isEdit ? "Data orang tua berhasil diperbarui!" : "Data orang tua berhasil disimpan!", "success");
                 this.resetForm();
-                this.$router.push('/adminmainsidebar/parents'); // Redirect setelah sukses
+                this.$router.push('/adminmainsidebar/parents'); 
             } catch (error) {
                 Swal.fire("Gagal", error.response?.data?.message || "Terjadi kesalahan", "error");
             }
@@ -223,10 +221,10 @@ export default {
 
         async getOrangtuaData() {
             try {
-                const response = await axios.get(`import.meta.env.VITE_API_URL/api/orangtua/${this.$route.params.id}`);
-                console.log('Data Orangtua:', response.data); // Debugging log
-                this.form = response.data.data; // Isi data form dengan data orangtua yang ada
-                this.isEdit = true; // Menandakan mode edit
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orangtua/${this.$route.params.id}`);
+                ('Data Orangtua:', response.data); 
+                this.form = response.data.data; 
+                this.isEdit = true; 
             } catch (error) {
                 Swal.fire("Gagal", "Data orang tua tidak ditemukan.", "error");
             }
@@ -254,10 +252,8 @@ export default {
     },
     mounted() {
         if (this.$route.params.id) {
-            console.log('ID Orangtua:', this.$route.params.id); // Debugging log
-        this.getOrangtuaData();  // Memanggil method untuk mengambil data berdasarkan ID
+        this.getOrangtuaData();  
     }
-
         this.pendidikanAyah = "";
         this.pendidikanIbu = "";
         this.penghasilanAyah = "";
@@ -369,12 +365,10 @@ export default {
 @media (max-width: 768px) {
     .save-data-ortu {
         text-align: center;
-        /* Tengah untuk layar kecil */
     }
 
     .info-card {
         width: 100%;
-        /* Agar mengikuti ukuran layar */
     }
 }
 </style>

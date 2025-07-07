@@ -97,7 +97,7 @@ export default {
             Authorization: `Bearer ${token}`,
           },
         });
-        // console.log('Data yang diterima:', res.data);
+        // ('Data yang diterima:', res.data);
         cicilanList.value = res.data.data;
       } catch (error) {
         //console.error("Gagal mengambil data cicilan:", error.response?.data || error.message);

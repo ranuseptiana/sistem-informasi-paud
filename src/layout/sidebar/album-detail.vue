@@ -173,7 +173,7 @@ export default {
       searchQuery: '',
       showModal: false,
       albumId: null,
-      albumName: '', // New data property to store album name
+      albumName: '', 
       FotoList: [],
       isFilterPopupVisible: false,
       selectedFilters: {
@@ -190,7 +190,6 @@ export default {
     };
   },
   methods: {
-    // --- Data Fetching ---
     async fetchAlbumDetail() {
       try {
         const response = await axios.get(`/album/${this.albumId}`);
@@ -215,21 +214,10 @@ export default {
       }
     },
 
-    // --- Modal & Form Handling ---
     prepareTambahFoto() {
       this.resetForm();
       this.showModal = true;
-      },
-    
-    // async editFoto(foto) { // Add editFoto method
-    //   this.resetForm();
-    //   this.form.id = foto.id;
-    //   this.form.caption = foto.caption;
-    //   this.form.file_preview = this.getFotoUrl(foto.path_foto); // Show current image
-    //   this.isEditing = true;
-    //   this.showModal = true;
-    //   this.dropdownIndex = null; // Close dropdown
-      // },
+    },
     
     handleFileChange(event) {
         this.form.files = []; 
@@ -275,7 +263,7 @@ export default {
 
         Swal.fire('Berhasil', 'Semua foto berhasil disimpan!', 'success');
         this.closeModal();
-        this.fetchFotoListByAlbum(); // Refresh list setelah simpan
+        this.fetchFotoListByAlbum();
     } catch (error) {
         console.error("Gagal menyimpan foto:", error);
         Swal.fire('Error', 'Gagal menyimpan foto!', 'error');
@@ -312,10 +300,9 @@ resetForm() {
       }
     },
 
-    // --- Utility Methods ---
     getFotoUrl(path) {
       if (path) {
-        return `import.meta.env.VITE_API_URL/storage/${path}`;
+        return `${import.meta.env.VITE_API_URL}/storage/${path}`;
       }
       return '/src/assets/images/placeholder.png'; 
     },
@@ -398,7 +385,7 @@ resetForm() {
         Swal.fire('Error', 'Album ID tidak valid!', 'error');
         return;
     }
-    console.log('Album ID:', this.albumId);
+    ('Album ID:', this.albumId);
 
     this.fetchAlbumDetail();
     this.fetchFotoListByAlbum();
@@ -627,7 +614,6 @@ resetForm() {
     margin: 0;
 }
 
-/* Background overlay */
 .custom-modal {
     position: fixed;
     top: 0;
@@ -643,16 +629,14 @@ resetForm() {
 
 .custom-modal-body {
     z-index: 9999;
-    overflow-y: auto; /* Ubah ke auto agar scrollbar hanya muncul jika diperlukan */
+    overflow-y: auto; 
     text-align: left;
     padding: 1rem;
     font-size: 1rem;
     color: #333;
-    /* Tambahkan max-height agar konten bisa discroll */
-    max-height: 70vh; /* Sesuaikan nilai ini sesuai kebutuhan, misalnya 70% dari tinggi viewport */
+    max-height: 70vh; 
 }
 
-/* Opsional: Sesuaikan tinggi modal dialog agar tidak terlalu besar */
 .custom-modal-dialog {
     background: white;
     border: none;
@@ -660,16 +644,16 @@ resetForm() {
     width: 90%;
     max-width: 500px;
     box-shadow: none;
-    overflow: hidden; /* Penting untuk mengelola overflow di tingkat modal */
-    display: flex; /* Untuk membuat modal content mengisi ruang */
-    flex-direction: column; /* Untuk membuat modal content mengisi ruang */
-    max-height: 90vh; /* Batasi tinggi keseluruhan modal dialog */
+    overflow: hidden; 
+    display: flex; 
+    flex-direction: column;
+    max-height: 90vh; 
 }
 
 .custom-modal-content {
     display: flex;
     flex-direction: column;
-    height: 100%; /* Pastikan konten mengisi tinggi dialog */
+    height: 100%;
 }
 
 .custom-modal-header {

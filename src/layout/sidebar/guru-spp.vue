@@ -198,11 +198,11 @@ export default {
             axios
                 .get('/pembayaranspp')
                 .then((res) => {
-                    console.log('Data yang diterima:', res.data);
+                    ('Data yang diterima:', res.data);
                     pembayaranSppList.value = res.data.data;
                 })
                 .catch((error) => {
-                    console.log(error.response.data.data);
+                    (error.response.data.data);
                 });
         };
 

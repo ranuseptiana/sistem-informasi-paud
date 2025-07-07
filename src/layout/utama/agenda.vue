@@ -50,11 +50,12 @@ export default {
     },
     setup() {
         const agendaList = ref([]);
+        const baseUrl = import.meta.env.VITE_API_URL;
 
         const fetchAgendaList = () => {
-            axios.get('/agenda')
+            axios.get(`${baseUrl}/api/agenda`)
                 .then((res) => {
-                    console.log("Response API: ", res.data);
+                    ("Response API: ", res.data);
                     if (res.data && Array.isArray(res.data.data)) {
                         agendaList.value = res.data.data;
                     } else {
@@ -75,6 +76,7 @@ export default {
         return {
             agendaList,
             fetchAgendaList,
+            baseUrl
         };
     }
 };

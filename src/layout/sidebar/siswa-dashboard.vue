@@ -330,7 +330,7 @@ export default {
       try {
         const token = localStorage.getItem('token');
         if (!token) {
-          console.log('Token tidak ditemukan');
+          ('Token tidak ditemukan');
           return;
         }
         const response = await axios.get('/user', {
@@ -389,7 +389,7 @@ export default {
         const res = await axios.get("/guru");
         guruList.value = res.data.data;
       } catch (error) {
-        console.log(error.response.data);
+        (error.response.data);
       }
     };
 

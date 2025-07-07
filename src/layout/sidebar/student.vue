@@ -548,10 +548,10 @@ getColumnLabel(key) {
 async applyFilters() {
     try {
         const kelasIds = Array.isArray(this.filter.kelas_ids) ? this.filter.kelas_ids : [this.filter.kelas_ids].filter(Boolean);
-        console.log('Kelas yang dipilih:', kelasIds);
+        ('Kelas yang dipilih:', kelasIds);
 
         const selectedKeys = Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key]);
-        console.log('Selected filter keys:', selectedKeys);
+        ('Selected filter keys:', selectedKeys);
 
         const columnMapping = {
             'nipd': 'nipd',
@@ -572,7 +572,7 @@ async applyFilters() {
         };
 
         const mappedColumns = selectedKeys.map(key => columnMapping[key] || key);
-        console.log('Mapped columns for API:', mappedColumns);
+        ('Mapped columns for API:', mappedColumns);
 
         const params = {
             columns: mappedColumns.length > 0 ? mappedColumns : undefined,

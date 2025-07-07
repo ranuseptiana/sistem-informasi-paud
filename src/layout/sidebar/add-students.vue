@@ -35,11 +35,11 @@
                         </div>
                         <div class="form-group">
                             <label for="nipd">NIPD</label>
-                            <input type="text" v-model="form.nipd" id="nipd" placeholder="Masukkan NIPD siswa" :disabled="isEdit" />
+                            <input type="text" v-model="form.nipd" id="nipd" placeholder="Masukkan NIPD siswa" />
                         </div>
                         <div class="form-group">
                             <label for="nisn">NISN</label>
-                            <input type="text" v-model="form.nisn" id="nisn" placeholder="Masukkan NISN siswa" :disabled="isEdit" />
+                            <input type="text" v-model="form.nisn" id="nisn" placeholder="Masukkan NISN siswa" />
                         </div>
                     </div>
                     <div class="row">
@@ -168,6 +168,7 @@ export default {
                 no_kk: '',
                 nik_siswa: '',
                 nisn: '',
+                nipd: '',
                 nama_siswa: '',
                 tempat_lahir: '',
                 tanggal_lahir: '',
@@ -195,15 +196,13 @@ export default {
     methods: {
         async getSiswaData() {
             try {
-                const response = await axios.get(`import.meta.env.VITE_API_URL/api/siswa/${this.$route.params.id}`);
-                console.log('Data Siswa:', response.data);
-
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/siswa/${this.$route.params.id}`);
+              
                 let siswa = response.data.data;
 
-                // Periksa apakah tanggal_lahir ada dan ubah formatnya ke yyyy-MM-dd
                 if (siswa.tanggal_lahir) {
-                    let tanggalLahirArray = siswa.tanggal_lahir.split('-'); // ["21", "12", "2019"]
-                    siswa.tanggal_lahir = `${tanggalLahirArray[2]}-${tanggalLahirArray[1]}-${tanggalLahirArray[0]}`; // "2019-12-21"
+                    let tanggalLahirArray = siswa.tanggal_lahir.split('-'); 
+                    siswa.tanggal_lahir = `${tanggalLahirArray[2]}-${tanggalLahirArray[1]}-${tanggalLahirArray[0]}`; 
                 }
 
                 this.form = siswa;
@@ -215,9 +214,8 @@ export default {
         },
         async getNomorKartuList() {
             try {
-                const response = await axios.get(`import.meta.env.VITE_API_URL/api/orangtua/${this.$route.params.id}`);
-                console.log('Data No KK:', response.data);
-
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orangtua/${this.$route.params.id}`);
+              
                 if (response.data && response.data.data) {
                     this.nomorKartuList = response.data.data;
                 } else {
@@ -230,9 +228,8 @@ export default {
         },
         async getKelasList() {
             try {
-                const response = await axios.get('import.meta.env.VITE_API_URL/api/kelas');
-                console.log("Response API Kelas:", response.data);
-
+                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/kelas');
+               
                 this.kelasList = response.data.data;
             } catch (error) {
                 console.error("Gagal mengambil daftar kelas:", error);
@@ -241,9 +238,8 @@ export default {
         },
         async getTahunAjaranList() {
             try {
-                const response = await axios.get('import.meta.env.VITE_API_URL/api/tahunajaran');
-                console.log("Response API Tahun Ajaran:", response.data);
-
+                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/tahunajaran');
+               
                 if (response.data && response.data) {
                     this.tahunAjaranList = response.data;
                 } else {
@@ -268,14 +264,14 @@ export default {
                     lingkar_kepala: Number(this.form.lingkar_kepala),
                     kelas_id: Number(this.form.kelas_id),
                 };
-                console.log("Payload yang dikirim:", payload);
+                ("Payload yang dikirim:", payload);
 
                 let response;
 
                 if (this.isEdit) {
-                    response = await axios.put(`import.meta.env.VITE_API_URL/api/siswa/${this.$route.params.id}`, payload);
+                    response = await axios.put(`${import.meta.env.VITE_API_URL}/api/siswa/${this.$route.params.id}`, payload);
                 } else {
-                    response = await axios.post('import.meta.env.VITE_API_URL/api/siswa', payload);
+                    response = await axios.post('${import.meta.env.VITE_API_URL}/api/siswa', payload);
                 }
 
                 Swal.fire("Sukses", this.isEdit ? "Data siswa berhasil diperbarui!" : "Data siswa berhasil disimpan!", "success");
@@ -284,13 +280,14 @@ export default {
                 this.$router.push('/adminmainsidebar/student');
             } catch (error) {
                 Swal.fire("Gagal", error.response ?.data ?.message || "Terjadi kesalahan", "error");
-                console.log("Error:", error.response ?.data);
+                ("Error:", error.response ?.data);
             }
         },
         resetForm() {
             this.form = {
                 no_kk: '',
                 nik_siswa: '',
+                nipd: '',
                 nisn: '',
                 nama_siswa: '',
                 tempat_lahir: '',
@@ -303,7 +300,7 @@ export default {
                 berat_badan: '',
                 lingkar_kepala: '',
                 kelas_id: '',
-                tahun_ajaran_id: '', // ini tambahan
+                tahun_ajaran_id: '', 
                 status: '',
             };
         }
@@ -314,7 +311,7 @@ export default {
         this.getNomorKartuList();
 
         if (this.$route.params.id) {
-            console.log('ID Siswa:', this.$route.params.id);
+            ('ID Siswa:', this.$route.params.id);
             this.getSiswaData();
         }
 

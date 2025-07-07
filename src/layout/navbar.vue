@@ -107,7 +107,7 @@ export default {
             }
 
             try {
-                const response = await axios.post('import.meta.env.VITE_API_URL/api/auth/login', {
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
                     username: this.username,
                     password: this.password
                 });
@@ -144,7 +144,6 @@ export default {
             this.isDropdownOpen = !this.isDropdownOpen;
         },
         log(event) {
-            console.log(event);
         },
         setActive(menu) {
             this.activeMenu = menu;

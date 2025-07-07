@@ -177,7 +177,7 @@
                         <td>{{ pembayaran.sisa_pembayaran ? formatRupiah(pembayaran.sisa_pembayaran) : 'Tidak AdaSisa Pembayaran' }}</td>
                         <td>
                             <template v-if="pembayaran.bukti_pembayaran_url">
-                                <img :src="`import.meta.env.VITE_API_URL/storage/${pembayaran.bukti_pembayaran}`" alt="Bukti Pembayaran" class="img-thumbnail cursor-pointer" style="max-width: 80px; max-height: 150px; object-fit: cover;" @click="openImageModal(`import.meta.env.VITE_API_URL/storage/${pembayaran.bukti_pembayaran}`)">
+                                <img :src="`${import.meta.env.VITE_API_URL}/storage/${pembayaran.bukti_pembayaran}`" alt="Bukti Pembayaran" class="img-thumbnail cursor-pointer" style="max-width: 80px; max-height: 150px; object-fit: cover;" @click="openImageModal(`${import.meta.env.VITE_API_URL}/storage/${pembayaran.bukti_pembayaran}`)">
                             </template>
                             <span v-else>Tidak Ada</span>
                         </td>
@@ -268,7 +268,7 @@
                                             }}</span>
                                     <div v-if="isEdit && form.bukti_pembayaran_url && !form.bukti_pembayaran" class="mt-2">
                                         <p>Bukti pembayaran saat ini:</p>
-                                        <img :src="`import.meta.env.VITE_API_URL/storage/${form.bukti_pembayaran_url}`" alt="Bukti Pembayaran Lama" style="max-width: 150px; height: auto;">
+                                        <img :src="`${import.meta.env.VITE_API_URL}/storage/${form.bukti_pembayaran_url}`" alt="Bukti Pembayaran Lama" style="max-width: 150px; height: auto;">
                                         <button type="button" class="btn btn-sm btn-outline-danger mt-1" @click="removeBuktiPembayaran">Hapus Bukti</button>
                                     </div>
                                 </div>
@@ -424,7 +424,6 @@ export default {
 
         async fetchPembayaranList(params = {}) {
             try {
-                // Hapus params yang null atau kosong
                 Object.keys(params).forEach(key => {
                     if (params[key] === null || params[key] === '') delete params[key];
                 });
@@ -456,7 +455,6 @@ export default {
             const allFilters = [...this.firstRowFilters, ...this.secondRowFilters];
             const filter = allFilters.find(f => f.key === key);
 
-            // Mapping khusus untuk beberapa kasus
             const specialLabels = {
                 rombel: 'Kelas Saat Ini',
                 nama: 'Nama Lengkap'
@@ -465,25 +463,20 @@ export default {
             return specialLabels[key] || (filter ? filter.label : key);
         },
         applyFilters() {
-            // Reset filter state dulu
             this.isFilterActive = false;
 
-            // Cek apakah ada filter yang aktif
             const hasYearFilter = this.tahunAwal && this.tahunAkhir;
             const hasClassFilter = this.filter.kelas_ids && this.filter.kelas_ids.length > 0;
             const hasPaymentMethodFilter = this.filter.metode_pembayaran && this.filter.metode_pembayaran.trim() !== '';
             const hasPaymentStatusFilter = this.filter.status_pembayaran && this.filter.status_pembayaran.trim() !== '';
             const hasInstallmentStatusFilter = this.filter.status_cicilan && this.filter.status_cicilan.trim() !== '';
 
-            // Jika tidak ada filter yang aktif, jangan set isFilterActive
             if (!hasYearFilter && !hasClassFilter && !hasPaymentMethodFilter && !hasPaymentStatusFilter && !hasInstallmentStatusFilter) {
-                console.log('Tidak ada filter yang aktif');
                 this.showModal = false;
                 this.showKelasModal = false;
                 return;
             }
 
-            // Validasi tahun
             if (hasYearFilter) {
                 const tahunAwal = parseInt(this.tahunAwal);
                 const tahunAkhir = parseInt(this.tahunAkhir);
@@ -507,7 +500,6 @@ export default {
                 });
             }
 
-            // Set filter aktif setelah validasi
             this.isFilterActive = true;
             this.showModal = false;
             this.showKelasModal = false;
@@ -525,7 +517,6 @@ export default {
                 status_cicilan: ''
             };
 
-            // PERBAIKAN: Reset tahun ajaran juga
             this.tahunAwal = '';
             this.tahunAkhir = '';
 
@@ -537,10 +528,8 @@ export default {
             try {
                 this.exportLoading = true;
 
-                // Gunakan endpoint export yang benar
                 const endpoint = '/pembayaran/export';
 
-                // Siapkan parameter sesuai dengan backend
                 const params = {
                     kelas_ids: this.filter.kelas_ids ?.length ? this.filter.kelas_ids : undefined,
                     metode_pembayaran: this.filter.metode_pembayaran || undefined,
@@ -550,7 +539,6 @@ export default {
                     tahun_akhir: this.filter.tahun_ajaran_sampai || undefined
                 };
 
-                // Hapus parameter yang undefined
                 Object.keys(params).forEach(key => params[key] === undefined && delete params[key]);
 
                 const response = await axios.get(endpoint, {
@@ -595,8 +583,7 @@ export default {
                 if (!data || data.length === 0) {
                     throw new Error('Tidak ada data untuk diekspor');
                 }
-
-                // Definisikan semua kolom yang tersedia
+               
                 const allColumns = [
                     'nisn', 'nama_siswa', 'kelas_nama', 'tahun_ajaran',
                     'tanggal_bayar', 'jenis_pembayaran', 'metode_pembayaran',
@@ -622,7 +609,6 @@ export default {
                     'sisa_pembayaran': 'Sisa Pembayaran (Rp)',
                 };
 
-                // Format Rupiah
                 const formatRupiah = (value) => {
                     if (typeof value !== 'number') return value;
                     return new Intl.NumberFormat('id-ID', {
@@ -632,7 +618,6 @@ export default {
                     }).format(value).replace('Rp', 'Rp ');
                 };
 
-                // Proses data
                 const processedData = data.map((item, index) => {
                     const row = {
                         no: index + 1
@@ -656,14 +641,12 @@ export default {
                     unit: 'mm'
                 });
 
-                // Judul
                 doc.setFontSize(16);
                 doc.setFont('helvetica', 'bold');
                 doc.text('LAPORAN PEMBAYARAN SPP LENGKAP', doc.internal.pageSize.width / 2, 15, {
                     align: 'center'
                 });
 
-                // Tanggal cetak
                 const date = new Date().toLocaleDateString('id-ID', {
                     weekday: 'long',
                     year: 'numeric',
@@ -673,11 +656,9 @@ export default {
                 doc.setFontSize(10);
                 doc.text(`Dicetak pada: ${date}`, 14, 25);
 
-                // Header tabel
                 const headers = ['No', ...allColumns.map(col => headerMapping[col])];
                 const body = processedData.map(row => [row.no, ...allColumns.map(col => row[col])]);
 
-                // Buat tabel
                 doc.autoTable({
                     head: [headers],
                     body: body,
@@ -701,52 +682,51 @@ export default {
                     columnStyles: {
                         0: {
                             cellWidth: 8
-                        }, // No
+                        }, 
                         1: {
                             cellWidth: 15
-                        }, // NISN
+                        }, 
                         2: {
                             cellWidth: 25
-                        }, // Nama Siswa
+                        },
                         3: {
                             cellWidth: 15
-                        }, // Kelas
+                        }, 
                         4: {
                             cellWidth: 18
-                        }, // Tahun Ajaran
+                        },
                         5: {
                             cellWidth: 18
-                        }, // Tanggal Bayar
+                        }, 
                         6: {
                             cellWidth: 18
-                        }, // Jenis Pembayaran
+                        },
                         7: {
                             cellWidth: 18
-                        }, // Metode Pembayaran
+                        }, 
                         8: {
                             cellWidth: 18
-                        }, // Status Pembayaran
+                        }, 
                         9: {
                             cellWidth: 18
-                        }, // Status Cicilan
+                        }, 
                         10: {
                             cellWidth: 18
-                        }, // Status Rapor
+                        }, 
                         11: {
                             cellWidth: 18
-                        }, // Status Atribut
+                        }, 
                         12: {
                             cellWidth: 20
-                        }, // Nominal
+                        }, 
                         13: {
                             cellWidth: 20
-                        }, // Total Cicilan
+                        }, 
                         14: {
                             cellWidth: 20
-                        }, // Sisa Pembayaran
+                        }, 
                     },
                     didDrawPage: (data) => {
-                        // Footer dengan nomor halaman
                         const pageCount = doc.internal.getNumberOfPages();
                         doc.setFontSize(8);
                         doc.text(
@@ -759,7 +739,7 @@ export default {
                     }
                 });
 
-                const fileName = `Laporan_Pembayaran${new Date().toISOString().slice(0, 10)}.pdf`;
+                const fileName = `Laporan Pembayaran${new Date().toISOString().slice(0, 10)}.pdf`;
                 doc.save(fileName);
 
             } catch (error) {
@@ -789,48 +769,45 @@ export default {
                     Jumlah: this.formatRupiah(item.jumlah || 0)
                 }));
 
-                // Buat worksheet
                 const ws = XLSX.utils.json_to_sheet(excelData);
                 const wb = XLSX.utils.book_new();
                 XLSX.utils.book_append_sheet(wb, ws, "Pembayaran");
 
-                // Atur lebar kolom
                 const wscols = [{
                         wch: 5
-                    }, // No
+                    }, 
                     {
                         wch: 15
-                    }, // NISN
+                    }, 
                     {
                         wch: 30
-                    }, // Nama
+                    }, 
                     {
                         wch: 20
-                    }, // Kelas
+                    }, 
                     {
                         wch: 20
-                    }, // Tahun Ajaran
+                    },
                     {
                         wch: 15
-                    }, // Tanggal
+                    },
                     {
                         wch: 15
-                    }, // Metode
+                    }, 
                     {
                         wch: 15
-                    }, // Status
+                    }, 
                     {
                         wch: 15
-                    }, // Cicilan
+                    },
                     {
                         wch: 20
-                    } // Jumlah
+                    }
                 ];
                 ws['!cols'] = wscols;
 
-                // Export file
                 const date = new Date().toISOString().slice(0, 10);
-                XLSX.writeFile(wb, `Laporan_Pembayaran_${date}.xlsx`);
+                XLSX.writeFile(wb, `Laporan Pembayaran_${date}.xlsx`);
 
             } catch (error) {
                 console.error('Excel Export Error:', error);
@@ -838,18 +815,15 @@ export default {
             }
         },
 
-        // Fungsi pembantu untuk status cicilan
         getStatusCicilan(cicilan) {
             if (!cicilan || cicilan.length === 0) return 'Lunas';
             const paid = cicilan.filter(c => c.status === 'lunas').length;
             return `${paid}/${cicilan.length} Cicilan`;
         },
 
-        // Fungsi bantu untuk mendapatkan info filter
         getFilterInfo() {
             const info = [];
 
-            // PERBAIKAN: Gunakan tahunAwal dan tahunAkhir, bukan tahun_ajaran_id
             if (this.tahunAwal && this.tahunAkhir) {
                 if (this.tahunAwal === this.tahunAkhir) {
                     info.push(`Tahun Ajaran: ${this.tahunAwal}/${parseInt(this.tahunAwal) + 1}`);
@@ -888,12 +862,10 @@ export default {
             return info;
         },
 
-        // New helper method to calculate dynamic column widths
         calculateDynamicColumnWidths(headers, data, availableWidth) {
             const columnWidths = {};
             const contentLengths = {};
 
-            // Default widths for known columns
             const defaultWidths = {
                 'no': 10,
                 'no_kk': 25,
@@ -903,28 +875,23 @@ export default {
                 'tahun_ajaran_id': 20
             };
 
-            // First calculate content length for each column
             headers.forEach(header => {
-                let maxLength = defaultWidths[header] || 15; // default minimum width
+                let maxLength = defaultWidths[header] || 15; 
 
-                // Check header length
-                const headerLength = header.length * 1.5; // approximate width in mm
+                const headerLength = header.length * 1.5; 
                 if (headerLength > maxLength) maxLength = headerLength;
 
-                // Check data content length
                 data.forEach(row => {
                     const content = row[header] ?.toString() || '';
-                    const contentLength = content.length * 1.2; // approximate width in mm
+                    const contentLength = content.length * 1.2; 
                     if (contentLength > maxLength) maxLength = contentLength;
                 });
 
-                contentLengths[header] = Math.min(maxLength, 50); // cap at 50mm
+                contentLengths[header] = Math.min(maxLength, 50); 
             });
 
-            // Calculate total needed width
             const totalNeededWidth = Object.values(contentLengths).reduce((a, b) => a + b, 0);
 
-            // If total needed width is less than available width, distribute extra space
             if (totalNeededWidth < availableWidth) {
                 const extraSpace = availableWidth - totalNeededWidth;
                 const extraPerColumn = extraSpace / headers.length;
@@ -933,7 +900,6 @@ export default {
                     columnWidths[header] = contentLengths[header] + extraPerColumn;
                 });
             } else {
-                // If content is wider than available space, scale down proportionally
                 const scaleFactor = availableWidth / totalNeededWidth;
 
                 headers.forEach(header => {
@@ -943,19 +909,15 @@ export default {
 
             return columnWidths;
         },
-        // Helper method to determine column alignment
         getColumnAlignment(header, data) {
             if (!data || data.length === 0) return 'left';
 
             const sampleValue = data[0][header];
 
-            // Numbers should be right-aligned
             if (typeof sampleValue === 'number') return 'right';
 
-            // Dates should be center-aligned
             if (sampleValue instanceof Date) return 'center';
 
-            // Specific columns
             if (['no', 'anak_ke', 'jumlah_saudara', 'berat_badan', 'tinggi_badan'].includes(header)) {
                 return 'right';
             }
@@ -987,7 +949,6 @@ export default {
             const selectedColumnKeys = Object.keys(this.selectedFilters)
                 .filter(key => this.selectedFilters[key]);
 
-            // Jika tidak ada filter kolom yang dipilih, kembalikan semua kolom
             if (selectedColumnKeys.length === 0) {
                 return this.filteredSiswaList.map((siswa, index) => {
                     const {
@@ -1006,7 +967,6 @@ export default {
                 });
             }
 
-            // Jika ada filter, hanya ambil kolom yang dipilih
             return this.filteredSiswaList.map((siswa, index) => {
                 const filteredData = {
                     'No': index + 1
@@ -1025,7 +985,6 @@ export default {
                         const label = this.getColumnLabel(key);
                         const value = siswa[backendKey];
 
-                        // Format khusus untuk beberapa tipe data
                         if (backendKey === 'tanggal_lahir' && value) {
                             filteredData[label] = new Date(value).toLocaleDateString('id-ID');
                         } else {
@@ -1447,7 +1406,7 @@ export default {
                             siswaKelasId = siswa ? siswa.kelas_id : null;
                         }
 
-                        console.log('Debug Kelas (FIXED):', {
+                        ('Debug Kelas (FIXED):', {
                             siswa_id: pembayaran.siswa_id,
                             nama_siswa: pembayaran.siswa ?.nama_siswa || pembayaran.nama_siswa,
                             siswa_kelas_id: siswaKelasId,

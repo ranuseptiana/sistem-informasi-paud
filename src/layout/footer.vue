@@ -13,21 +13,21 @@
                  <div class="footer-column">
                      <h3>Tentang Kami</h3>
                      <ul>
-                         <li><a href="import.meta.env.FRONT_END_URL/about">Tentang PAUD Al-Ummah</a></li>
-                         <li><a href="import.meta.env.FRONT_END_URL/about">Visi dan Misi</a></li>
+                         <li><a :href="frontendUrl + '/about'">Tentang PAUD Al-Ummah</a></li>
+                         <li><a :href="frontendUrl + '/about'">Visi dan Misi</a></li>
                      </ul>
                  </div>
                  <div class="footer-column">
                      <h3>Informasi Kegiatan</h3>
                      <ul>
-                         <li><a href="import.meta.env.FRONT_END_URL/album">Galeri Kegiatan</a></li>
-                         <li><a href="import.meta.env.FRONT_END_URL/agenda">Agenda Kegiatan</a></li>
+                         <li><a :href="frontendUrl + '/album'">Galeri Kegiatan</a></li>
+                         <li><a :href="frontendUrl + '/agenda'">Agenda Kegiatan</a></li>
                      </ul>
                  </div>
                  <div class="footer-column">
                      <h3>Layanan</h3>
                      <ul>
-                         <li><a href="import.meta.env.FRONT_END_URL/information">FAQ</a></li>
+                         <li><a :href="frontendUrl + '/information'">FAQ</a></li>
                      </ul>
                  </div>
                  <div class="footer-column">
@@ -50,13 +50,14 @@
 
 <script>
 export default {
-    data() {
-        return {
-            name: "Footer"
-        }
-    }
+  data() {
+    return {
+      frontendUrl: import.meta.env.VITE_FRONTEND_URL.replace(/\/+$/, '') 
+    };
+  }
 };
 </script>
+
 <style scoped>
 * {
     margin: 0;

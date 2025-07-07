@@ -148,9 +148,9 @@
                  })
                  .then((res) => {
                      usersList.value = res.data.data;
-                     console.log('Data yang diterima:', res.data);
+                     ('Data yang diterima:', res.data);
                  })
-                 .catch((error) => console.log(error.response.data));
+                 .catch((error) => (error.response.data));
          };
 
          const filteredUsersList = computed(() => {

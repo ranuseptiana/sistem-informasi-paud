@@ -112,7 +112,7 @@ export default {
                 const token = localStorage.getItem('token');
 
                 if (!token) {
-                    console.log('Token tidak ditemukan');
+                    ('Token tidak ditemukan');
                     return;
                 }
 

@@ -123,7 +123,7 @@ export default {
         this.fetchUserData();
         const idGuru = localStorage.getItem("user_id");
 
-        // console.log('ID Guru dari localStorage:', idGuru);
+        // ('ID Guru dari localStorage:', idGuru);
 
         if (idGuru) {
             this.fetchKelasByGuruId(idGuru);
@@ -151,8 +151,8 @@ export default {
 
         async fetchKelasByGuruId(idGuru) {
             try {
-                const response = await axios.get(`import.meta.env.VITE_API_URL/api/guru/${idGuru}/kelas`);
-                // console.log("Response Guru Kelas:", response.data);
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/guru/${idGuru}/kelas`);
+                // ("Response Guru Kelas:", response.data);
 
                 if (!response.data || !response.data.data || !response.data.data.daftar_kelas) {
                     throw new Error('Response tidak valid dari server: Struktur data tidak sesuai');
@@ -200,8 +200,8 @@ export default {
 
         async fetchTahunAjaranList() {
             try {
-                const response = await axios.get('import.meta.env.VITE_API_URL/api/tahunajaran');
-                //console.log("Response Tahun Ajaran:", response.data); 
+                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/tahunajaran');
+                //("Response Tahun Ajaran:", response.data); 
                 if (response.data && Array.isArray(response.data.data)) {
                     this.tahunAjaranList = response.data.data;
                 } else if (response.data && Array.isArray(response.data)) { 
@@ -303,7 +303,6 @@ h4 {
 }
 
 .card-dashboard {
-    /* margin-top: 1rem; dihilangkan karena sudah ada gap di card-container */
     display: flex;
     align-items: center;
     padding: 20px;
@@ -418,10 +417,10 @@ h4 {
 /* Media Queries untuk Responsif */
 @media (max-width: 768px) {
     .card-dashboard {
-        min-width: 100%; /* Agar setiap card mengisi lebar penuh di mobile */
+        min-width: 100%; 
     }
     .info-grid {
-        grid-template-columns: 1fr; /* Satu kolom di mobile */
+        grid-template-columns: 1fr; 
     }
 }
 </style>

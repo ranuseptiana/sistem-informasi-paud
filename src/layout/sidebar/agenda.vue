@@ -174,11 +174,11 @@
                 axios
                     .get('/agenda')
                     .then((res) => {
-                        console.log('Data yang diterima:', res.data);
+                        ('Data yang diterima:', res.data);
                         agendaList.value = res.data.data;
                     })
                     .catch((error) => {
-                        console.log(error.response.data.data);
+                        (error.response.data.data);
                     });
             };
             onMounted(() => {

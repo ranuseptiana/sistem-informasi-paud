@@ -120,7 +120,7 @@ export default {
     mounted() {
         const idGuru = localStorage.getItem("user_id");
 
-        console.log('ID Guru dari localStorage:', idGuru);
+        ('ID Guru dari localStorage:', idGuru);
 
         if (idGuru) {
             this.fetchKelasByGuruId(idGuru);
@@ -153,9 +153,9 @@ export default {
 
         async fetchKelasByGuruId(idGuru) {
             try {
-                const response = await axios.get(`import.meta.env.VITE_API_URL/api/guru/${idGuru}/kelas`);
-                console.log("Response:", response);
-                console.log("Response Data:", response.data.data.daftar_kelas);
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/guru/${idGuru}/kelas`);
+                ("Response:", response);
+                ("Response Data:", response.data.data.daftar_kelas);
 
                 if (!response.data) {
                     throw new Error('Response tidak valid dari server');

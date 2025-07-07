@@ -143,13 +143,12 @@ export default {
                 };
                 let response;
                 if (this.isEdit) {
-                    response = await axios.put(`import.meta.env.VITE_API_URL/api/guru/${this.$route.params.id}`, payload);
+                    response = await axios.put(`${import.meta.env.VITE_API_URL}/api/guru/${this.$route.params.id}`, payload);
                 } else {
-                    response = await axios.post('import.meta.env.VITE_API_URL/api/guru/', payload);
+                    response = await axios.post('${import.meta.env.VITE_API_URL}/api/guru/', payload);
 
-                    // Setelah berhasil buat guru, buat relasi guru-kelas
-                    const guruId = response.data.data.id; // pastikan API kamu mengembalikan ID guru yang baru
-                    await axios.post('import.meta.env.VITE_API_URL/api/relasikelas', {
+                    const guruId = response.data.data.id;
+                    await axios.post('${import.meta.env.VITE_API_URL}/api/relasikelas', {
                         guru_id: guruId,
                         kelas_id: this.form.kelas_id
                     });
@@ -164,13 +163,10 @@ export default {
         },
 
         async getGuruData() {
-            console.log("Mencari guru dengan ID:", this.$route.params.id); // Debugging
             try {
-                const response = await axios.get(`import.meta.env.VITE_API_URL/api/guru/${this.$route.params.id}`);
-                console.log('Data Guru:', response.data); // Debugging log
-
-                this.form = response.data.data; // Isi data form dengan data guru yang ada
-                this.isEdit = true; // Menandakan mode edit
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/guru/${this.$route.params.id}`);
+                this.form = response.data.data;
+                this.isEdit = true; 
             } catch (error) {
                 this.isEdit = false;
                 Swal.fire("Gagal", "Data guru tidak ditemukan.", "error");
@@ -179,8 +175,8 @@ export default {
 
         async getKelasList() {
             try {
-                const response = await axios.get('import.meta.env.VITE_API_URL/api/kelas');
-                console.log("Response API Kelas:", response.data);
+                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/kelas');
+                ("Response API Kelas:", response.data);
 
                 this.kelasList = response.data.data;
             } catch (error) {
@@ -210,7 +206,7 @@ export default {
         this.getKelasList();
 
         if (this.$route.params.id) {
-            console.log('ID Guru:', this.$route.params.id); // Debugging log
+            ('ID Guru:', this.$route.params.id); 
             this.getGuruData();
         }
 
@@ -323,12 +319,10 @@ export default {
 @media (max-width: 768px) {
     .save-data-ortu {
         text-align: center;
-        /* Tengah untuk layar kecil */
     }
 
     .info-card {
         width: 100%;
-        /* Agar mengikuti ukuran layar */
     }
 }
 </style>

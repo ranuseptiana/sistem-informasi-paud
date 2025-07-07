@@ -16,7 +16,7 @@
             <router-link :to="`/album/${album.id}`" class="album-link">
               <div class="album-cover-wrapper">
                 <img
-                  :src="`import.meta.env.VITE_API_URL/storage/${album.photo_cover}`"
+                :src="`${baseUrl}/storage/${album.photo_cover}`"
                   alt="Cover Album"
                   class="album-cover"
                 />
@@ -43,52 +43,52 @@ export default {
     Footer,
   },
   setup() {
-    const albumList = ref([]);
+  const albumList = ref([]);
+  const baseUrl = import.meta.env.VITE_API_URL;
 
-    const groupedAlbums = computed(() => {
-      const groups = {};
-      const options = { year: 'numeric', month: 'long' };
+  const groupedAlbums = computed(() => {
+    const groups = {};
+    const options = { year: 'numeric', month: 'long' };
+    const sortedAlbums = [...albumList.value].sort((a, b) => {
+      return new Date(b.tanggal_kegiatan) - new Date(a.tanggal_kegiatan);
+    });
+    sortedAlbums.forEach(album => {
+      const date = new Date(album.tanggal_kegiatan);
+      const monthYear = date.toLocaleDateString('id-ID', options);
+      if (!groups[monthYear]) {
+        groups[monthYear] = [];
+      }
+      groups[monthYear].push(album);
+    });
+    return groups;
+  });
 
-      const sortedAlbums = [...albumList.value].sort((a, b) => {
-        return new Date(b.tanggal_kegiatan) - new Date(a.tanggal_kegiatan);
-      });
-
-      sortedAlbums.forEach(album => {
-        const date = new Date(album.tanggal_kegiatan);
-        const monthYear = date.toLocaleDateString('id-ID', options);
-
-        if (!groups[monthYear]) {
-          groups[monthYear] = [];
+  const fetchAlbumList = () => {
+    axios
+      .get(`${baseUrl}/api/album`)
+      .then((res) => {
+        if (res.data && Array.isArray(res.data.data)) {
+          albumList.value = res.data.data;
+        } else {
+          console.error("Data format salah:", res.data);
         }
-        groups[monthYear].push(album);
+      })
+      .catch((err) => {
+        console.error("Gagal mengambil data:", err);
       });
-      return groups;
-    });
+  };
 
-    const fetchAlbumList = () => {
-      axios
-        .get("import.meta.env.VITE_API_URL/api/album") // Pastikan pakai /api/album
-        .then((res) => {
-          if (res.data && Array.isArray(res.data.data)) {
-            albumList.value = res.data.data;
-          } else {
-            console.error("Data format salah:", res.data);
-          }
-        })
-        .catch((err) => {
-          console.error("Gagal mengambil data:", err);
-        });
-    };
+  onMounted(() => {
+    fetchAlbumList();
+  });
 
-    onMounted(() => {
-      fetchAlbumList();
-    });
+  return {
+    albumList,
+    groupedAlbums,
+    baseUrl 
+  };
+}
 
-    return {
-      albumList,
-      groupedAlbums,
-    };
-  },
 };
 </script>
 

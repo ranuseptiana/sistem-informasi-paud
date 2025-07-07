@@ -237,7 +237,7 @@ export default {
         const fetchCicilanList = async () => {
             try {
                 const res = await axios.get(`/cicilan/pembayaran/${pembayaranId}`);
-                console.log('Data yang diterima:', res.data); 
+                ('Data yang diterima:', res.data); 
 
                 cicilanList.value = res.data.data;
 

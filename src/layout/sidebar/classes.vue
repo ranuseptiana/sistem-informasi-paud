@@ -311,7 +311,7 @@ export default {
         const fetchKelasList = () => {
             axios.get('/kelas')
                 .then((res) => {
-                    // console.log("Response dari backend:", res.data);
+                    // ("Response dari backend:", res.data);
                     if (res.data && Array.isArray(res.data.data)) {
                         KelasList.value = res.data.data;
                     } else {
@@ -327,7 +327,7 @@ export default {
         const fetchGuruList = () => {
             axios.get('/guru')
                 .then((res) => {
-                    console.log("Response dari backend:", res.data);
+                    ("Response dari backend:", res.data);
                     if (res.data && Array.isArray(res.data.data)) {
                         GuruList.value = res.data.data;
                     } else {

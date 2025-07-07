@@ -304,10 +304,9 @@ resetForm() {
       }
     },
 
-    // --- Utility Methods ---
     getFotoUrl(path) {
       if (path) {
-        return `import.meta.env.VITE_API_URL/storage/${path}`;
+        return `${import.meta.env.VITE_API_URL}/storage/${path}`;
       }
       return '/src/assets/images/placeholder.png'; 
     },
@@ -390,7 +389,7 @@ resetForm() {
         Swal.fire('Error', 'Album ID tidak valid!', 'error');
         return;
     }
-    console.log('Album ID:', this.albumId);
+    ('Album ID:', this.albumId);
 
     this.fetchAlbumDetail();
     this.fetchFotoListByAlbum();
@@ -636,7 +635,6 @@ resetForm() {
     margin: 0;
 }
 
-/* Background overlay */
 .custom-modal {
     position: fixed;
     top: 0;
