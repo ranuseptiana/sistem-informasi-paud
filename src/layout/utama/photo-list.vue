@@ -6,15 +6,17 @@
         <p>{{ album?.deskripsi }}</p>
     </div>
 </section>
+
 <div class="container mx-auto p-4">
     <div class="button-back">
         <router-link to="/album">
             <span class="material-symbols-outlined">arrow_back</span> Kembali
         </router-link>
     </div>
+
     <div class="galeri">
         <div v-for="foto in fotoList" :key="foto.id" class="item-galeri" @click="showImage(foto)">
-            <img :src="`${import.meta.env.VITE_API_URL}/storage/${foto.path_foto.replace(/\\/g, '/')}`" alt="Foto Album" />
+            <img :src="getFotoUrl(foto.path_foto)" alt="Foto Album" />
         </div>
     </div>
 
@@ -28,7 +30,6 @@
 <Footer />
 </template>
 
-  
 <script>
 import {
     ref,
@@ -43,14 +44,20 @@ import Navbar from "../navbar.vue";
 import Footer from "../footer.vue";
 
 const route = useRoute();
-const albumId = route.params.id; 
+const albumId = route.params.id;
 
 const album = ref(null);
 const fotoList = ref([]);
 const selectedImage = ref(null);
 
+const getFotoUrl = (path) => {
+    if (!path) return '/src/assets/images/placeholder.png';
+    const cleanPath = path.replace(/\\/g, '/');
+    return `${import.meta.env.VITE_API_URL}/storage/${cleanPath}`;
+};
+
 function showImage(foto) {
-    selectedImage.value = `${import.meta.env.VITE_API_URL}/storage/${foto.path_foto.replace(/\\/g, '/')}`;
+    selectedImage.value = getFotoUrl(foto.path_foto);
 }
 
 function closeModal() {
@@ -65,7 +72,6 @@ function handleKeyDown(event) {
 
 onMounted(async () => {
     window.addEventListener("keydown", handleKeyDown);
-
     try {
         const albumRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/album/${albumId}`);
         album.value = albumRes.data.data;
@@ -80,9 +86,8 @@ onMounted(async () => {
 onUnmounted(() => {
     window.removeEventListener("keydown", handleKeyDown);
 });
-</script>
+</script>  
 
-  
 <style scoped>
 .container {
     display: flex;

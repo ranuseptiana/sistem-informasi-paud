@@ -189,6 +189,10 @@ export default {
       errors: {},
     };
   },
+    props: {
+    foto: Object,
+    selectedFilters: Object
+  },
   methods: {
     async fetchAlbumDetail() {
       try {
