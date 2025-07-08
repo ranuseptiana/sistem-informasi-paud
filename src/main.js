@@ -14,7 +14,7 @@ import { faGears, faLightbulb, faChildReaching } from '@fortawesome/free-solid-s
 import Multiselect from '@vueform/multiselect';
 import '@vueform/multiselect/themes/default.css';
 
-axios.defaults.baseURL = import.meta.env.VITE_API_URL + 'api/';
+axios.defaults.baseURL = import.meta.env.VITE_API_URL + '/api/';
 
 // Tambahkan ikon ke pustaka
 library.add(faGears, faChildReaching, faLightbulb);
