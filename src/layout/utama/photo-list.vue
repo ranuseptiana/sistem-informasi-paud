@@ -31,62 +31,71 @@
 </template>
 
 <script>
-import {
-    ref,
-    onMounted,
-    onUnmounted
-} from "vue";
-import {
-    useRoute
-} from "vue-router";
+import { ref, onMounted, onUnmounted } from "vue";
+import { useRoute } from "vue-router";
 import axios from "axios";
 import Navbar from "../navbar.vue";
 import Footer from "../footer.vue";
 
-const route = useRoute();
-const albumId = route.params.id;
+export default {
+  components: { Navbar, Footer },
+  setup() {
+    const route = useRoute();
+    const albumId = route.params.id;
 
-const album = ref(null);
-const fotoList = ref([]);
-const selectedImage = ref(null);
+    const album = ref(null);
+    const fotoList = ref([]);
+    const selectedImage = ref(null);
 
-const getFotoUrl = (path) => {
-    if (!path) return '/src/assets/images/placeholder.png';
-    const cleanPath = path.replace(/\\/g, '/');
-    return `${import.meta.env.VITE_API_URL}/storage/${cleanPath}`;
-};
+    const getFotoUrl = (path) => {
+      if (!path) return '/src/assets/images/placeholder.png';
+      const cleanPath = path.replace(/\\/g, '/');
+      return `${import.meta.env.VITE_API_URL}/storage/${cleanPath}`;
+    };
 
-function showImage(foto) {
-    selectedImage.value = getFotoUrl(foto.path_foto);
-}
-
-function closeModal() {
-    selectedImage.value = null;
-}
-
-function handleKeyDown(event) {
-    if (event.key === "Escape") {
-        closeModal();
+    function showImage(foto) {
+      selectedImage.value = getFotoUrl(foto.path_foto);
     }
-}
 
-onMounted(async () => {
-    window.addEventListener("keydown", handleKeyDown);
-    try {
+    function closeModal() {
+      selectedImage.value = null;
+    }
+
+    function handleKeyDown(event) {
+      if (event.key === "Escape") {
+        closeModal();
+      }
+    }
+
+    onMounted(async () => {
+      window.addEventListener("keydown", handleKeyDown);
+      try {
         const albumRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/album/${albumId}`);
         album.value = albumRes.data.data;
 
         const fotoRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/album/${albumId}/foto`);
         fotoList.value = fotoRes.data.data;
-    } catch (error) {
+      } catch (error) {
         console.error("Error fetching data:", error);
-    }
-});
+      }
+    });
 
-onUnmounted(() => {
-    window.removeEventListener("keydown", handleKeyDown);
-});
-</script>  
+    onUnmounted(() => {
+      window.removeEventListener("keydown", handleKeyDown);
+    });
+
+    return {
+      album,
+      fotoList,
+      selectedImage,
+      getFotoUrl,
+      showImage,
+      closeModal
+    };
+  }
+};
+</script>
+
 
 <style scoped>
 .container {
