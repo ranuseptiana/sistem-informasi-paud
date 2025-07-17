@@ -61,11 +61,15 @@ export default {
         const selectedImage = ref(null);
 
         const getFotoUrl = (path) => {
-            if (!path) return new URL("@/assets/images/placeholder.png",
-                import.meta.url).href;
-            const cleanPath = path.replace(/\\/g, "/");
-            return `${import.meta.env.VITE_API_URL}/storage/${cleanPath}`;
+            if (!path) return new URL("@/assets/images/placeholder.png", import.meta.url).href;
+
+            if (path.startsWith("http")) {
+                return path;
+            }
+
+            return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
         };
+
 
         const showImage = (foto) => {
             selectedImage.value = getFotoUrl(foto.path_foto);
