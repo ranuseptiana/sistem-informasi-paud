@@ -102,5 +102,9 @@ html {
     text-align: left !important;
 }
 
-@media (min-width: 361px) and (max-width: 480px) {}
+@media (min-width: 361px) and (max-width: 480px) {
+    .table-auto {
+        overflow-x: auto;
+    }
+}
 </style>
