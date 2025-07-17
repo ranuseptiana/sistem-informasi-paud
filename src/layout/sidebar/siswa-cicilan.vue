@@ -233,6 +233,7 @@ export default {
 
 /* Gaya CSS Anda */
 .main-content {
+  margin-top: 3rem;
   padding: 20px;
 }
 

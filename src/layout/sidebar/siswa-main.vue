@@ -181,8 +181,6 @@
         }
       },
       handleOutsideClick(event) {
-        // Logika untuk menutup dropdown profil
-        // Gunakan ref untuk tombol dan konten dropdown profil
         if (this.$refs.profileDropdownBtn && this.$refs.profileDropdownContent &&
             !this.$refs.profileDropdownBtn.contains(event.target) &&
             !this.$refs.profileDropdownContent.contains(event.target)) {
@@ -270,6 +268,8 @@
   
   main {
     transition: margin-left 0.3s ease;
+    padding-top: 5rem; /* Beri padding atas agar tidak tertutup navbar */
+    min-height: calc(100vh - 5rem);
   }
   
   .navbar-brand {
@@ -285,7 +285,7 @@
     background-color: white;
     position: fixed;
     top: 0;
-    z-index: 1000;
+    z-index: 999999;
     box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.1);
   }
   
@@ -328,30 +328,33 @@
   }
   
   .sidebar {
-    background-color: rgb(255, 255, 255);
-    box-shadow: 0 10px 15px rgba(218, 218, 218, 0.5);
-    position: fixed;
-    top: 0;
-    bottom: 0;
-    left: 0;
-    padding-top: 5.5rem;
-    width: 240px;
-    z-index: 100;
-    transform: translateX(-100%);
-    transition: transform 0.3s ease;
-    overflow-y: auto;
-    display: flex;
-    flex-direction: column;
-  }
+  background-color: rgb(255, 255, 255);
+  box-shadow: 0 10px 15px rgba(218, 218, 218, 0.5);
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  padding-top: 5.5rem;
+  width: 240px;
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100vh; 
+}
+
+.sidebar-menu-container {
+  flex: 1;
+  display: flex;
+  overflow-y: auto; /* Aktifkan scroll jika konten panjang */
+  -webkit-overflow-scrolling: touch;
+  flex-direction: column;
+  height: 100%; 
+  justify-content: space-between; 
+}
   
-  /* Container untuk menu */
-  .sidebar-menu-container {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-  }
-  
-  /* Style dropdown yang benar */
   .w3-dropdown-content {
     display: block;
     position: relative;
@@ -565,16 +568,31 @@
     margin-right: 0.5rem;
   }
   
-  /* Responsive adjustments */
   @media (max-width: 991.98px) {
-    .navbar-toggler {
-      display: inline-block;
-    }
-  
-    .main-profile-icon {
-      display: none;
-    }
+  .sidebar {
+    padding-top: 4.5rem; /* Sesuaikan padding atas di mobile */
+    width: 75%; /* Lebar sidebar di mobile bisa lebih lebar */
   }
+  
+  .w3-bar-item,
+  .w3-bar-item-logout {
+    padding: 12px 16px; /* Padding lebih besar untuk mobile */
+    font-size: 18px; /* Ukuran font lebih besar */
+  }
+  
+  .w3-dropdown-content {
+    margin-left: 3rem; /* Jarak lebih besar untuk dropdown */
+  }
+  
+  .material-symbols-outlined {
+    margin-left: 1.5rem; /* Sesuaikan margin ikon */
+  }
+
+  main {
+    padding-top: 4rem; /* Sesuaikan untuk mobile */
+    min-height: calc(100vh - 4rem);
+  }
+}
   
   @media (min-width: 992px) {
     .navbar-toggler {
