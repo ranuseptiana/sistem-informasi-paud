@@ -865,4 +865,11 @@ label {
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
+
+@media (max-width: 768px) {
+    .table-wrapper,
+    .filter-section {
+        width: 25rem;
+    }
+}
 </style>

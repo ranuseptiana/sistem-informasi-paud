@@ -840,7 +840,6 @@ label {
     margin-bottom: 10px;
 }
 
-
 @media (max-width: 768px) {
   .filter-section {
     flex-direction: column;

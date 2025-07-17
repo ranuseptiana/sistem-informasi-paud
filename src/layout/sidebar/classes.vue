@@ -565,10 +565,12 @@ export default {
     margin-left: 0.5rem;
 }
 
+
 .filter-section {
+    align-items: center;
+    flex-wrap: wrap;
     display: flex;
     justify-content: space-between;
-    align-items: center;
     position: relative;
     width: 73rem;
     max-width: 150rem;
@@ -577,7 +579,7 @@ export default {
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .row-filter-wrapper {
@@ -614,14 +616,14 @@ export default {
 }
 
 .table-wrapper {
-    width: 100%;
-    max-width: 100rem;
+    width: 73rem;
+    max-width: 150rem;
     overflow-x: auto;
     background-color: white;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .table-hover>tbody>tr:hover {
@@ -937,5 +939,54 @@ label {
     z-index: 3;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
+}
+@media (max-width: 768px) {
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 40vh;
+  }
+
+  .row-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .export-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .filter {
+    width: 100%;
+  }
+
+  .tampil-baris {
+    width: 100%;
+  }
+
+  .search-bar-container {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filter-btn,
+  .btn {
+    width: 100%;
+  }
+
+  .table-wrapper {
+    width: 40vh;
+  }
 }
 </style>

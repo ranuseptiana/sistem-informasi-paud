@@ -430,4 +430,10 @@ export default {
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
+
+@media (max-width: 768px) {
+    .kotak-peserta {
+        width: 25rem;
+    }
+ }
 </style>

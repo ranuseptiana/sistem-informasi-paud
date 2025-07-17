@@ -2249,4 +2249,54 @@ select[disabled] {
         grid-template-columns: 1fr;
     }
 }
+
+@media (max-width: 768px) {
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 40vh;
+  }
+
+  .row-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .export-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .filter {
+    width: 100%;
+  }
+
+  .tampil-baris {
+    width: 100%;
+  }
+
+  .search-bar-container {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filter-btn,
+  .btn {
+    width: 100%;
+  }
+
+  .table-wrapper {
+    width: 40vh;
+  }
+}
 </style>

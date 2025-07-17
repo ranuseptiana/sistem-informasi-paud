@@ -280,6 +280,7 @@ main {
     left: 0;
     padding-top: 2.5rem;
     width: 240px;
+    height: 100%;
     z-index: 0;
     transform: translateX(-100%);
     transition: transform 0.3s ease;
