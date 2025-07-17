@@ -216,6 +216,9 @@ export default {
 </script>
 
 <style scoped>
+.content-header {
+  margin: 0;
+}
 .col {
     display: flex;
     margin-bottom: 0.3rem;
@@ -320,5 +323,12 @@ export default {
 
 .pagination {
     margin: 0;
+}
+
+@media (max-width: 768px) {
+    .table-wrapper,
+    .filter-section {
+        width: 25rem;
+    }
 }
 </style>

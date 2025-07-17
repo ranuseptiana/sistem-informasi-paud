@@ -166,6 +166,10 @@ export default {
 </script>
 
 <style scoped>
+.content-header {
+    margin-bottom: 1rem;
+}
+
 .info-list {
     display: flex;
     flex-direction: column;
@@ -265,5 +269,12 @@ export default {
 .btn-action:hover {
     background-color: #0056b3;
     border-color: #0056b3;
+}
+
+@media (max-width: 768px) {
+    .table-wrapper,
+    .filter-section {
+        width: 25rem;
+    }
 }
 </style>

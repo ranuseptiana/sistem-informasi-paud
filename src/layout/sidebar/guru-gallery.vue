@@ -648,6 +648,9 @@ export default {
 
 .popup-menu {
     position: absolute;
+    top: 100%;
+    transform: translateX(-30px);
+    left: 0;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     padding: 10px;

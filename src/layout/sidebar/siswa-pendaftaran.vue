@@ -168,6 +168,10 @@ export default {
 </script>
 
 <style scoped>
+.content-header {
+    margin-bottom: 1rem;
+}
+
 .info-list {
     display: flex;
     flex-direction: column;

@@ -1,5 +1,5 @@
 <template>
-<div class="container py-4">
+<div class="container">
     <div class="card mb-4">
         <div class="card-body text-center">
             <h1 class="h3 mb-2">
@@ -174,6 +174,9 @@ export default {
 </script>
 
 <style scoped>
+.container {
+    margin-top: 5rem;
+}
 .card {
     border-radius: 0.5rem;
     box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
