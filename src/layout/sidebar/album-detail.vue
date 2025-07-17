@@ -77,18 +77,18 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.pathFoto">Foto</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.caption">Caption</th>
+                        <th scope="col" class="table-head">Foto</th>
+                        <th scope="col" class="table-head">Caption</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(foto, index) in paginatedFotoList" :key="foto.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.pathFoto">
+                        <td>
                             <img :src="getFotoUrl(foto.path_foto)" alt="Foto Album" style="width: 100px; height: auto;" />
                         </td>
-                        <td v-if="selectedFilters.caption">{{ foto['caption'] }}</td>
+                        <td>{{ foto['caption'] }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -176,10 +176,6 @@ export default {
       albumName: '', 
       FotoList: [],
       isFilterPopupVisible: false,
-      selectedFilters: {
-        pathFoto: true,
-        caption: true,
-      },
       form: {
         id: null, 
         files: [], 
@@ -191,7 +187,6 @@ export default {
   },
     props: {
     foto: Object,
-    selectedFilters: Object
   },
   methods: {
     async fetchAlbumDetail() {
@@ -304,16 +299,18 @@ resetForm() {
       }
     },
     getFotoUrl(path) {
-        if (!path) {
-            return '/src/assets/images/placeholder.png';
-        }
+  if (!path) {
+    return new URL('@/assets/images/placeholder.png', import.meta.url).href;
+  }
 
-        if (path.startsWith("http")) {
-            return path;
-        }
+  // Jika path sudah lengkap
+  if (path.startsWith('http')) {
+    return path;
+  }
 
-        return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
-    },
+  // Hanya bagian ini perlu disesuaikan
+  return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
+},
     closeModal() {
       this.showModal = false;
       this.resetForm();
