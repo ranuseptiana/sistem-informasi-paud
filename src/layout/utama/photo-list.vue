@@ -1,9 +1,10 @@
 <template>
 <Navbar />
-<section>
+
+<section v-if="album">
     <div class="title">
-        <h3>{{ album?.nama_album }}</h3>
-        <p>{{ album?.deskripsi }}</p>
+        <h3>{{ album.nama_album }}</h3>
+        <p>{{ album.deskripsi }}</p>
     </div>
 </section>
 
@@ -20,6 +21,7 @@
         </div>
     </div>
 
+    <!-- Modal -->
     <div v-if="selectedImage" class="modal-overlay" @click.self="closeModal">
         <div class="modal-content">
             <button class="close-button" @click="closeModal">×</button>
@@ -27,75 +29,86 @@
         </div>
     </div>
 </div>
+
 <Footer />
 </template>
 
+  
 <script>
-import { ref, onMounted, onUnmounted } from "vue";
-import { useRoute } from "vue-router";
+import {
+    ref,
+    onMounted,
+    onUnmounted
+} from "vue";
+import {
+    useRoute
+} from "vue-router";
 import axios from "axios";
 import Navbar from "../navbar.vue";
 import Footer from "../footer.vue";
 
 export default {
-  components: { Navbar, Footer },
-  setup() {
-    const route = useRoute();
-    const albumId = route.params.id;
+    components: {
+        Navbar,
+        Footer
+    },
+    setup() {
+        const route = useRoute();
+        const albumId = route.params.id;
 
-    const album = ref(null);
-    const fotoList = ref([]);
-    const selectedImage = ref(null);
+        const album = ref(null);
+        const fotoList = ref([]);
+        const selectedImage = ref(null);
 
-    const getFotoUrl = (path) => {
-      if (!path) return '/src/assets/images/placeholder.png';
-      const cleanPath = path.replace(/\\/g, '/');
-      return `${import.meta.env.VITE_API_URL}/storage/${cleanPath}`;
-    };
+        const getFotoUrl = (path) => {
+            if (!path) return new URL("@/assets/images/placeholder.png",
+                import.meta.url).href;
+            const cleanPath = path.replace(/\\/g, "/");
+            return `${import.meta.env.VITE_API_URL}/storage/${cleanPath}`;
+        };
 
-    function showImage(foto) {
-      selectedImage.value = getFotoUrl(foto.path_foto);
-    }
+        const showImage = (foto) => {
+            selectedImage.value = getFotoUrl(foto.path_foto);
+        };
 
-    function closeModal() {
-      selectedImage.value = null;
-    }
+        const closeModal = () => {
+            selectedImage.value = null;
+        };
 
-    function handleKeyDown(event) {
-      if (event.key === "Escape") {
-        closeModal();
-      }
-    }
+        const handleKeyDown = (event) => {
+            if (event.key === "Escape") {
+                closeModal();
+            }
+        };
 
-    onMounted(async () => {
-      window.addEventListener("keydown", handleKeyDown);
-      try {
-        const albumRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/album/${albumId}`);
-        album.value = albumRes.data.data;
+        onMounted(async () => {
+            window.addEventListener("keydown", handleKeyDown);
+            try {
+                const albumRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/album/${albumId}`);
+                album.value = albumRes.data.data;
 
-        const fotoRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/album/${albumId}/foto`);
-        fotoList.value = fotoRes.data.data;
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    });
+                const fotoRes = await axios.get(`${import.meta.env.VITE_API_URL}/api/album/${albumId}/foto`);
+                fotoList.value = fotoRes.data.data;
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            }
+        });
 
-    onUnmounted(() => {
-      window.removeEventListener("keydown", handleKeyDown);
-    });
+        onUnmounted(() => {
+            window.removeEventListener("keydown", handleKeyDown);
+        });
 
-    return {
-      album,
-      fotoList,
-      selectedImage,
-      getFotoUrl,
-      showImage,
-      closeModal
-    };
-  }
+        return {
+            album,
+            fotoList,
+            selectedImage,
+            getFotoUrl,
+            showImage,
+            closeModal,
+        };
+    },
 };
-</script>
-
+</script>  
 
 <style scoped>
 .container {

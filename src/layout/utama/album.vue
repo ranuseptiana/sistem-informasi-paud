@@ -16,7 +16,9 @@
             <router-link :to="`/album/${album.id}`" class="album-link">
               <div class="album-cover-wrapper">
                 <img
-                :src="`${baseUrl}/storage/${album.photo_cover}`"
+                  :src="album.photo_cover.startsWith('http')
+                    ? album.photo_cover
+                    : `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${album.photo_cover}`"
                   alt="Cover Album"
                   class="album-cover"
                 />
