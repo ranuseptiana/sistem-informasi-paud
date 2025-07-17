@@ -111,6 +111,19 @@ html {
   min-width: 100%;
 }
 
+@media (max-width: 767px) {
+        .table-wrapper {
+            width: 100vw;
+            min-width: 0;
+            max-width: 100vw;
+            padding: 5px;
+            overflow-x: auto;
+        }
+        .data-table {
+            min-width: 600px;
+            width: 100%;
+        }
+}
 
 @media (min-width: 361px) and (max-width: 480px) {
     .table-wrapper {

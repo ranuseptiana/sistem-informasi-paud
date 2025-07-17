@@ -13,29 +13,29 @@
                  <div class="footer-column">
                      <h3>Tentang Kami</h3>
                      <ul>
-                         <li><a :href="frontendUrl + '/about'">Tentang PAUD Al-Ummah</a></li>
-                         <li><a :href="frontendUrl + '/about'">Visi dan Misi</a></li>
+                         <li><router-link to="/about">Tentang PAUD Al-Ummah</router-link></li>
+                         <li><router-link to="/about">Visi dan Misi</router-link></li>
                      </ul>
                  </div>
                  <div class="footer-column">
                      <h3>Informasi Kegiatan</h3>
                      <ul>
-                         <li><a :href="frontendUrl + '/album'">Galeri Kegiatan</a></li>
-                         <li><a :href="frontendUrl + '/agenda'">Agenda Kegiatan</a></li>
+                         <li><router-link to="/album">Galeri Kegiatan</router-link></li>
+                         <li><router-link to="/agenda">Agenda Kegiatan</router-link></li>
                      </ul>
                  </div>
                  <div class="footer-column">
                      <h3>Layanan</h3>
                      <ul>
-                         <li><a :href="frontendUrl + '/information'">FAQ</a></li>
+                         <li><router-link to="/information">FAQ</router-link></li>
                      </ul>
                  </div>
                  <div class="footer-column">
                      <h3>Akun Sosial Media</h3>
                      <ul>
-                         <li><a href="https://web.facebook.com/paud.alummah"><i class="fa-brands fa-facebook" style="margin-right: 0.5rem;"></i>PAUD Al Ummah</a></li>
-                         <li><a href="https://www.instagram.com/paud_alummah_dieng?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="><i class="fa-brands fa-instagram" style="margin-right: 0.5rem;"></i>paud_alummah_dieng</a></li>
-                         <li><a href="https://www.tiktok.com/@paud.al.ummahkb.a?_t=ZS-8wc41BoN333&_r=1"><i class="fa-brands fa-tiktok" style="margin-right: 0.5rem;"></i>Paud AL Ummah/KB Al Ummah</a></li>
+                         <li><a href="https://web.facebook.com/paud.alummah" target="_blank"><i class="fa-brands fa-facebook" style="margin-right: 0.5rem;"></i>PAUD Al Ummah</a></li>
+                         <li><a href="https://www.instagram.com/paud_alummah_dieng?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw==" target="_blank"><i class="fa-brands fa-instagram" style="margin-right: 0.5rem;"></i>paud_alummah_dieng</a></li>
+                         <li><a href="https://www.tiktok.com/@paud.al.ummahkb.a?_t=ZS-8wc41BoN333&_r=1" target="_blank"><i class="fa-brands fa-tiktok" style="margin-right: 0.5rem;"></i>Paud AL Ummah/KB Al Ummah</a></li>
                      </ul>
                  </div>
              </div>
@@ -46,13 +46,13 @@
              <p>&copy; 2024 PAUD AL UMMAH</p>
          </div>
      </footer>
- </template>
+</template>
 
 <script>
 export default {
   data() {
     return {
-      frontendUrl: import.meta.env.VITE_FRONTEND_URL.replace(/\/+$/, '') 
+
     };
   }
 };

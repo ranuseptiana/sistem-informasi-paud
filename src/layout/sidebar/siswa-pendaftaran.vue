@@ -155,7 +155,7 @@ export default {
         },
         getProofImageUrl(relativePath) {
             if (relativePath) {
-                return `${this.baseServerUrl}storage/${relativePath}`;
+                return `${this.baseServerUrl}/${relativePath}`;
             }
             return '';
         }

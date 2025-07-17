@@ -322,7 +322,6 @@ export default {
 };
 </script>
 
-    
 <style scoped>
 .modal-overlay {
     position: fixed;

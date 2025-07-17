@@ -402,6 +402,13 @@ resetForm() {
 </script>
     
 <style>
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 4rem;
+}
+
 .breadcrumb {
     margin-top: 3.5rem;
     margin-bottom: 1rem;
@@ -528,14 +535,14 @@ resetForm() {
 }
 
 .table-wrapper {
-    width: 100%;
-    max-width: 100rem;
+    width: 73rem;
+    max-width: 150rem;
     overflow-x: auto;
     background-color: white;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .table-hover>tbody>tr:hover {

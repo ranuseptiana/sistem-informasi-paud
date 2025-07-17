@@ -441,10 +441,28 @@ export default {
             this.$router.push(`/adminmainsidebar/cicilan/${id}`);
         },
         getBuktiPreviewUrl(path) {
-            return `${import.meta.env.VITE_API_URL}/storage/${path}`;
+            if (!path) {
+                return '/src/assets/images/placeholder.png';
+            }
+
+            if (path.startsWith("http")) {
+                return path;
+            }
+
+            return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
+            // return `${import.meta.env.VITE_API_URL}/storage/${path}`;
         },
         getBuktiUrl(path) {
-            return `${import.meta.env.VITE_API_URL}/storage/${path}`;
+            if (!path) {
+                return '/src/assets/images/placeholder.png';
+            }
+
+            if (path.startsWith("http")) {
+                return path;
+            }
+
+            return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
+            // return `${import.meta.env.VITE_API_URL}/storage/${path}`;
         },
         formatNominal(event) {
             let inputValue = event.target.value;

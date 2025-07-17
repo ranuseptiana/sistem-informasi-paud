@@ -1,101 +1,117 @@
 <template>
-    <div class="main-content children-friendly">
-      <div class="header-section">
-        <h1 class="class-title"><img src="/src/assets/class.png" alt="Class Icon" class="class-title-icon"> Kelas {{ kelasList.nama_kelas }}</h1>
-        <p class="teacher-info">
-          <img src="/src/assets/teacher.png" alt="" class="teacher-icon"> Guru Pengajar:
-          <strong>{{ waliKelas.nama_lengkap }}</strong>
-        </p>
-      </div>
-  
-      <div class="content-area">
-        <div class="students-overview-card">
-          <div class="card-header">
-            <h3>Daftar Teman di Kelas Ini</h3>
-            <div class="search-and-filter">
-              <div class="search-bar-container children-friendly-search">
-                <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari nama teman..." />
-                <i class="fas fa-search search-icon"></i>
-              </div>
-              <select v-model="rowsPerPage" class="select-rows children-friendly-select">
-                <option value="5">5</option>
-                <option value="10">10</option>
-                <option value="20">20</option>
-                <option value="100">Semua</option>
-              </select>
+  <div class="main-content">
+    <div class="header-section">
+      <h1 class="class-title"><img src="/src/assets/class.png" alt="Class Icon" class="class-title-icon"> Kelas {{ kelasList.nama_kelas }}</h1>
+      <p class="teacher-info">
+        <img src="/src/assets/teacher.png" alt="" class="teacher-icon"> Guru Pengajar:
+        <strong>{{ waliKelas.nama_lengkap }}</strong>
+      </p>
+    </div>
+
+    <div class="content-area">
+      <div class="students-table-container">
+        <div class="table-header">
+          <h3>Daftar Siswa di Kelas Ini</h3>
+          <div class="search-and-filter">
+            <div class="search-bar-container">
+              <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari nama siswa..." />
+              <i class="fas fa-search search-icon"></i>
             </div>
+            <select v-model="rowsPerPage" class="select-rows">
+              <option value="5">5</option>
+              <option value="10">10</option>
+              <option value="20">20</option>
+              <option value="100">Semua</option>
+            </select>
           </div>
-  
-          <hr class="colorful-hr" />
-  
-          <div v-if="paginatedSiswaList.length > 0" class="student-cards-grid">
-            <div
-              v-for="(siswa) in paginatedSiswaList"
-              :key="siswa.id"
-              :class="['student-card', { 'card-boy': siswa.jenis_kelamin === 'Laki-laki', 'card-girl': siswa.jenis_kelamin === 'Perempuan' }]"
-            >
-              <div class="card-avatar">
-                <img src="/src/assets/kid.png" alt="boy" v-if="siswa.jenis_kelamin === 'Laki-laki'" class="boy-icon">
-                <img src="/src/assets/girl.png" alt="girl" v-else class="girl-icon">
-              </div>
-              <div class="card-info">
-                <p class="student-name">{{ siswa.nama_siswa }}</p>
-                <span class="student-nis">NISN: {{ siswa.nisn }}</span>
-                <span class="student-gender">{{ siswa.jenis_kelamin }}</span>
-              </div>
-            </div>
-          </div>
-          <div v-else class="no-data-message">
-            <p>Wah, belum ada teman di kelas ini. Ajak teman-teman lain yuk!</p>
-            <img src="/src/assets/images/no-data.svg" alt="Tidak Ada Data" class="empty-state-image" />
-          </div>
-  
-          <div class="pagination-section">
-            <p class="page-info children-friendly-page-info">{{ pageInfo }}</p>
-            <nav aria-label="Page navigation" class="pagination-nav">
-              <ul class="pagination children-friendly-pagination">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                  <button class="page-link colorful-button" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
-                    <span aria-hidden="true">◀️</span>
-                  </button>
-                </li>
-  
-                <li class="page-item" :class="{ active: currentPage === 1 }">
-                  <button class="page-link colorful-button" @click="changePage(1)">1</button>
-                </li>
-  
-                <li v-if="showLeftEllipsis" class="page-item disabled">
-                  <span class="page-link colorful-button">...</span>
-                </li>
-  
-                <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                  <button class="page-link colorful-button" @click="changePage(page)">
-                    {{ page }}
-                  </button>
-                </li>
-  
-                <li v-if="showRightEllipsis" class="page-item disabled">
-                  <span class="page-link colorful-button">...</span>
-                </li>
-  
-                <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
-                  <button class="page-link colorful-button" @click="changePage(totalPages)">
-                    {{ totalPages }}
-                  </button>
-                </li>
-  
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                  <button class="page-link colorful-button" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
-                    <span aria-hidden="true">▶️</span>
-                  </button>
-                </li>
+        </div>
+
+        <hr class="colorful-hr" />
+
+        <div class="table-responsive">
+          <table class="students-table">
+            <thead>
+              <tr>
+                <th>No</th>
+                <th>Nama Siswa</th>
+                <th>NISN</th>
+                <th>Jenis Kelamin</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-if="paginatedSiswaList.length === 0">
+                <td colspan="4" class="no-data">
+                  <p>Tidak ada siswa didalam kelas ini.</p>
+                  <img src="/src/assets/images/no-data.svg" alt="Tidak Ada Data" class="empty-state-image" />
+                </td>
+              </tr>
+              <tr 
+                v-for="(siswa, index) in paginatedSiswaList" 
+                :key="siswa.id"
+                :class="['student-row', siswa.jenis_kelamin === 'Laki-laki' ? 'boy-row' : 'girl-row']"
+              >
+                <td>{{ (currentPage - 1) * rowsPerPage + index + 1 }}</td>
+                <td class="student-name-cell">
+                  <img 
+                    :src="siswa.jenis_kelamin === 'Laki-laki' ? '/src/assets/kid.png' : '/src/assets/girl.png'" 
+                    :alt="siswa.jenis_kelamin" 
+                    class="student-icon"
+                  >
+                  {{ siswa.nama_siswa }}
+                </td>
+                <td>{{ siswa.nisn }}</td>
+                <td>{{ siswa.jenis_kelamin }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="pagination-section">
+          <p class="page-info">{{ pageInfo }}</p>
+          <nav aria-label="Page navigation" class="pagination-nav">
+              <ul class="pagination">
+                  <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                      <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
+                          <span aria-hidden="true">&laquo;</span>
+                      </button>
+                  </li>
+
+                  <li class="page-item" :class="{ active: currentPage === 1 }">
+                      <button class="page-link" @click="changePage(1)">1</button>
+                  </li>
+
+                  <li v-if="showLeftEllipsis" class="page-item disabled">
+                      <span class="page-link">...</span>
+                  </li>
+
+                  <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                      <button class="page-link" @click="changePage(page)">
+                          {{ page }}
+                      </button>
+                  </li>
+
+                  <li v-if="showRightEllipsis" class="page-item disabled">
+                      <span class="page-link">...</span>
+                  </li>
+
+                  <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                      <button class="page-link" @click="changePage(totalPages)">
+                          {{ totalPages }}
+                      </button>
+                  </li>
+
+                  <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                      <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
+                          <span aria-hidden="true">&raquo;</span>
+                      </button>
+                  </li>
               </ul>
-            </nav>
-          </div>
+          </nav>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
 
 <script>
 import axios from "axios";
@@ -115,7 +131,7 @@ export default {
     };
   },
   mounted() {
-    const idSiswa = localStorage.getItem("user_id"); // Atau "id_siswa"
+    const idSiswa = localStorage.getItem("user_id"); 
     if (idSiswa) {
       this.fetchKelasBySiswaId(idSiswa);
     } else {
@@ -123,11 +139,6 @@ export default {
     }
   },
   methods: {
-    // Metode login tidak perlu diubah di sini, karena ini halaman kelas
-    async login() {
-      // ... (kode login yang sudah ada)
-    },
-
     async fetchKelasBySiswaId(id) {
       try {
         const response = await axios.get(`/siswa/${id}/kelas`);
@@ -145,14 +156,9 @@ export default {
         this.currentPage = page;
       }
     },
-
-    toggleDropdown(index) {
-      this.dropdownIndex = this.dropdownIndex === index ? null : index;
-    },
   },
   computed: {
     filteredSiswa() {
-      // Perhatikan, jika Anda ingin menyaring berdasarkan jenis kelamin juga, tambahkan ke sini
       return this.siswaList.filter((siswa) =>
         siswa.nama_siswa.toLowerCase().includes(this.searchQuery.toLowerCase())
       );
@@ -186,30 +192,26 @@ export default {
       return this.filteredSiswa.slice(start, start + this.rowsPerPage);
     },
     totalPages() {
-      return Math.ceil(this.filteredSiswa.length / this.rowsPerPage); // Gunakan filteredSiswa untuk totalPages
+      return Math.ceil(this.filteredSiswa.length / this.rowsPerPage);
     },
     pageInfo() {
       if (this.filteredSiswa.length === 0) {
-        return 'Tidak ada teman di kelas ini.';
+        return 'Tidak ada siswa di kelas ini.';
       }
       const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
       const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredSiswa.length);
-      return `Menampilkan ${startRow} - ${endRow} dari ${this.filteredSiswa.length} teman`;
+      return `Menampilkan ${startRow} - ${endRow} dari ${this.filteredSiswa.length} siswa`;
     },
   },
 };
 </script>
 
 <style scoped>
-.main-content.children-friendly {
+.main-content {
   padding: 30px;
-  width: 67rem;
   margin-top: 8rem;
-  background: linear-gradient(to bottom right, var(--background-light), #f1f1f1); /* Gradasi background yang lembut */
-  min-height: calc(100vh - var(--navbar-height, 60px)); /* Sesuaikan tinggi agar mengisi layar */
-  border-radius: 15px; /* Sudut membulat pada konten utama */
-  overflow: hidden; /* Penting untuk mencegah shadow terpotong */
-  font-family: 'Poppins', sans-serif; /* Gunakan font yang friendly, misal Poppins dari Google Fonts */
+  background-color: #fff;
+  min-height: calc(100vh - var(--navbar-height, 60px));
 }
 
 /* Header Section */
@@ -235,16 +237,16 @@ export default {
   margin-bottom: 10px;
   animation: bounceIn 0.8s ease-out;
   letter-spacing: 1.5px;
-  display: flex; /* Tambahkan ini agar ikon dan teks sejajar */
-  align-items: center; /* Sejajarkan ikon dan teks secara vertikal */
-  gap: 15px; /* Jarak antara ikon dan teks judul */
+  display: flex;
+  align-items: center;
+  gap: 15px;
 }
 
-.class-title-icon { /* Beri class khusus untuk ikon ini di HTML */
-  height: 3.2rem; /* Atur tinggi ikon agar sama dengan font-size judul */
-  width: auto; /* Biarkan lebar mengikuti rasio aspek */
-  vertical-align: middle; /* Membantu perataan vertikal */
-  object-fit: contain; /* Memastikan gambar tidak terpotong */
+.class-title-icon {
+  height: 3.2rem;
+  width: auto;
+  vertical-align: middle;
+  object-fit: contain;
 }
 
 .teacher-info {
@@ -252,28 +254,25 @@ export default {
   color: var(--text-dark);
   font-weight: 400;
   display: flex;
-  align-items: center; /* Penting untuk menyelaraskan ikon dengan teks */
+  align-items: center;
   gap: 12px;
 }
 
-/* Gaya untuk ikon guru */
 .teacher-icon {
-  /* Hapus width: 5%; height: 5%; */
-  height: 2em; /* Atur tinggi ikon relatif terhadap font-size parent-nya (teacher-info) */
-  width: auto; /* Biarkan lebar mengikuti rasio aspek */
-  vertical-align: middle; /* Membantu perataan vertikal dengan teks */
-  object-fit: contain; /* Memastikan gambar tidak terpotong */
-  /* align-items: center; <-- Hapus ini, karena ini properti flex container, bukan item */
+  height: 2em;
+  width: auto;
+  vertical-align: middle;
+  object-fit: contain;
 }
 
 /* Content Area */
 .content-area {
   display: flex;
   flex-direction: column;
-  gap: 25px; /* Jarak antar bagian konten */
+  gap: 25px;
 }
 
-.students-overview-card {
+.students-table-container {
   background-color: white;
   padding: 30px;
   border-radius: 20px;
@@ -282,17 +281,17 @@ export default {
   z-index: 1;
 }
 
-.card-header {
+.table-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   flex-wrap: wrap;
-  gap: 20px; /* Jarak antar elemen header */
+  gap: 20px;
   margin-bottom: 25px;
 }
 
-.card-header h3 {
-  font-size: 2rem; /* Ukuran judul daftar teman */
+.table-header h3 {
+  font-size: 2rem;
   color: var(--secondary-blue);
   font-weight: 700;
   text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.05);
@@ -304,40 +303,43 @@ export default {
   align-items: center;
 }
 
-.children-friendly-search {
-  background-color: #f7f7f7; /* Background search bar */
-  border: 2px solid var(--light-blue); /* Border dengan warna yang lebih terang */
-  border-radius: 15px; /* Lebih bulat lagi */
-  padding: 8px 15px; /* Padding lebih proporsional */
+.search-bar-container {
+  background-color: #f7f7f7;
+  border: 2px solid var(--light-blue);
+  border-radius: 15px;
+  padding: 8px 15px;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
 }
 
-.children-friendly-search:focus-within {
+.search-bar-container:focus-within {
   border-color: var(--secondary-blue);
-  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.25); /* Glow saat fokus */
+  box-shadow: 0 0 0 4px rgba(33, 150, 243, 0.25);
 }
 
-.children-friendly-search .search-input {
+.search-input {
   border: none;
   outline: none;
-  background-color: transparent; /* Background transparan */
-  width: 14rem; /* Ukuran sedikit lebih kecil untuk simpel */
+  background-color: transparent;
+  width: 14rem;
   font-size: 1.05rem;
   color: var(--text-dark);
 }
 
-.children-friendly-search .search-input::placeholder {
+.search-input::placeholder {
   color: #aaaaaa;
   font-weight: 400;
 }
 
-.children-friendly-search .search-icon {
+.search-icon {
   color: var(--secondary-blue);
-  font-size: 1.3rem; /* Ukuran ikon pencarian */
+  font-size: 1.3rem;
+  margin-left: 8px;
 }
 
-.children-friendly-select {
+.select-rows {
   border-radius: 15px;
   padding: 8px 15px;
   border: 2px solid var(--light-green);
@@ -347,139 +349,105 @@ export default {
   cursor: pointer;
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
   transition: all 0.3s ease;
-  appearance: none; /* Menghilangkan default arrow */
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); /* Custom arrow */
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23ffffff'%3E%3Cpath d='M7 10l5 5 5-5z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 3px center;
   background-size: 1.2em;
 }
 
-.children-friendly-select:hover {
+.select-rows:hover {
   background-color: var(--primary-green);
   box-shadow: 0 5px 10px rgba(0, 0, 0, 0.15);
 }
 
 .colorful-hr {
   border: none;
-  border-top: 4px dotted var(--accent-yellow); /* Garis putus-putus yang lebih tebal dan jelas */
-  margin: 35px 0; /* Jarak lebih luas */
+  border-top: 4px dotted var(--accent-yellow);
+  margin: 35px 0;
 }
 
-/* Grid Kartu Siswa - Tidak ada perubahan besar di sini, karena ini mengatur grid keseluruhan */
-.student-cards-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); /* Mungkin perlu sedikit dilebarkan agar ada ruang */
-  gap: 30px;
+/* Table Styles */
+.table-responsive {
+  overflow-x: auto;
+}
+
+.students-table {
+  width: 100%;
+  border-collapse: collapse;
   margin-top: 20px;
 }
 
-.student-card {
-  background-color: white;
-  border-radius: 25px;
-  padding: 25px;
-  /* >>> PERUBAHAN PENTING DI SINI <<< */
-  display: flex; /* Mengaktifkan Flexbox */
-  flex-direction: row; /* Mengatur item agar sejajar horizontal (ikon dan info) */
-  align-items: center; /* Mengatur item secara vertikal di tengah */
-  text-align: left; /* Mengatur teks ke kiri, karena info di sebelah kanan ikon */
-  gap: 20px; /* Jarak antara ikon dan informasi siswa */
-  /* <<< AKHIR PERUBAHAN PENTING >>> */
-  box-shadow: 0 10px 25px var(--card-shadow);
-  transition: all 0.3s ease-in-out;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
-  border: 3px solid transparent;
+.students-table th {
+  background-color: var(--primary-green);
+  color: white;
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
 }
 
-.student-card:hover {
-  transform: translateY(-10px) scale(1.05);
-  box-shadow: 0 15px 35px var(--card-shadow);
+.students-table th:first-child {
+  border-top-left-radius: 15px;
 }
 
-/* Warna dan border khusus untuk kartu siswa */
-/* (Tidak ada perubahan di sini kecuali Anda ingin menyesuaikan padding/margin setelah layout berubah) */
-.student-card.card-boy {
-  background-color: var(--light-blue);
-  box-shadow: 0 10px 25px var(--colorful-shadow-boy); /* Tambahkan border yang hilang */
+.students-table th:last-child {
+  border-top-right-radius: 15px;
 }
 
-.student-card.card-boy:hover {
-  box-shadow: 0 15px 35px var(--colorful-shadow-boy);
+.students-table td {
+  padding: 15px;
+  border-bottom: 1px solid #eee;
+  vertical-align: middle;
 }
 
-.student-card.card-girl {
-  background-color: var(--light-pink);
-  box-shadow: 0 10px 25px var(--colorful-shadow-girl); /* Tambahkan border yang hilang */
+.students-table tr:last-child td {
+  border-bottom: none;
 }
 
-.student-card.card-girl:hover {
-  box-shadow: 0 15px 35px var(--colorful-shadow-girl);
+.students-table tr:hover {
+  background-color: #f9f9f9;
 }
 
-.card-avatar {
-  padding: 0;
-  width: 90px; /* Ukuran tetap untuk lingkaran */
-  height: 90px; /* Ukuran tetap untuk lingkaran */
-  /* margin-bottom: 20px; <-- Hapus atau ubah ini, karena sekarang sejajar horizontal */
+.student-row.boy-row {
+  background-color: rgba(173, 216, 230, 0.1);
+}
+
+.student-row.girl-row {
+  background-color: rgba(255, 182, 193, 0.1);
+}
+
+.student-row.boy-row:hover {
+  background-color: rgba(173, 216, 230, 0.3);
+}
+
+.student-row.girl-row:hover {
+  background-color: rgba(255, 182, 193, 0.3);
+}
+
+.student-name-cell {
   display: flex;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  flex-shrink: 0; /* Penting: Mencegah avatar menyusut jika ada ruang terbatas */
+  gap: 10px;
 }
 
-.card-avatar img {
-  display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain; /* Pertahankan ini agar gambar tidak terdistorsi */ /* Membuat gambar itu sendiri bulat */
+.student-icon {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
 }
 
-.card-info {
-  /* >>> PERUBAHAN PENTING DI SINI <<< */
-  display: flex;
-  flex-direction: column; /* Biarkan teks di dalam card-info tetap menumpuk vertikal */
-  align-items: flex-start; /* Sejajarkan teks ke kiri */
-  /* Hapus text-align: center dari .student-card jika Anda ingin text-align: left di sini */
-  /* margin-left: 20px; <-- Jika menggunakan gap pada .student-card, ini tidak lagi diperlukan */
-  flex-grow: 1; /* Memungkinkan info mengambil sisa ruang yang tersedia */
-  /* <<< AKHIR PERUBAHAN PENTING >>> */
-}
-
-.card-info .student-name {
-  font-size: 1.6rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 8px;
-  line-height: 1.2;
-}
-
-.card-info .student-nis,
-.card-info .student-gender {
-  font-size: 1rem;
-  color: #555;
-  display: block; /* Pastikan tetap block agar menumpuk */
-  margin-bottom: 3px;
-}
-
-/* No Data Message */
-.no-data-message {
+.no-data {
   text-align: center;
-  padding: 60px;
+  padding: 40px;
   color: #777;
-  font-size: 1.3rem; /* Lebih besar */
+  font-size: 1.3rem;
   font-weight: 500;
-  background-color: #fcfcfc;
-  border-radius: 15px;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
 }
 
 .empty-state-image {
-  max-width: 250px; /* Ukuran gambar lebih besar */
-  margin-top: 30px;
+  max-width: 250px;
+  margin-top: 20px;
   opacity: 0.8;
-  filter: drop-shadow(3px 3px 5px rgba(0,0,0,0.1)); /* Efek bayangan pada SVG */
 }
 
 /* Pagination */
@@ -487,44 +455,52 @@ export default {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-top: 50px; /* Jarak lebih jauh dari konten */
+  margin-top: 30px;
   flex-wrap: wrap;
-  gap: 20px; /* Jarak antar elemen pagination */
+  gap: 20px;
 }
 
-.children-friendly-page-info {
-  font-size: 1.2rem; /* Ukuran info halaman */
+.page-info {
+  font-size: 1.2rem;
   color: var(--text-dark);
   font-weight: 600;
 }
 
-.children-friendly-pagination .page-item {
-  margin: 0 4px; /* Jarak antar tombol sedikit dirapatkan */
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
-.children-friendly-pagination .colorful-button {
+.page-item {
+  margin: 0 4px;
+}
+
+.page-link {
   background-color: var(--light-green);
-  border: 2px solid var(--primary-green); /* Border lebih tebal */
+  border: 2px solid var(--primary-green);
   color: var(--text-light);
-  border-radius: 12px; /* Lebih membulat */
-  padding: 10px 18px; /* Padding lebih besar */
-  font-size: 1.2rem; /* Ukuran font tombol */
+  border-radius: 12px;
+  padding: 10px 18px;
+  font-size: 1.2rem;
   font-weight: 700;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15); /* Bayangan tombol */
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
   transition: all 0.2s ease;
-  display: inline-flex; /* Untuk senter ikon/teks */
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-width: 45px; /* Lebar minimum untuk tombol */
+  min-width: 45px;
+  cursor: pointer;
 }
 
-.children-friendly-pagination .colorful-button:hover:not(:disabled) {
+.page-link:hover:not(:disabled) {
   background-color: var(--primary-green);
-  transform: translateY(-3px); /* Efek hover lebih kuat */
+  transform: translateY(-3px);
   box-shadow: 0 7px 15px rgba(0, 0, 0, 0.25);
 }
 
-.children-friendly-pagination .page-item.active .colorful-button {
+.page-item.active .page-link {
   background-color: var(--primary-green);
   border-color: var(--primary-green);
   color: var(--text-light);
@@ -532,8 +508,8 @@ export default {
   box-shadow: 0 7px 15px rgba(0, 0, 0, 0.25);
 }
 
-.children-friendly-pagination .page-item.disabled .colorful-button {
-  background-color: #e0e0e0; /* Warna lebih abu-abu */
+.page-item.disabled .page-link {
+  background-color: #e0e0e0;
   border-color: #ccc;
   color: #a0a0a0;
   cursor: not-allowed;
@@ -541,7 +517,7 @@ export default {
   box-shadow: none;
 }
 
-/* Animasi */
+/* Animations */
 @keyframes bounceIn {
   0% {
     opacity: 0;
@@ -560,86 +536,90 @@ export default {
   }
 }
 
-/* Media Queries untuk Responsif */
+/* Responsive Styles */
 @media (max-width: 768px) {
-  .main-content.children-friendly {
+  .main-content {
     padding: 20px;
   }
+  
   .header-section {
-    padding: 20px 20px;
+    padding: 20px;
   }
+  
   .class-title {
     font-size: 2.5rem;
   }
+  
   .teacher-info {
     font-size: 1.1rem;
   }
-  .students-overview-card {
+  
+  .students-table-container {
     padding: 20px;
   }
-  .card-header {
+  
+  .table-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 10px;
   }
-  .card-header h3 {
+  
+  .table-header h3 {
     font-size: 1.7rem;
   }
+  
   .search-and-filter {
     width: 100%;
     flex-direction: column;
     align-items: stretch;
     gap: 10px;
   }
-  .children-friendly-search .search-input {
+  
+  .search-input {
     width: 100%;
     font-size: 0.95rem;
   }
-  .children-friendly-select {
+  
+  .select-rows {
     width: 100%;
     font-size: 0.95rem;
   }
+  
   .colorful-hr {
     margin: 25px 0;
   }
-  .student-cards-grid {
-    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); /* Lebih kecil untuk mobile */
-    gap: 20px;
-  }
-  .student-card {
-    padding: 20px;
-    border-radius: 20px;
-  }
-  .card-avatar {
-    padding: 15px;
-    margin-bottom: 15px;
-  }
-  .boy-icon, .girl-icon {
-    font-size: 3rem;
-  }
-  .card-info .student-name {
-    font-size: 1.3rem;
-  }
-  .card-info .student-nis,
-  .card-info .student-gender {
+  
+  .students-table th, 
+  .students-table td {
+    padding: 10px;
     font-size: 0.9rem;
   }
-  .no-data-message {
-    padding: 40px;
+  
+  .student-icon {
+    width: 25px;
+    height: 25px;
+  }
+  
+  .no-data {
+    padding: 30px;
     font-size: 1.1rem;
   }
+  
   .empty-state-image {
     max-width: 200px;
   }
+  
   .pagination-section {
-    margin-top: 30px;
+    margin-top: 20px;
     flex-direction: column;
     gap: 10px;
   }
-  .children-friendly-page-info {
+  
+  .page-info {
     font-size: 1rem;
   }
-  .children-friendly-pagination .colorful-button {
+  
+  .page-link {
     padding: 8px 15px;
     font-size: 1.05rem;
   }

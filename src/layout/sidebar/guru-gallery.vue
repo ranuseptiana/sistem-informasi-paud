@@ -345,11 +345,15 @@ export default {
                 });
         },
         getCoverAlbumUrl(path) {
-            // Helper untuk mendapatkan URL gambar cover
-            if (path) {
-                return `${import.meta.env.VITE_API_URL}/storage/${path}`;
+            if (!path) {
+                return '/src/assets/images/placeholder.png';
             }
-            return '/src/assets/images/placeholder.png'; 
+
+            if (path.startsWith("http")) {
+                return path;
+            }
+
+            return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
         },
         changePage(page) {
             if (page > 0 && page <= this.totalPages) {

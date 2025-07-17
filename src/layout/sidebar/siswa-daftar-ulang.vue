@@ -152,7 +152,7 @@ export default {
         },
         getProofImageUrl(relativePath) {
             if (relativePath) {
-                return `${import.meta.env.VITE_API_URL}/storage/${relativePath}`;
+                return `${import.meta.env.VITE_API_URL}/${relativePath}`;
             }
             return '';
         }

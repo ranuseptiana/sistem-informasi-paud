@@ -305,10 +305,15 @@ resetForm() {
     },
 
     getFotoUrl(path) {
-      if (path) {
-        return `${import.meta.env.VITE_API_URL}/storage/${path}`;
-      }
-      return '/src/assets/images/placeholder.png'; 
+        if (!path) {
+                return '/src/assets/images/placeholder.png';
+            }
+
+            if (path.startsWith("http")) {
+                return path;
+            }
+
+            return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
     },
     closeModal() {
       this.showModal = false;

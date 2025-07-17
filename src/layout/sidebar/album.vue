@@ -170,12 +170,8 @@
 </div>
 </template>
 
-  
 <script>
-import jsPDF from "jspdf";
-import "jspdf-autotable";
 import Swal from "sweetalert2";
-import Papa from "papaparse";
 import axios from 'axios';
 import {
     ref,
@@ -617,14 +613,14 @@ export default {
 }
 
 .table-wrapper {
-    width: 100%;
-    max-width: 100rem;
+    width: 73rem;
+    max-width: 150rem;
     overflow-x: auto;
     background-color: white;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
 }
 
 .table-hover>tbody>tr:hover {

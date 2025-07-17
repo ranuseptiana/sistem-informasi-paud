@@ -69,6 +69,9 @@
                 <input type="text" class="input-login" placeholder="Username" v-model="username" />
                 <div class="password-wrapper">
                     <input :type="passwordFieldType" class="input-login" placeholder="Password" v-model="password" />
+                    <span class="password-toggle-icon" @click="togglePasswordVisibility">
+                        <i :class="passwordFieldIcon"></i>
+                  </span>
                 </div>
     
                 <button type="button" class="login-button-2" @click="navigateToDashboard">Login</button>
@@ -446,16 +449,41 @@
         border-radius: 10px;
         margin-top: 0.5rem;
         padding-left: 2rem;
+        padding-right: 40px !important; 
         -webkit-user-select: text;
         user-select: text;
         -webkit-tap-highlight-color: transparent;
     }
-    
+
+    .input-login[type="password"],
+    .input-login[type="text"] {
+        padding-right: 40px !important;
+        width: 100%;
+    }
+   
     .password-wrapper {
         position: relative;
+        width: 100%;
         margin-bottom: 1rem;
     }
-    
+
+    .password-toggle-icon {
+        position: absolute;
+        right: 20px;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        cursor: pointer;
+        color: #6c757d;
+        background: none;
+        border: none;
+        padding: 0;
+    }
+
+    .password-toggle-icon:hover {
+        color: #336C2A;
+    }
+
     .login-button-2 {
         color: #336C2A;
         font-weight: 600;
