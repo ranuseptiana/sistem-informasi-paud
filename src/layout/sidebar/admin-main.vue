@@ -16,52 +16,51 @@
             <div class="collapse navbar-collapse" id="navbarContent">
                 <!-- navbar links -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-menu">
-                    <router-link to="/adminmainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
+                    <router-link to="/adminmainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard'); collapseNavbar()">
                         Beranda
                     </router-link>
-                    <router-link to="/adminmainsidebar/student" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'student' }" @click="setActive('student')">
+                    <router-link to="/adminmainsidebar/student" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'student' }" @click="setActive('student'); collapseNavbar()">
                         Siswa
                     </router-link>
-                    <router-link to="/adminmainsidebar/parents" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'parents' }" @click="setActive('parents')">
+                    <router-link to="/adminmainsidebar/parents" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'parents' }" @click="setActive('parents'); collapseNavbar()">
                         Orangtua
                     </router-link>
-                    <router-link to="/adminmainsidebar/teachers" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'teacher' }" @click="setActive('teacher')">
+                    <router-link to="/adminmainsidebar/teachers" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'teacher' }" @click="setActive('teacher'); collapseNavbar()">
                         Guru
                     </router-link>
-                    <router-link to="/adminmainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
+                    <router-link to="/adminmainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class'); collapseNavbar()">
                         Kelas
                     </router-link>
-                    <router-link to="/adminmainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition')">
+                    <router-link to="/adminmainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition'); collapseNavbar()">
                         Pembayaran
                     </router-link>
-                    <router-link to="/adminmainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery')">
+                    <router-link to="/adminmainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery'); collapseNavbar()">
                         Galeri
                     </router-link>
-                    <router-link to="/adminmainsidebar/activity" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'activity' }" @click="setActive('activity')">
+                    <router-link to="/adminmainsidebar/activity" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'activity' }" @click="setActive('activity'); collapseNavbar()">
                         Agenda
                     </router-link>
                 </ul>
                 <!-- Profile icon -->
                 <!-- Profile icon -->
-<div class="navbar-nav ms-auto profile-nav">
-  <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleDropdown">
-    <i class="fas fa-user-circle"></i>
-  </a>
-  <!-- Popup dropdown -->
-  <div v-if="isDropdownVisible" class="profile-dropdown">
-    <ul>
-      <span class="dropdown-item-text">
-        <i class="fa-regular fa-user"></i>{{ userName || 'Admin 1' }}
-      </span>
-      <li>
-        <a href="#" class="dropdown-item" :class="{ active: activeMenu === 'logout' }" @click.prevent="logout" style="color: red; text-decoration: none;">
-          <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
-        </a>
-      </li>
-    </ul>
-  </div>
-</div>
-
+                <div class="navbar-nav ms-auto profile-nav">
+                    <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleDropdown">
+                        <i class="fas fa-user-circle"></i>
+                    </a>
+                    <!-- Popup dropdown -->
+                    <div v-if="isDropdownVisible" class="profile-dropdown">
+                        <ul>
+                            <span class="dropdown-item-text">
+                                <i class="fa-regular fa-user"></i>{{ userName || 'Admin 1' }}
+                            </span>
+                            <li>
+                                <a href="#" class="dropdown-item" :class="{ active: activeMenu === 'logout' }" @click.prevent="logout" style="color: red; text-decoration: none;">
+                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
     </nav>
@@ -84,13 +83,20 @@ export default {
             userName: "",
             username: "",
             password: "",
-            isDropdownVisible: false, // Kontrol visibilitas dropdown
+            isDropdownVisible: false,
         };
     },
-    created() { 
+    created() {
         this.fetchUserData();
     },
     methods: {
+        collapseNavbar() {
+            const navbarCollapse = document.getElementById("navbarContent");
+            const bsCollapse = window.bootstrap.Collapse.getInstance(navbarCollapse);
+            if (bsCollapse) {
+                bsCollapse.hide();
+            }
+        },
         async login() {
             try {
                 const response = await axios.post("/auth/login", {
@@ -107,7 +113,7 @@ export default {
         },
 
         async fetchUserData() {
-            try { 
+            try {
                 const token = localStorage.getItem('token');
 
                 if (!token) {
@@ -179,7 +185,7 @@ export default {
                             });
                         }
                         localStorage.removeItem('token');
-                        
+
                         this.$router.push('/');
                     } catch (error) {
                         console.error('Error during logout:', error);
@@ -251,8 +257,7 @@ main {
     gap: 15px;
 }
 
-.navbar-nav
-.profile-nav {
+.navbar-nav .profile-nav {
     display: flex;
     align-items: center;
     position: relative;
@@ -402,15 +407,20 @@ main {
     .navbar-brand {
         margin-left: 1rem;
     }
+
     .main-logo {
-        height: 30px; /* Lebih kecil untuk HP */
+        height: 30px;
+        /* Lebih kecil untuk HP */
     }
+
     .main-brand-text {
         font-size: 1rem;
     }
+
     .profile-link {
         margin-right: 1rem;
     }
+
     .navbar-collapse {
         flex-direction: column;
     }
@@ -454,14 +464,16 @@ main {
     .navbar-collapse {
         width: 100%;
     }
+
     .nav-menu {
         flex-direction: column;
         margin-left: 0;
         text-align: center;
         gap: 10px;
     }
+
     .navbar-nav {
         margin-right: 0;
     }
- }
+}
 </style>

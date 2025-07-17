@@ -70,7 +70,6 @@ export default {
             return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
         };
 
-
         const showImage = (foto) => {
             selectedImage.value = getFotoUrl(foto.path_foto);
         };

@@ -9,27 +9,28 @@
     </div>
 </section>
 <div class="container mx-auto p-4">
-    <!-- Table Section -->
-    <table class="w-full table-auto border-collapse border border-gray-300">
-        <thead class="bg-green-100 text-green-800">
-            <tr>
-                <th class="border border-gray-300 px-4 py-2">No</th>
-                <th class="border border-gray-300 px-4 py-2">Nama Kegiatan</th>
-        <th class="border border-gray-300 px-4 py-2">Kategori</th>
-        <th class="border border-gray-300 px-4 py-2">Perkiraan Waktu</th>
-        <th class="border border-gray-300 px-4 py-2">Keterangan</th>
-            </tr>
-        </thead>
-        <tbody>
-            <tr v-for="(agenda, index) in agendaList" :key="agenda.id">
-                <td class="border border-gray-300 px-4 py-2 text-center">{{ index + 1 }}</td>
-                <td class="border border-gray-300 px-4 py-2">{{ agenda.nama_kegiatan }}</td>
-                <td class="border border-gray-300 px-4 py-2">{{ agenda.kategori_kegiatan }}</td>
-        <td class="border border-gray-300 px-4 py-2">{{ agenda.perkiraan_waktu }}</td>
-        <td class="border border-gray-300 px-4 py-2">{{ agenda.keterangan }}</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-wrapper">
+        <table class="min-w-full table-auto border-collapse border border-gray-300">
+            <thead class="bg-green-100 text-green-800">
+                <tr>
+                    <th class="border border-gray-300 px-4 py-2">No</th>
+                    <th class="border border-gray-300 px-4 py-2">Nama Kegiatan</th>
+                    <th class="border border-gray-300 px-4 py-2">Kategori</th>
+                    <th class="border border-gray-300 px-4 py-2">Perkiraan Waktu</th>
+                    <th class="border border-gray-300 px-4 py-2">Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="(agenda, index) in agendaList" :key="agenda.id">
+                    <td class="border border-gray-300 px-4 py-2 text-center">{{ index + 1 }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ agenda.nama_kegiatan }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ agenda.kategori_kegiatan }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ agenda.perkiraan_waktu }}</td>
+                    <td class="border border-gray-300 px-4 py-2">{{ agenda.keterangan }}</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 <Footer />
 </template>
@@ -102,8 +103,17 @@ html {
     text-align: left !important;
 }
 
+.table-wrapper {
+  overflow-x: auto;
+}
+
+.min-w-full {
+  min-width: 100%;
+}
+
+
 @media (min-width: 361px) and (max-width: 480px) {
-    .table-auto {
+    .table-wrapper {
         overflow-x: auto;
     }
 }
