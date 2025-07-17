@@ -479,6 +479,13 @@ export default {
 
     
 <style scoped>
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 4rem;
+}
+
 .breadcrumb {
     margin-top: 3.5rem;
     margin-bottom: 1rem;

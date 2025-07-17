@@ -482,9 +482,10 @@ p {
 
 .maps {
     height: 400px;
-    margin-left: 21px;
     width: 1080px;
     text-align: center;
+    margin: 0 auto;   
+  box-sizing: border-box;
 }
 
 .map-paud {
@@ -505,6 +506,16 @@ p {
     .nilai-grid {
         grid-template-columns: repeat(1, 1fr);
     }
+
+    .maps {
+        width: 70vh;
+        height: 300px;
+        max-width: 100%;
+        margin: 0 auto;
+        text-align: center;
+        box-sizing: border-box;
+    }
+
 }
 
 @media (min-width: 361px) and (max-width: 480px) {
@@ -530,11 +541,25 @@ p {
         text-align:justify;
     }
 
-    .maps {
+    /* .maps {
         height: 400px;
         margin-left: 21px;
         width: 380px;
         text-align: center;
+    } */
+    .maps {
+        width: 40vh;
+        height: 250px;
+        max-width: 100%;
+        margin: 0 auto;
+        text-align: center;
     }
 }
+
+@media (min-width: 1024px) {
+  .maps {
+    max-width: 100%;
+  }
+}
+
 </style>

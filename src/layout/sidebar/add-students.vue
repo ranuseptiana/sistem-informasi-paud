@@ -13,7 +13,7 @@
     </section>
 
     <section class="content">
-        <div class="card info-card" style="border-radius: 20px;">
+        <div class="card info-card-siswa" style="border-radius: 20px;">
             <div class="card-header" style="color: white; background-color: #3c680a;">
                 Data Diri Siswa
             </div>
@@ -22,16 +22,16 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="noKK">No KK</label>
-                            <select v-model="form.no_kk">
+                            <select v-model="form.no_kk" :disabled="isEdit">
                                 <option value="" disabled>No KK</option>
-                                <option v-for="orangtua in nomorKartuList" :key="orangtua.id" :value="orangtua.no_kk" required :disabled="isEdit">
-                                        {{ orangtua.no_kk }}
+                                <option v-for="orangtua in nomorKartuList" :key="orangtua.id" :value="orangtua.no_kk" required>
+                                    {{ orangtua.no_kk }}
                                 </option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="nik">NIK</label>
-                            <input type="text" v-model="form.nik_siswa" id="nik" placeholder="Masukkan NIK siswa" required :disabled="isEdit" />
+                            <input type="text" v-model="form.nik_siswa" id="nik" placeholder="Masukkan NIK siswa" required :readonly="isEdit"/>
                         </div>
                         <div class="form-group">
                             <label for="nipd">NIPD</label>
@@ -39,7 +39,7 @@
                         </div>
                         <div class="form-group">
                             <label for="nisn">NISN</label>
-                            <input type="text" v-model="form.nisn" id="nisn" placeholder="Masukkan NISN siswa" />
+                            <input type="text" v-model="form.nisn" id="nisn" placeholder="Masukkan NISN siswa" :readonly="isEdit"/>
                         </div>
                     </div>
                     <div class="row">
@@ -78,7 +78,7 @@
             </div>
         </div>
 
-        <div class="card info-card" style="border-radius: 20px;">
+        <div class="card info-card-siswa" style="border-radius: 20px;">
             <div class="card-header" style="color: white;
                     background-color: #3c680a;">
                 Informasi Tambahan Siswa
@@ -132,7 +132,13 @@
                     <div class="row" style="margin-bottom: 1rem;">
                         <div class="form-group">
                             <label for="status">Status</label>
-                            <input type="text" v-model="form.status" id="status" />
+                            <select v-model="form.status" name="status" id="status">
+                                <option value="" disabled>Pilih Status</option>
+                                <option value="Aktif">Aktif</option>
+                                <option value="Lulus">Lulus</option>
+                                <option value="Pindah">Pindah</option>
+                                <option value="Drop Out">Drop Out</option>
+                            </select>
                         </div>
                         <div class="form-group">
                             <label for="tahunAjaran">Tahun Ajaran</label>
@@ -197,39 +203,55 @@ export default {
         async getSiswaData() {
             try {
                 const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/siswa/${this.$route.params.id}`);
-              
                 let siswa = response.data.data;
 
+                // Format tanggal
                 if (siswa.tanggal_lahir) {
-                    let tanggalLahirArray = siswa.tanggal_lahir.split('-'); 
-                    siswa.tanggal_lahir = `${tanggalLahirArray[2]}-${tanggalLahirArray[1]}-${tanggalLahirArray[0]}`; 
+                    let tgl = siswa.tanggal_lahir.split('-');
+                    siswa.tanggal_lahir = `${tgl[2]}-${tgl[1]}-${tgl[0]}`;
                 }
 
-                this.form = siswa;
+                const validStatus = ["Aktif", "Lulus", "Pindah", "Drop Out"];
+
+                let formattedStatus = siswa.status.charAt(0).toUpperCase() + siswa.status.slice(1).toLowerCase();
+
+                this.form = {
+                    ...siswa,
+                    status: validStatus.includes(formattedStatus) ? formattedStatus : ""
+                };;
+                console.log("Status yang diterima:", siswa.status);
+
                 this.isEdit = true;
+
+                await this.getOrangtuaByNoKK(siswa.no_kk);
+
             } catch (error) {
                 this.isEdit = false;
                 Swal.fire("Gagal", "Data siswa tidak ditemukan.", "error");
             }
         },
-        async getNomorKartuList() {
+        async getAllNomorKK() {
             try {
-                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orangtua/${this.$route.params.id}`);
-              
-                if (response.data && response.data.data) {
-                    this.nomorKartuList = response.data.data;
-                } else {
-                    console.error("Data kk tidak ditemukan dalam respons API.");
-                }
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orangtua`);
+                this.nomorKartuList = response.data.data;
             } catch (error) {
-                console.error("Gagal mengambil daftar kk:", error);
+                console.error("Gagal ambil semua KK:", error);
+                this.nomorKartuList = [];
+            }
+        },
+        async getOrangtuaByNoKK(no_kk) {
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orangtua/by-kk/${no_kk}`);
+                this.nomorKartuList = [response.data.data];
+            } catch (error) {
+                console.error("Gagal mengambil data orangtua:", error);
                 this.nomorKartuList = [];
             }
         },
         async getKelasList() {
             try {
-                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/kelas');
-               
+                const response = await axios.get('/kelas');
+
                 this.kelasList = response.data.data;
             } catch (error) {
                 console.error("Gagal mengambil daftar kelas:", error);
@@ -238,8 +260,8 @@ export default {
         },
         async getTahunAjaranList() {
             try {
-                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/tahunajaran');
-               
+                const response = await axios.get('/tahunajaran');
+
                 if (response.data && response.data) {
                     this.tahunAjaranList = response.data;
                 } else {
@@ -250,6 +272,32 @@ export default {
                 this.tahunAjaranList = [];
             }
         },
+
+        // pake rute railway
+        // async getKelasList() {
+        //     try {
+        //         const response = await axios.get('${import.meta.env.VITE_API_URL}/api/kelas');
+
+        //         this.kelasList = response.data.data;
+        //     } catch (error) {
+        //         console.error("Gagal mengambil daftar kelas:", error);
+        //         this.kelasList = [];
+        //     }
+        // },
+        // async getTahunAjaranList() {
+        //     try {
+        //         const response = await axios.get('${import.meta.env.VITE_API_URL}/api/tahunajaran');
+
+        //         if (response.data && response.data) {
+        //             this.tahunAjaranList = response.data;
+        //         } else {
+        //             console.error("Data tahun ajaran tidak ditemukan dalam respons API.");
+        //         }
+        //     } catch (error) {
+        //         console.error("Gagal mengambil daftar tahun ajaran:", error);
+        //         this.tahunAjaranList = [];
+        //     }
+        // },
         async simpanSiswa() {
             if (!this.form.no_kk) {
                 Swal.fire("Peringatan", "Harap lengkapi semua data siswa!", "Warning");
@@ -268,10 +316,18 @@ export default {
 
                 let response;
 
+                // pake rute railway
+                // if (this.isEdit) {
+                //     response = await axios.put(`${import.meta.env.VITE_API_URL}/api/siswa/${this.$route.params.id}`, payload);
+                // } else {
+                //     response = await axios.post('${import.meta.env.VITE_API_URL}/api/siswa', payload);
+                // }
+
+                // pake rute lokal
                 if (this.isEdit) {
-                    response = await axios.put(`${import.meta.env.VITE_API_URL}/api/siswa/${this.$route.params.id}`, payload);
+                    response = await axios.put(`/siswa/${this.$route.params.id}`, payload);
                 } else {
-                    response = await axios.post('${import.meta.env.VITE_API_URL}/api/siswa', payload);
+                    response = await axios.post('/siswa', payload);
                 }
 
                 Swal.fire("Sukses", this.isEdit ? "Data siswa berhasil diperbarui!" : "Data siswa berhasil disimpan!", "success");
@@ -300,7 +356,7 @@ export default {
                 berat_badan: '',
                 lingkar_kepala: '',
                 kelas_id: '',
-                tahun_ajaran_id: '', 
+                tahun_ajaran_id: '',
                 status: '',
             };
         }
@@ -308,11 +364,11 @@ export default {
     mounted() {
         this.getKelasList();
         this.getTahunAjaranList();
-        this.getNomorKartuList();
 
         if (this.$route.params.id) {
-            ('ID Siswa:', this.$route.params.id);
             this.getSiswaData();
+        } else {
+            this.getAllNomorKK();
         }
 
         this.jenisKelamin = "";
@@ -322,11 +378,13 @@ export default {
 };
 </script>
 
-<style>
-input:disabled {
+<style scoped>
+input:disabled,
+select:disabled,
+input[readonly] {
     background-color: #f5f5f5 !important;
     color: #888 !important;
-    border: 1px solid #ccc !important;
+    border: 1px solid #ccc;
     cursor: not-allowed !important;
 }
 
@@ -348,8 +406,14 @@ input:disabled {
     margin-bottom: 1rem;
 }
 
-.info-card {
-    width: 61.5rem;
+.content {
+    width: 100%;
+    max-width: 1000rem;
+}
+
+.info-card-siswa {
+    width: 100%;
+    max-width: 100rem;
     margin-bottom: 1rem;
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -414,5 +478,44 @@ input:disabled {
     cursor: pointer;
     transition: background-color 0.3s ease;
     margin-bottom: 1rem;
+}
+
+@media (max-width: 768px) {
+    .row {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        width: 100%;
+    }
+
+    .form-group input,
+    .form-group select {
+        width: 100%;
+    }
+
+    .info-card-siswa {
+        width: 100% !important;
+        max-width: 40vh !important;
+    }
+
+    .content {
+        width: 100%;
+        max-width: 40vh;
+    }
+
+    .save-data-ortu {
+        text-align: center;
+    }
+
+    .save-data-ortu .btn {
+        width: 100%;
+    }
+
+    .header-text {
+        font-size: 1.1rem;
+        text-align: center;
+    }
 }
 </style>

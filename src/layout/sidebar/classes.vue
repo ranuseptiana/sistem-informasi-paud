@@ -41,19 +41,46 @@
                                     <label for="namaKelas">Nama Kelas</label>
                                     <input type="text" id="namaKelas" v-model="form.nama_kelas" class="form-input" />
                                 </div>
+                        
                                 <div class="form-group-kelas">
-                                    <label for="namaKelas">Guru Pengajar</label>
-                                    <select v-model="form.guru_id">
-                                        <option value="" disabled>Pilih Guru</option>
-                                        <option v-for="guru in GuruList" :key="guru.id" :value="guru.id">
-                                            {{ guru.nama_lengkap }}
-                                        </option>
-                                    </select>
+                                <label for="guru">Guru Pengajar</label>
+                                <input
+                                    type="text"
+                                    style="cursor: pointer;"
+                                    class="form-input"
+                                    :value="selectedGuruLabels.join(', ')"
+                                    placeholder="Tap untuk memilih guru"
+                                    readonly
+                                    @click="showGuruModal = true"
+                                />
+                                </div>
+
+                                <div v-if="showGuruModal" class="modal-overlay-kelas" @click.self="showGuruModal = false">
+                                    <div class="modal-content-kelas">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title">Pilih Guru Pengajar</h5>
+                                            <button type="button" class="close-btn" @click="showGuruModal = false">&times;</button>
+                                        </div>
+
+                                        <div class="guru-grid">
+                                            <div v-for="guru in GuruList" :key="guru.id" class="form-checkbox">
+                                                <input
+                                                type="checkbox"
+                                                :id="'guru-' + guru.id"
+                                                :value="guru.id"
+                                                v-model="form.guru_id"
+                                                />
+                                                <label :for="'guru-' + guru.id">{{ guru.nama_lengkap }}</label>
+                                            </div>
+                                        </div>
+
+                                        <button class="btn-save" @click="showGuruModal = false">Simpan</button>
+                                    </div>
                                 </div>
                             </div>
                             <div class="custom-modal-footer">
                                 <button type="button" class="btn-cancel" @click="closeModal">Batal</button>
-                                <button type="submit" class="btn-save">{{ isEditing ? 'Simpan Perubahan' : 'Simpan Data' }}</button>
+                                <button type="submit" class="btn-simpan">{{ isEditing ? 'Simpan Perubahan' : 'Simpan Data' }}</button>
                             </div>
                         </form>
                     </div>
@@ -70,18 +97,18 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaKelas">Nama Kelas</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.jumlahSiswa">Jumlah Siswa</th>
-                        <th scope="col" class="table-head" v-if="selectedFilters.namaGuru">Guru Pengajar</th>
+                        <th scope="col" class="table-head">Nama Kelas</th>
+                        <th scope="col" class="table-head">Jumlah Siswa</th>
+                        <th scope="col" class="table-head">Guru Pengajar</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="(kelas, index) in paginatedKelasList" :key="kelas.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td v-if="selectedFilters.namaKelas">{{ kelas['nama_kelas'] }}</td>
-                        <td v-if="selectedFilters.jumlahSiswa">{{ kelas['jumlah_siswa'] }}</td>
-                        <td v-if="selectedFilters.namaGuru">{{ kelas['nama_guru'] }}</td>
+                        <td>{{ kelas['nama_kelas'] }}</td>
+                        <td>{{ kelas['jumlah_siswa'] }}</td>
+                        <td>{{ kelas['nama_guru'] }}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -169,28 +196,20 @@ export default {
             currentPage: 1,
             openModal: false,
             isEditing: false,
+            showGuruModal: false,
             dropdownIndex: null,
             searchQuery: '',
             GuruList: [],
             showModal: false,
             isFilterPopupVisible: false,
-            selectedFilters: {
-                namaKelas: true,
-                jumlahSiswa: true,
-                namaGuru: true
-            },
             headerMapping: {
                 namaKelas: 'Nama Kelas',
                 jumlahSiswa: 'Jumlah Siswa',
                 namaGuru: 'Nama Guru'
             },
-            newKelas: {
-                nama_kelas: '',
-                guru_id: '',
-            },
             form: {
                 nama_kelas: '',
-                guru_id: '',
+                guru_id: [],
             },
             errors: {},
         };
@@ -200,7 +219,7 @@ export default {
             this.form = {
                 id: null,
                 nama_kelas: "",
-                guru_id: '',
+                guru_id: []
             }; 
             this.isEditing = false;
             this.showModal = true; 
@@ -289,15 +308,16 @@ export default {
         },
         closeModal() {
             this.showModal = false;
-            this.newKelas.nama_kelas = '';
+            this.showGuruModal = false;
             this.resetForm();
         },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
         resetForm() {
-            this.newKelas = {
-                nama_kelas: "",
+            this.form = {
+                nama_kelas: '',
+                guru_id: [],
             };
         },
     },
@@ -355,6 +375,11 @@ export default {
         };
     },
     computed: {
+        selectedGuruLabels() {
+            return this.GuruList
+            .filter(g => this.form.guru_id.includes(g.id))
+            .map(g => g.nama_lengkap);
+        },
         showLeftEllipsis() {
             return this.currentPage > 4;
         },
@@ -412,9 +437,15 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 4rem;
+}
+
 .breadcrumb {
-    margin-top: 3.5rem;
     margin-bottom: 1rem;
 }
 
@@ -437,6 +468,50 @@ export default {
 .no-data-img {
     max-width: 100px;
     margin-bottom: 10px;
+}
+
+.guru-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* Dua kolom */
+  gap: 10px 20px; /* jarak antar baris dan kolom */
+  margin-top: 15px;
+}
+
+.form-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.checkbox {
+    margin-right: 0.5rem;
+    position: relative;
+    width: 16px;
+    height: 16px;
+    appearance: none;
+    border: 2px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    cursor: pointer;
+    background-color: white;
+}
+
+.checkbox:checked {
+    text-align: center;
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.checkbox:checked::after {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 4px;
+    width: 4px;
+    height: 8px;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
 }
 
 .btn-add-class {
@@ -645,6 +720,24 @@ export default {
     z-index: 1050;
 }
 
+.modal-overlay-kelas {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content-kelas {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 25rem;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
 .custom-modal-dialog {
     background: white;
     border: none;
@@ -664,6 +757,7 @@ export default {
     background: #ffffff;
     padding: 1rem;
     font-size: 1.25rem;
+    margin-bottom: 0;
     font-weight: bold;
     display: flex;
     justify-content: space-between;
@@ -683,7 +777,9 @@ export default {
 }
 
 .custom-modal-body {
+    padding: 0.75rem 1rem;
     text-align: left;
+    margin-top: 0;
     padding: 1rem;
     font-size: 1rem;
     color: #333;
@@ -701,13 +797,26 @@ export default {
     color: white;
     border: none;
     padding: 0.5rem 1rem;
+    margin-top: 1rem;
     border-radius: 20px;
     cursor: pointer;
-    margin-left: 0.5rem;
+    width: 100%;
+}
+
+.btn-simpan {
+    background: #007bff;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+    border-radius: 20px;
+    cursor: pointer;
     width: 50%;
 }
 
-.btn-save:hover {
+.btn-save:hover,
+.btn-simpan:hover {
     background: #0056b3;
 }
 

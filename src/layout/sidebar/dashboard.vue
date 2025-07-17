@@ -39,7 +39,7 @@
         <div class="card-dashboard-1">
             <img src="/src/assets/images/school.png" alt="SPP Icon" class="dashboard-icon" />
             <div class="text-content">
-                <h2>Total Pembayaran SPP</h2>
+                <h2>Total Pembayaran</h2>
                 <h5>Rp 250.000.000</h5>
             </div>
         </div>
@@ -360,8 +360,9 @@ export default {
 }
 </script>
 
-<style>
+<style scoped>
 .main-content {
+    margin-top: 4rem;
     display: flex;
     flex-direction: column;
 }

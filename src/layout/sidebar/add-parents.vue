@@ -1,6 +1,6 @@
 <template>
 <div class="container">
-    <section class="content-header-add">
+    <section class="content-header">
         <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
@@ -23,11 +23,11 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="noKK">No KK</label>
-                            <input v-model="form.no_kk" type="number" id="noKK" placeholder="Masukkan nomor KK" required />
+                            <input v-model="form.no_kk" type="number" id="noKK" placeholder="Masukkan nomor KK" required :readonly="isEdit"/>
                         </div>
                         <div class="form-group">
                             <label for="noHp">Nomor Hp</label>
-                            <input v-model="form.no_telp" type="number" id="noHp" placeholder="Masukkan nomor hp" />
+                            <input v-model="form.no_telp" type="text" id="noHp" placeholder="Masukkan nomor hp" />
                         </div>
                     </div>
                 </form>
@@ -43,7 +43,7 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="nikAyah">NIK</label>
-                            <input v-model="form.nik_ayah" type="number" id="nikAyah" placeholder="Masukkan NIK ayah" />
+                            <input v-model="form.nik_ayah" type="number" id="nikAyah" placeholder="Masukkan NIK ayah" :readonly="isEdit"/>
                         </div>
                         <div class="form-group">
                             <label for="namaAyah">Nama</label>
@@ -103,7 +103,7 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="nikIbu">NIK</label>
-                            <input v-model="form.nik_ibu" type="text" id="nikIbu" placeholder="Masukkan NIK ibu" />
+                            <input v-model="form.nik_ibu" type="text" id="nikIbu" placeholder="Masukkan NIK ibu" :readonly="isEdit"/>
                         </div>
                         <div class="form-group">
                             <label for="namaIbu">Nama</label>
@@ -202,7 +202,10 @@ export default {
                 return;
             }
             try {
-                const payload = { ...this.form };
+                const payload = {
+                    ...this.form,
+                    no_telp: this.form.no_telp?.toString() || null,
+                };
 
                 let response;
                 if (this.isEdit) {
@@ -348,6 +351,13 @@ export default {
 .save-data-ortu {
     text-align: right;
     margin-top: 2rem;
+}
+
+input[readonly] {
+  background-color: #f5f5f5 !important; 
+  cursor: not-allowed;
+  color: #888;
+  border: 1px solid #ccc;
 }
 
 .save-data-ortu .btn {

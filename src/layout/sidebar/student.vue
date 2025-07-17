@@ -66,7 +66,6 @@
                             <!-- Tahun Ajaran -->
                             <div class="form-group">
                                 <label>
-                                   
                                     Filter Tahun Ajaran (Rentang)
                                 </label>
                                 <div class="tahun-ajaran-dropdown">
@@ -109,19 +108,23 @@
                             </div>
 
                                 <!-- Modal Pilih Kelas -->
-                            <div v-if="showKelasModal" class="modal-overlay" @click.self="showKelasModal = false">
-                                <div class="modal-content">
-                                    <h5>Pilih Kelas</h5>
+                            <div v-if="showKelasModal" class="modal-overlay-kelas" @click.self="showKelasModal = false">
+                                <div class="modal-content-kelas">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Pilih Kelas</h5>
+                                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                                    </div>
                                     <div v-for="kelas in kelasList" :key="kelas.id">
                                     <input
                                         type="checkbox"
                                         :id="'kelas-' + kelas.id"
                                         :value="kelas.id"
+                                        class="checkbox"
                                         v-model="filter.kelas_ids"
                                     />
                                     <label :for="'kelas-' + kelas.id">{{ kelas.nama_kelas }}</label>
                                     </div>
-                                    <button @click="showKelasModal = false">Simpan</button>
+                                    <button class="btn-save" @click="showKelasModal = false">Simpan</button>
                                 </div>
                             </div>
                             <!-- Tombol di bawah modal -->
@@ -133,8 +136,33 @@
                         </div>
                     </div>
                 </div>
+                
+                <!-- Modal Upload -->
+                <div v-if="tampilModal" class="modal-overlay" @click.self="tampilModal = false">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Import Data Siswa</h3>
+                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                    </div>
+                    
+                    <form @submit.prevent="handleImport">
+                    <input type="file" @change="handleFileChange" accept=".xlsx,.xls,.csv" required />
+
+                    <div class="modal-actions">
+                        <button type="submit" class="btn btn-success">Upload</button>
+                        <button type="button" class="btn btn-secondary" @click="tampilModal = false">Batal</button>
+                    </div>
+                    </form>
+                </div>
+                </div>
+
                 <!-- Export -->
                 <div class="export-section">
+                    <!-- import -->
+                    <button class="btn btn-primary" @click="tampilModal = true">
+                        <i class="fa-solid fa-upload"></i>
+                        Import
+                    </button>
                     <button class="btn btn-danger" @click="exportData('pdf')">
                         <i class="fa fa-file-pdf" aria-hidden="true"></i>
                         PDF
@@ -300,10 +328,12 @@ export default {
             showKelasModal: false,
             dropdownIndex: null,
             showModal: false,
+            tampilModal: false,
             searchQuery: '', // for filtering
             siswaList: [],
             kelasList: [],
             selectedStatus: '',
+            selectedFile: null,
             tahunAwal: '',
             tahunAkhir: '',
             filter: {
@@ -494,241 +524,300 @@ export default {
         };
     },
     methods: {
+        handleFileChange(event) {
+            this.selectedFile = event.target.files[0];
+        },
+        async handleImport() {
+            if (!this.selectedFile) {
+                alert("Silakan pilih file terlebih dahulu.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", this.selectedFile);
+
+            try {
+                const response = await axios.post("/siswa/import", formData, {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+                });
+
+                this.showModal = false;
+                this.selectedFile = null;
+
+                Swal.fire('Sukses', 'Data berhasil diimpor', 'success');
+                
+                await this.fetchSiswaList();
+            } catch (error) {
+                console.error("Error saat impor:", error.response?.data || error.message);
+
+                this.tampilModal = false;
+                this.selectedFile = null;
+
+                this.$nextTick(() => {
+                    Swal.fire('Gagal', error.response?.data?.message || 'Terjadi kesalahan saat mengimpor data.', 'error');
+                });
+            }
+        },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
         closeModal() {
             this.showModal = false;
+            this.tampilModal = false;
         },
         changePage(page) {
             if (page > 0 && page <= this.totalPages) {
                 this.currentPage = page;
             }
+            this.dropdownIndex = null;
         },
         toggleFilterPopup() {
             this.showModal = !this.showModal;
         },
-      
-mapFrontendToBackendKey(frontendKey) {
-    const mapping = {
-        noKk: 'no_kk',
-        nipd: 'nipd',
-        nisn: 'nisn',
-        nik: 'nik_siswa',
-        nama: 'nama_siswa',
-        tempatLahir: 'tempat_lahir',
-        tanggalLahir: 'tanggal_lahir',
-        jenisKelamin: 'jenis_kelamin',
-        agama: 'agama',
-        anakKe: 'anak_ke',
-        jumlahSaudara: 'jumlah_saudara',
-        beratBadan: 'berat_badan',
-        tinggiBadan: 'tinggi_badan',
-        lingkarKepala: 'lingkar_kepala',
-        rombel: 'kelas_nama',
-        status: 'status',
-        tahunAjar: 'tahun_ajaran_nama'
-    };
+        mapFrontendToBackendKey(frontendKey) {
+            const mapping = {
+                noKk: 'no_kk',
+                nipd: 'nipd',
+                nisn: 'nisn',
+                nik: 'nik_siswa',
+                nama: 'nama_siswa',
+                tempatLahir: 'tempat_lahir',
+                tanggalLahir: 'tanggal_lahir',
+                jenisKelamin: 'jenis_kelamin',
+                agama: 'agama',
+                anakKe: 'anak_ke',
+                jumlahSaudara: 'jumlah_saudara',
+                beratBadan: 'berat_badan',
+                tinggiBadan: 'tinggi_badan',
+                lingkarKepala: 'lingkar_kepala',
+                rombel: 'kelas_nama',
+                status: 'status',
+                tahunAjar: 'tahun_ajaran_nama'
+            };
 
-    return mapping[frontendKey] || frontendKey;
-},
+            return mapping[frontendKey] || frontendKey;
+        },
 
-getColumnLabel(key) {
-    const allFilters = [...this.firstRowFilters, ...this.secondRowFilters];
-    const filter = allFilters.find(f => f.key === key);
+        getColumnLabel(key) {
+            const allFilters = [...this.firstRowFilters, ...this.secondRowFilters];
+            const filter = allFilters.find(f => f.key === key);
 
-    const specialLabels = {
-        rombel: 'Kelas Saat Ini',
-        nama: 'Nama Lengkap'
-    };
+            const specialLabels = {
+                rombel: 'Kelas Saat Ini',
+                nama: 'Nama Lengkap'
+            };
 
-    return specialLabels[key] || (filter ? filter.label : key);
-},
+            return specialLabels[key] || (filter ? filter.label : key);
+        },
 
-async applyFilters() {
-    try {
-        const kelasIds = Array.isArray(this.filter.kelas_ids) ? this.filter.kelas_ids : [this.filter.kelas_ids].filter(Boolean);
-        ('Kelas yang dipilih:', kelasIds);
+        async applyFilters() {
+            try {
+                const kelasIds = Array.isArray(this.filter.kelas_ids) ? this.filter.kelas_ids : [this.filter.kelas_ids].filter(Boolean);
+                ('Kelas yang dipilih:', kelasIds);
 
-        const selectedKeys = Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key]);
-        ('Selected filter keys:', selectedKeys);
+                const selectedKeys = Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key]);
+                ('Selected filter keys:', selectedKeys);
 
-        const columnMapping = {
-            'nipd': 'nipd',
-            'nisn': 'nisn',
-            'namaSiswa': 'nama_siswa',
-            'nama': 'nama_siswa', 
-            'nik': 'nik_siswa',
-            'tempatLahir': 'tempat_lahir',
-            'tanggalLahir': 'tanggal_lahir',
-            'jenisKelamin': 'jenis_kelamin',
-            'kelas': 'kelas_nama',
-            'kelasId': 'kelas_nama', 
-            'rombel': 'kelas_nama',
-            'tahunAjaran': 'tahun_ajaran_nama',
-            'status': 'status',
-            'noKk': 'no_kk',
-            'agama': 'agama'
-        };
+                const columnMapping = {
+                    'nipd': 'nipd',
+                    'nisn': 'nisn',
+                    'namaSiswa': 'nama_siswa',
+                    'nama': 'nama_siswa', 
+                    'nik': 'nik_siswa',
+                    'tempatLahir': 'tempat_lahir',
+                    'tanggalLahir': 'tanggal_lahir',
+                    'jenisKelamin': 'jenis_kelamin',
+                    'kelas': 'kelas_nama',
+                    'kelasId': 'kelas_nama', 
+                    'rombel': 'kelas_nama',
+                    'tahunAjaran': 'tahun_ajaran_nama',
+                    'status': 'status',
+                    'noKk': 'no_kk',
+                    'agama': 'agama'
+                };
 
-        const mappedColumns = selectedKeys.map(key => columnMapping[key] || key);
-        ('Mapped columns for API:', mappedColumns);
+                const mappedColumns = selectedKeys.map(key => columnMapping[key] || key);
+                ('Mapped columns for API:', mappedColumns);
 
-        const params = {
-            columns: mappedColumns.length > 0 ? mappedColumns : undefined,
-            status: this.selectedStatus || undefined,
-            kelas_ids: kelasIds.length ? kelasIds : undefined,
-            tahun_awal: this.tahunAwal || undefined,
-            tahun_akhir: this.tahunAkhir || undefined
-        };
+                const params = {
+                    columns: mappedColumns.length > 0 ? mappedColumns : undefined,
+                    status: this.selectedStatus || undefined,
+                    kelas_ids: kelasIds.length ? kelasIds : undefined,
+                    tahun_awal: this.tahunAwal || undefined,
+                    tahun_akhir: this.tahunAkhir || undefined
+                };
 
-        Object.keys(params).forEach(key => {
-            if (params[key] === undefined) {
-                delete params[key];
+                Object.keys(params).forEach(key => {
+                    if (params[key] === undefined) {
+                        delete params[key];
+                    }
+                });
+
+                const response = await axios.get('/siswa/export', {
+                    params,
+                    paramsSerializer
+                });
+                return response.data.data;
+            } catch (error) {
+                console.error('Error applying filters:', error);
+                console.error('Error details:', error.response?.data); 
+                Swal.fire('Error', 'Gagal menerapkan filter: ' + (error.response?.data?.message || error.message), 'error');
+                return [];
             }
-        });
+        },
 
-        const response = await axios.get('/siswa/export', {
-            params,
-            paramsSerializer
-        });
-        return response.data.data;
-    } catch (error) {
-        console.error('Error applying filters:', error);
-        console.error('Error details:', error.response?.data); 
-        Swal.fire('Error', 'Gagal menerapkan filter: ' + (error.response?.data?.message || error.message), 'error');
-        return [];
-    }
-},
+        async exportData(format) {
+            try {
+                Swal.fire({
+                    title: 'Memproses...',
+                    text: 'Sedang mengambil data untuk export',
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-async exportData(format) {
-    try {
-        Swal.fire({
-            title: 'Memproses...',
-            text: 'Sedang mengambil data untuk export',
-            allowOutsideClick: false,
-            didOpen: () => {
-                Swal.showLoading();
+                const filteredData = await this.applyFilters();
+                
+                Swal.close();
+
+                if (!filteredData || filteredData.length === 0) {
+                    Swal.fire('Info', 'Tidak ada data untuk diekspor', 'info');
+                    return;
+                }
+
+                // if (format === 'pdf') {
+                //     await this.exportToPDF(filteredData);
+                // } else if (format === 'excel') {
+                //     await this.exportToExcel(filteredData);
+                // }
+
+                if (format === 'pdf') {
+                    const selectedKeys = Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key]);
+                    const mappedColumns = selectedKeys.map(key => this.mapFrontendToBackendKey(key) || key);
+                    await this.exportToPDF(filteredData, mappedColumns); 
+                } else if (format === 'excel') {
+                    await this.exportToExcel(filteredData);
+                }
+
+                Swal.fire('Sukses', 'Data berhasil diekspor', 'success');
+            } catch (error) {
+                console.error("Export error:", error);
+                Swal.close();
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengekspor Data',
+                    text: 'Terjadi kesalahan saat mengekspor data: ' + error.message
+                });
             }
-        });
+        },
+        async exportToExcel() {
+            try {
+                const XLSX = await import('xlsx');
+                
+                const response = await axios.get('/siswa/export');
+                const data = response.data.data;
 
-        const filteredData = await this.applyFilters();
-        
-        Swal.close();
+                const columns = [
+                    { key: 'no_kk', header: 'No KK' },
+                    { key: 'nik_siswa', header: 'NIK' },
+                    { key: 'nipd', header: 'NIPD' },
+                    { key: 'nisn', header: 'NISN' },
+                    { key: 'nama_siswa', header: 'Nama Siswa' },
+                    { key: 'tanggal_lahir', header: 'Tanggal Lahir' },
+                    { key: 'tempat_lahir', header: 'Tempat Lahir' },
+                    { key: 'jenis_kelamin', header: 'Jenis Kelamin' },
+                    { key: 'agama', header: 'Agama' },
+                    { key: 'alamat', header: 'Alamat' },
+                    { key: 'anak_ke', header: 'Anak Ke-' },
+                    { key: 'jumlah_saudara', header: 'Jumlah Saudara' },
+                    { key: 'berat_badan', header: 'Berat Badan' },
+                    { key: 'tinggi_badan', header: 'Tinggi Badan' },
+                    { key: 'lingkar_kepala', header: 'Lingkar Kepala' },
+                    { key: 'kelas_nama', header: 'Kelas' },
+                    { key: 'tahun_ajaran_nama', header: 'Tahun Ajaran' },
+                    { key: 'status', header: 'Status' },
+                ];
 
-        if (!filteredData || filteredData.length === 0) {
-            Swal.fire('Info', 'Tidak ada data untuk diekspor', 'info');
-            return;
-        }
-
-        if (format === 'pdf') {
-            await this.exportToPDF(filteredData);
-        } else if (format === 'excel') {
-            await this.exportToExcel(filteredData);
-        }
-
-        Swal.fire('Sukses', 'Data berhasil diekspor', 'success');
-    } catch (error) {
-        console.error("Export error:", error);
-        Swal.close();
-        Swal.fire({
-            icon: 'error',
-            title: 'Gagal Mengekspor Data',
-            text: 'Terjadi kesalahan saat mengekspor data: ' + error.message
-        });
-    }
-},
-async exportToExcel() {
-    try {
-        const XLSX = await import('xlsx');
-        
-        const response = await axios.get('/siswa/export');
-        const data = response.data.data;
-
-        const columns = [
-            { key: 'no_kk', header: 'No KK' },
-            { key: 'nipd', header: 'NIPD' },
-            { key: 'nisn', header: 'NISN' },
-            { key: 'nama_siswa', header: 'Nama Siswa' },
-            { key: 'nik_siswa', header: 'NIK' },
-            { key: 'kelas_nama', header: 'Kelas' },
-            { key: 'tahun_ajaran_nama', header: 'Tahun Ajaran' },
-            { key: 'tanggal_lahir', header: 'Tanggal Lahir' },
-            { key: 'tempat_lahir', header: 'Tempat Lahir' },
-            { key: 'jenis_kelamin', header: 'Jenis Kelamin' },
-            { key: 'agama', header: 'Agama' },
-            { key: 'status', header: 'Status' },
-        ];
-
-        const excelData = data.map((item, index) => {
-            const row = { No: index + 1 };
-            
-            columns.forEach(col => {
-                if (col.key === 'tanggal_lahir') {
-                    if (item[col.key] && item[col.key] !== 'Invalid Date') {
-                        try {
-                            const date = new Date(item[col.key]);
-                            if (!isNaN(date.getTime())) {
-                                row[col.header] = date.toLocaleDateString('id-ID');
+                const excelData = data.map((item, index) => {
+                    const row = { No: index + 1 };
+                    
+                    columns.forEach(col => {
+                        if (col.key === 'tanggal_lahir') {
+                            if (item[col.key] && item[col.key] !== 'Invalid Date') {
+                                try {
+                                    // Tangani format "dd-mm-yyyy"
+                                    const [day, month, year] = item[col.key].split('-');
+                                    const date = new Date(`${year}-${month}-${day}`);
+                                    if (!isNaN(date.getTime())) {
+                                        row[col.header] = date.toLocaleDateString('id-ID');
+                                    } else {
+                                        row[col.header] = '-';
+                                    }
+                                } catch (e) {
+                                    row[col.header] = '-';
+                                }
                             } else {
                                 row[col.header] = '-';
                             }
-                        } catch (e) {
-                            row[col.header] = '-';
                         }
-                    } else {
-                        row[col.header] = '-';
-                    }
-                } 
-                else if (col.key === 'jenis_kelamin') {
-                    if (item[col.key]) {
-                        row[col.header] = item[col.key] === 'L' ? 'Laki-laki' : 'Perempuan';
-                    } else {
-                        row[col.header] = '-';
-                    }
-                }
-                else {
-                    const value = item[col.key];
-                    row[col.header] = (value !== null && value !== undefined && value !== '') ? value : '-';
-                }
-            });
-            
-            return row;
-        });
 
-        const ws = XLSX.utils.json_to_sheet(excelData);
-        const wb = XLSX.utils.book_new();
-        XLSX.utils.book_append_sheet(wb, ws, "Data Siswa");
+                        else if (col.key === 'jenis_kelamin') {
+                            if (item[col.key]) {
+                                row[col.header] = item[col.key] === 'L' ? 'Laki-laki' : 'Perempuan';
+                            } else {
+                                row[col.header] = '-';
+                            }
+                        }
+                        else {
+                            const value = item[col.key];
+                            row[col.header] = (value !== null && value !== undefined && value !== '') ? value : '-';
+                        }
+                    });
+                    
+                    return row;
+                });
 
-        const wscols = [
-            { wch: 5 },  // No
-            { wch: 10 }, // NISN
-            { wch: 30 }, // Nama Siswa
-            { wch: 20 }, // NIK
-            { wch: 15 }, // Kelas
-            { wch: 15 }, // Tahun Ajaran
-            { wch: 15 }, // Tanggal Lahir
-            { wch: 20 }, // Tempat Lahir
-            { wch: 15 }, // Jenis Kelamin
-            { wch: 10 }, // Agama
-            { wch: 10 }, // Status
-            { wch: 15 },
-            { wch: 10 }
-        ];
-        ws['!cols'] = wscols;
+                const ws = XLSX.utils.json_to_sheet(excelData);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, "Data Siswa");
 
-        XLSX.writeFile(wb, `Data_Siswa_${new Date().toISOString().slice(0, 10)}.xlsx`);
+                const wscols = [
+                    { wch: 5 },  // No
+                    { wch: 10 }, // NISN
+                    { wch: 30 }, // Nama Siswa
+                    { wch: 20 }, // NIK
+                    { wch: 15 }, // Kelas
+                    { wch: 15 }, // Tahun Ajaran
+                    { wch: 15 }, // Tanggal Lahir
+                    { wch: 20 }, // Tempat Lahir
+                    { wch: 15 }, // Jenis Kelamin
+                    { wch: 10 }, // Agama
+                    { wch: 10 }, // Status
+                    { wch: 15 },
+                    { wch: 10 },
+                    { wch: 10 },
+                    { wch: 10 },
+                    { wch: 10 },
+                    { wch: 10 },
+                    { wch: 10 },
+                    { wch: 10 }
+                ];
+                ws['!cols'] = wscols;
 
-        alert('Data berhasil diekspor ke Excel!');
+                XLSX.writeFile(wb, `Data_Siswa_${new Date().toISOString().slice(0, 10)}.xlsx`);
 
-    } catch (error) {
-        console.error('Error generating Excel:', error);
-        alert('Terjadi kesalahan saat mengekspor data: ' + error.message);
-        throw error;
-    }
-},
+                Swal.fire('Sukses', 'Data berhasil diekspor ke Excel!', 'success');
+            } catch (error) {
+                console.error('Error generating Excel:', error);
+                alert('Terjadi kesalahan saat mengekspor data: ' + error.message);
+                throw error;
+            }
+        },
 
-async exportToPDF(data) {
+        async exportToPDF(data, mappedColumns) {
     try {
         const { jsPDF } = await import('jspdf');
         await import('jspdf-autotable');
@@ -737,51 +826,57 @@ async exportToPDF(data) {
             throw new Error('Tidak ada data untuk diekspor');
         }
 
-        const columnsToShow = ['nama_siswa', 'kelas_nama'];
+        const columnsToShow = mappedColumns.filter(k => k !== 'id');
+
         const headerMapping = {
-            'nama_siswa': 'Nama Siswa',
-            'kelas_nama': 'Kelas'
+            nisn: 'NISN',
+            nama_siswa: 'Nama Lengkap',
+            nik_siswa: 'NIK',
+            tanggal_lahir: 'Tanggal Lahir',
+            tempat_lahir: 'Tempat Lahir',
+            jenis_kelamin: 'Jenis Kelamin',
+            kelas_nama: 'Kelas',
+            tahun_ajaran_nama: 'Tahun Ajaran',
+            status: 'Status',
+            no_kk: 'Nomor KK',
+            agama: 'Agama'
         };
 
-        const processedData = data.map((item, index) => {
-            const row = { no: index + 1 };
-            
-            columnsToShow.forEach(col => {
-                if (item[col] !== undefined) {
-                    row[col] = item[col] || '-';
-                }
-            });
-            
-            return row;
+        const headers = ['No', ...columnsToShow.map(col => headerMapping[col] || col)];
+
+        const body = data.map((item, index) => {
+            return [
+                index + 1,
+                ...columnsToShow.map(col => {
+                    if (col === 'tanggal_lahir' && item[col]) {
+                        return new Date(item[col]).toLocaleDateString('id-ID');
+                    } else if (col === 'jenis_kelamin') {
+                        return item[col] === 'L' ? 'Laki-laki' : 'Perempuan';
+                    } else {
+                        return item[col] || '-';
+                    }
+                })
+            ];
         });
 
         const doc = new jsPDF({ orientation: 'portrait', unit: 'mm' });
 
-        // Title
         doc.setFontSize(16);
         doc.setFont('helvetica', 'bold');
         doc.text('LAPORAN DATA SISWA', doc.internal.pageSize.width / 2, 20, { align: 'center' });
 
-        // Print date
-        const date = new Date().toLocaleDateString('id-ID', {
+        const printDate = new Date().toLocaleDateString('id-ID', {
             weekday: 'long',
             year: 'numeric',
             month: 'long',
             day: 'numeric'
         });
         doc.setFontSize(10);
-        doc.text(`Dicetak pada: ${date}`, 14, 25);
+        doc.text(`Dicetak pada: ${printDate}`, 14, 25);
 
-        // Prepare headers and body
-        const headers = ['No', ...columnsToShow.map(col => headerMapping[col])];
-        const body = processedData.map(row => 
-            [row.no, ...columnsToShow.map(col => row[col] || '-')]
-        );
-
-        // Create table
         doc.autoTable({
             head: [headers],
-            body: body,
+            body,
             startY: 30,
             styles: {
                 fontSize: 8,
@@ -967,6 +1062,7 @@ async exportToPDF(data) {
                     Swal.fire('Terhapus!', 'Data siswa berhasil dihapus.', 'success');
 
                     this.siswaList = this.siswaList.filter(siswa => siswa.id !== siswaId);
+                    this.dropdownIndex = null;
                 }
             } catch (error) {
                 Swal.fire('Error', 'Gagal menghapus data siswa!', 'error');
@@ -1014,6 +1110,16 @@ async exportToPDF(data) {
 
             this.filter.kelas_ids = [];
         },
+        handleClickOutside(event) {
+            const popups = this.$refs.popup;
+            const clickedInside = Array.isArray(popups)
+                ? popups.some(popup => popup.contains(event.target))
+                : popups && popups.contains(event.target);
+
+            if (!clickedInside) {
+                this.dropdownIndex = null;
+            }
+        }
     },
     computed: {
         showLeftEllipsis() {
@@ -1121,6 +1227,12 @@ async exportToPDF(data) {
             };
         },
     },
+    beforeUnmount() {
+        document.removeEventListener('click', this.handleClickOutside);
+    },
+    mounted() {
+        document.addEventListener('click', this.handleClickOutside);
+    }
 };
 </script>
 
@@ -1129,10 +1241,44 @@ async exportToPDF(data) {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-top: 4rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.form-group label {
+    font-weight: 800;
+    color: #336C2A;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.form-group input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    width: 100%;
+    color: black;
+    cursor: pointer;
+}
+
+.form-group select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    width: 100%;
+    color: black;
 }
 
 /* Overlay modal */
-.modal-overlay {
+.modal-overlay,
+.modal-overlay-kelas {
     position: fixed;
     z-index: 1200;
     top: 0;
@@ -1161,6 +1307,16 @@ async exportToPDF(data) {
     justify-content: space-between;
     align-items: center;
     font-size: 18px;
+}
+
+/* Konten modal */
+.modal-content-kelas {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    text-align: left;
 }
 
 /* Tombol close */
@@ -1272,16 +1428,6 @@ async exportToPDF(data) {
     margin-top: 15px;
 }
 
-/* Tombol save */
-.save-btn {
-    background: blue;
-    color: white;
-    padding: 8px 15px;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-}
-
 /* Filter Rows */
 .filter-rows {
     margin: 0.5rem 0;
@@ -1370,6 +1516,20 @@ label {
   cursor: pointer;
 }
 
+.btn-save {
+    background: #007bff;
+    color: white;
+    width: 100%;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+.btn-save:hover {
+    background: #0056b3;
+}
+
 .filter-icon {
     margin-left: 2rem;
     color: #636364;
@@ -1427,7 +1587,7 @@ label {
 }
 
 .breadcrumb {
-    margin-top: 3.5rem;
+    margin-bottom: 1rem;
 }
 
 .header-text {
@@ -1468,6 +1628,11 @@ label {
     font-weight: 600;
 }
 
+.modal-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
 .export-section {
     margin-left: 0.5rem;
 }
@@ -1693,4 +1858,56 @@ label {
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
+
+@media (max-width: 768px) {
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 40vh;
+  }
+
+  .row-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .export-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .filter {
+    width: 100%;
+  }
+
+  .tampil-baris {
+    width: 100%;
+  }
+
+  .search-bar-container {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filter-btn-student,
+  .btn {
+    width: 100%;
+  }
+
+  .modal-content,
+  .table-wrapper {
+    width: 40vh;
+  }
+}
+
 </style>

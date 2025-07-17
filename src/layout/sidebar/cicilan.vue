@@ -690,6 +690,7 @@ select[disabled] {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-top: 4rem;
 }
 
 .no-data-img {

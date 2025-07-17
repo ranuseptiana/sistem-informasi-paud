@@ -40,29 +40,28 @@
                     <router-link to="/adminmainsidebar/activity" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'activity' }" @click="setActive('activity')">
                         Agenda
                     </router-link>
-                    <router-link to="/adminmainsidebar/users" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'users' }" @click="setActive('users')">
-                        Users
-                    </router-link>
                 </ul>
                 <!-- Profile icon -->
-                <div class="navbar-nav ms-auto">
-                    <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleDropdown">
-                        <i class="fas fa-user-circle"></i>
-                    </a>
-                    <!-- Popup dropdown -->
-                    <div v-if="isDropdownVisible" class="profile-dropdown">
-                        <ul>
-                            <span class="dropdown-item-text">
-                                <i class="fa-regular fa-user"></i>{{ userName || 'Admin 1' }}
-                            </span>
-                            <li>
-                                <a href="#" class="dropdown-item" :class="{ active: activeMenu === 'logout' }" @click.prevent="logout" style="color: red; text-decoration: none;">
-                                    <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
+                <!-- Profile icon -->
+<div class="navbar-nav ms-auto profile-nav">
+  <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleDropdown">
+    <i class="fas fa-user-circle"></i>
+  </a>
+  <!-- Popup dropdown -->
+  <div v-if="isDropdownVisible" class="profile-dropdown">
+    <ul>
+      <span class="dropdown-item-text">
+        <i class="fa-regular fa-user"></i>{{ userName || 'Admin 1' }}
+      </span>
+      <li>
+        <a href="#" class="dropdown-item" :class="{ active: activeMenu === 'logout' }" @click.prevent="logout" style="color: red; text-decoration: none;">
+          <i class="fa-solid fa-arrow-right-from-bracket"></i>Logout
+        </a>
+      </li>
+    </ul>
+  </div>
+</div>
+
             </div>
         </div>
     </nav>
@@ -148,8 +147,6 @@ export default {
                 this.activeMenu = 'gallery';
             } else if (currentPath.includes('activity')) {
                 this.activeMenu = 'activity';
-            } else if (currentPath.includes('users')) {
-                this.activeMenu = 'users';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
             }
@@ -254,6 +251,13 @@ main {
     gap: 15px;
 }
 
+.navbar-nav
+.profile-nav {
+    display: flex;
+    align-items: center;
+    position: relative;
+}
+
 .nav-menu {
     display: flex;
     align-items: center;
@@ -325,7 +329,7 @@ main {
     color: #336C2A;
 }
 
-.profile-dropdown {
+/* .profile-dropdown {
     position: absolute;
     top: 105%;
     right: 75px;
@@ -337,6 +341,19 @@ main {
     z-index: 1050;
     width: 130px;
     text-align: left;
+} */
+
+.profile-dropdown {
+    position: absolute;
+    top: 110%;
+    right: 0;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, 0.15);
+    border-radius: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 0.5rem 0;
+    z-index: 1050;
+    width: 150px;
 }
 
 .profile-dropdown ul {
@@ -394,9 +411,26 @@ main {
     .profile-link {
         margin-right: 1rem;
     }
+    .navbar-collapse {
+        flex-direction: column;
+    }
+
+    .nav-menu {
+        flex-direction: column;
+        align-items: start;
+        margin: 1rem 0;
+    }
+
+    .navbar-nav.profile-nav {
+        width: 100%;
+        justify-content: flex-end;
+        margin-top: 0.5rem;
+        padding-right: 1rem;
+    }
+
     .profile-dropdown {
-        right: 10px;
-        width: auto;
+        right: 1rem;
+        top: 100%;
     }
 }
 

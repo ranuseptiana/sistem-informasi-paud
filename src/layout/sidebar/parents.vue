@@ -65,7 +65,28 @@
                         </div>
                     </div>
                 </div>
+                <!-- Modal Upload -->
+                <div v-if="tampilModal" class="modal-overlay" @click.self="tampilModal = false">
+                    <div class="modal-content-ortu">
+                        <div class="modal-header">
+                        <h3>Import Data Orangtua</h3>
+                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                        </div>
+
+                        <form @submit.prevent="handleImport">
+                        <input type="file" @change="handleFileChange" accept=".xlsx,.xls,.csv" required />
+                        <div class="modal-actions">
+                            <button type="submit" class="btn btn-success">Upload</button>
+                            <button type="button" class="btn btn-secondary" @click="tampilModal = false">Batal</button>
+                        </div>
+                        </form>
+                    </div>
+                </div>
                 <div class="export-section">
+                    <button class="btn btn-primary" @click="tampilModal = true">
+                        <i class="fa-solid fa-upload"></i>
+                        Import
+                    </button>
                     <button class="btn btn-danger" @click="exportData('pdf')">
                         <i class="fa fa-file-pdf" aria-hidden="true"></i>
                         PDF
@@ -87,7 +108,7 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head" v-if="shouldShowColumn('No KK')">No Kartu Keluarga</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('No KK')">No KK</th>
                         <th scope="col" class="table-head" v-if="shouldShowColumn('NIK Ayah')">NIK Ayah</th>
                         <th scope="col" class="table-head" v-if="shouldShowColumn('Nama Ayah')">Nama Ayah</th>
                         <th scope="col" class="table-head" v-if="shouldShowColumn('Tahun Lahir Ayah')">Tahun Lahir</th>
@@ -101,7 +122,7 @@
                         <th scope="col" class="table-head" v-if="shouldShowColumn('Pendidikan Ibu')">Jenjang Pendidikan</th>
                         <th scope="col" class="table-head" v-if="shouldShowColumn('Pekerjaan Ibu')">Pekerjaan</th>
                         <th scope="col" class="table-head" v-if="shouldShowColumn('Penghasilan Ibu')">Penghasilan</th>
-                        <th scope="col" class="table-head" v-if="shouldShowColumn('Nomor Telp')">Nomor Hp</th>
+                        <th scope="col" class="table-head" v-if="shouldShowColumn('Nomor Telepon')">Nomor Hp</th>
                         <th scope="col" class="table-head">Action</th>
                     </tr>
                 </thead>
@@ -121,7 +142,7 @@
                         <td v-if="shouldShowColumn('Pendidikan Ibu')">{{ ortu.pendidikan_ibu }}</td>
                         <td v-if="shouldShowColumn('Pekerjaan Ibu')">{{ ortu.pekerjaan_ibu }}</td>
                         <td v-if="shouldShowColumn('Penghasilan Ibu')">{{ ortu.penghasilan_ibu }}</td>
-                        <td v-if="shouldShowColumn('Nomor Telp')">{{ ortu.no_telp ? ortu.no_telp : 'Data tidak ditemukan'}}</td>
+                        <td v-if="shouldShowColumn('Nomor Telepon')">{{ ortu.no_telp ? ortu.no_telp : 'Data tidak ditemukan'}}</td>
                         <td>
                             <!-- popup set -->
                             <div class="popup d-inline-block" ref="popup">
@@ -223,6 +244,7 @@ export default {
             sortAsc: true,
             currentPage: 1,
             showModal: false,
+            tampilModal: false,
             dropdownIndex: null,
             searchQuery: '', // for filtering
             selectedFilters: {
@@ -301,33 +323,32 @@ export default {
                 },
             ],
             headerMapping: {
-                "noKK": "No KK",
-                "nikAyah": "NIK Ayah",
-                "namaAyah": "Nama Ayah",
-                "tahunLahirAyah": "Tahun Lahir Ayah",
-                "pendidikanAyah": "Pendidikan Ayah",
-                "pekerjaanAyah": "Pekerjaan Ayah",
-                "penghasilanAyah": "Penghasilan Ayah",
-                "noTelp": "Nomor Telepon",
-                "nikIbu": "NIK Ibu",
-                "namaIbu": "Nama Ibu",
-                "tahunLahirIbu": "Tahun Lahir Ibu",
-                "pendidikanIbu": "Pendidikan Ibu",
-                "pekerjaanIbu": "Pekerjaan Ibu",
-                "penghasilanIbu": "Penghasilan Ibu",
+                no_kk: 'No KK',
+                nik_ayah: 'NIK Ayah',
+                nama_ayah: 'Nama Ayah',
+                tahun_lahir_ayah: 'Tahun Lahir Ayah',
+                pendidikan_ayah: 'Pendidikan Ayah',
+                pekerjaan_ayah: 'Pekerjaan Ayah',
+                penghasilan_ayah: 'Penghasilan Ayah',
+                nik_ibu: 'NIK Ibu',
+                nama_ibu: 'Nama Ibu',
+                tahun_lahir_ibu: 'Tahun Lahir Ibu',
+                pendidikan_ibu: 'Pendidikan Ibu',
+                pekerjaan_ibu: 'Pekerjaan Ibu',
+                penghasilan_ibu: 'Penghasilan Ibu',
+                no_telp: 'No Telepon'
             }
+
         };
     },
-    //untuk menampilkan data orangtua
     setup() {
-        const ortuList = ref([]); // List ortu
+        const ortuList = ref([]); 
 
         const fetchOrtuList = () => {
             axios
                 .get('/orangtua')
                 .then((res) => {
-                    // ('Data yang diterima:', res.data);
-                    ortuList.value = res.data.data; // Perbarui data ortu
+                    ortuList.value = res.data.data; 
                 })
                 .catch((error) => {
                     (error.response.data);
@@ -344,15 +365,49 @@ export default {
         };
     },
     methods: {
+        handleFileChange(event) {
+            this.selectedFile = event.target.files[0];
+        },
+        async handleImport() {
+            if (!this.selectedFile) {
+            alert("Silakan pilih file terlebih dahulu.");
+            return;
+            }
+
+            const formData = new FormData();
+            formData.append("file", this.selectedFile);
+
+            try {
+            const response = await axios.post("/orangtua/import", formData, {
+                headers: {
+                "Content-Type": "multipart/form-data",
+                },
+            });
+
+            this.tampilModal = false;
+            this.selectedFile = null;
+            this.$nextTick(() => {
+                Swal.fire("Sukses", "Data berhasil diimpor", "success");
+            });
+            await this.fetchOrtuList(); // kalau punya method refresh data
+            } catch (error) {
+            this.tampilModal = false;
+            this.$nextTick(() => {
+                Swal.fire("Gagal", "Terjadi kesalahan saat mengimpor data orangtua", "error");
+            });
+            }
+        },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
         closeModal() {
             this.showModal = false;
+            this.tampilModal = false;
         },
         changePage(page) {
             if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
+                this.dropdownIndex = null;
             }
         },
         sortBy(key) {
@@ -363,12 +418,11 @@ export default {
                 this.sortAsc = true;
             }
         },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
             return this.ortuList.map((ortu, index) => {
                 const filteredOrtu = {
                     No: index + 1,
-                }; // Menambahkan nomor urut
+                };
                 Object.keys(this.selectedFilters).forEach((key) => {
                     if (this.selectedFilters[key]) {
                         filteredOrtu[key] = ortu[key];
@@ -377,8 +431,6 @@ export default {
                 return filteredOrtu;
             });
         },
-
-        // Fungsi ekspor data berdasarkan filter aktif
         getFilteredDataForExport() {
             const selectedColumnKeys = Object.keys(this.selectedFilters)
                 .filter(key => this.selectedFilters[key]);
@@ -458,7 +510,7 @@ export default {
             } catch (error) {
                 console.error('Error applying filters:', error);
                 Swal.fire('Error', 'Gagal menerapkan filter', 'error');
-                return this.ortuList; // Return full list as fallback
+                return this.ortuList; 
             }
         },
 
@@ -503,7 +555,6 @@ export default {
         },
         async exportData(format) {
             try {
-                // Ambil data dengan filter yang diterapkan
                 const filteredData = await this.applyFilters();
 
                 if (format === 'pdf') {
@@ -522,164 +573,155 @@ export default {
         },
 
         async exportToPDF(originalData) {
-    try {
-        const { jsPDF } = await import('jspdf');
-        await import('jspdf-autotable');
+            try {
+                const { jsPDF } = await import('jspdf');
+                await import('jspdf-autotable');
 
-        // Get selected columns
-        const selectedColumns = Object.keys(this.selectedFilters)
-            .filter(key => this.selectedFilters[key])
-            .map(key => this.mapFrontendToBackendKey(key));
+                // Get selected columns
+                const selectedColumns = Object.keys(this.selectedFilters)
+                    .filter(key => this.selectedFilters[key])
+                    .map(key => this.mapFrontendToBackendKey(key));
 
-        // If no columns selected, use all columns
-        const columnsToShow = selectedColumns.length > 0 ? selectedColumns : [
-            'no_kk', 'nik_ayah', 'nama_ayah', 'tahun_lahir_ayah', 'pendidikan_ayah',
-            'pekerjaan_ayah', 'penghasilan_ayah', 'nik_ibu', 'nama_ibu',
-            'tahun_lahir_ibu', 'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ibu', 'no_telp'
-        ];
+                // If no columns selected, use all columns
+                const columnsToShow = selectedColumns.length > 0 ? selectedColumns : [
+                    'no_kk', 'nik_ayah', 'nama_ayah', 'tahun_lahir_ayah', 'pendidikan_ayah',
+                    'pekerjaan_ayah', 'penghasilan_ayah', 'nik_ibu', 'nama_ibu',
+                    'tahun_lahir_ibu', 'pendidikan_ibu', 'pekerjaan_ibu', 'penghasilan_ibu', 'no_telp'
+                ];
 
-        // --- Perbaikan di sini ---
-        // Tambahkan 'No' ke dalam daftar kolom yang akan ditampilkan di header PDF
-        const pdfColumnKeys = ['no', ...columnsToShow];
-        const columnCount = pdfColumnKeys.length; // Hitung jumlah kolom
-        // --- Akhir Perbaikan ---
+                const pdfColumnKeys = ['no', ...columnsToShow];
+                const columnCount = pdfColumnKeys.length; 
+            
+                const data = originalData.map((item, index) => {
+                    const row = { no: index + 1 };
+                    columnsToShow.forEach(col => {
+                        row[col] = item[col] ?? '-';
+                    });
+                    return row;
+                });
 
+                const orientation = columnsToShow.length > 5 ? 'landscape' : 'portrait';
+                const doc = new jsPDF({ orientation, unit: 'mm' });
 
-        // Prepare data with sequential numbers
-        const data = originalData.map((item, index) => {
-            const row = { no: index + 1 };
-            columnsToShow.forEach(col => {
-                row[col] = item[col] ?? '-';
-            });
-            return row;
-        });
+                doc.setFontSize(16);
+                doc.setFont('times', 'bold');
+                doc.text('LAPORAN DATA ORANGTUA SISWA PAUD AL UMMAH', doc.internal.pageSize.width / 2, 15, {
+                    align: 'center'
+                });
 
-        // Determine orientation
-        const orientation = columnsToShow.length > 5 ? 'landscape' : 'portrait';
-        const doc = new jsPDF({ orientation, unit: 'mm' });
+                doc.setFontSize(10);
+                doc.setFont('times', 'normal');
+                const date = new Date().toLocaleDateString('id-ID', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                doc.text(`Dicetak pada: ${date}`, 14, 22);
 
-        // Report title
-        doc.setFontSize(16);
-        doc.setFont('helvetica', 'bold');
-        doc.text('LAPORAN DATA ORANGTUA SISWA', doc.internal.pageSize.width / 2, 15, {
-            align: 'center'
-        });
+                const headers = [
+                    'No', 
+                    ...columnsToShow.map(col => {
+                        const headerMap = {
+                            'no_kk': 'No KK',
+                            'nik_ayah': 'NIK Ayah',
+                            'nama_ayah': 'Nama Ayah',
+                            'tahun_lahir_ayah': 'Tahun Lahir Ayah',
+                            'pendidikan_ayah': 'Pendidikan Ayah',
+                            'pekerjaan_ayah': 'Pekerjaan Ayah',
+                            'penghasilan_ayah': 'Penghasilan Ayah',
+                            'nik_ibu': 'NIK Ibu',
+                            'nama_ibu': 'Nama Ibu',
+                            'tahun_lahir_ibu': 'Tahun Lahir Ibu',
+                            'pendidikan_ibu': 'Pendidikan Ibu',
+                            'pekerjaan_ibu': 'Pekerjaan Ibu',
+                            'penghasilan_ibu': 'Penghasilan Ibu',
+                            'no_telp': 'No Telepon'
+                        };
+                        return headerMap[col] || col;
+                    })
+                ];
 
-        // Print date
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        const date = new Date().toLocaleDateString('id-ID', {
-            weekday: 'long',
-            year: 'numeric',
-            month: 'long',
-            day: 'numeric'
-        });
-        doc.text(`Dicetak pada: ${date}`, 14, 22);
+                const body = data.map(row => {
+                    return [
+                        row.no, 
+                        ...columnsToShow.map(col => row[col] ?? '-')
+                    ];
+                });
 
-        // Prepare headers
-        const headers = [
-            'No', // Pastikan 'No' ada di sini juga
-            ...columnsToShow.map(col => {
-                const headerMap = {
-                    'no_kk': 'No KK',
-                    'nik_ayah': 'NIK Ayah',
-                    'nama_ayah': 'Nama Ayah',
-                    'tahun_lahir_ayah': 'Tahun Lahir Ayah',
-                    'pendidikan_ayah': 'Pendidikan Ayah',
-                    'pekerjaan_ayah': 'Pekerjaan Ayah',
-                    'penghasilan_ayah': 'Penghasilan Ayah',
-                    'nik_ibu': 'NIK Ibu',
-                    'nama_ibu': 'Nama Ibu',
-                    'tahun_lahir_ibu': 'Tahun Lahir Ibu',
-                    'pendidikan_ibu': 'Pendidikan Ibu',
-                    'pekerjaan_ibu': 'Pekerjaan Ibu',
-                    'penghasilan_ibu': 'Penghasilan Ibu',
-                    'no_telp': 'No Telepon'
-                };
-                return headerMap[col] || col;
-            })
-        ];
+                const pageWidth = doc.internal.pageSize.width;
+                const margin = 14;
+                const availableWidth = pageWidth - (margin * 2);
 
-        // Prepare table body
-        const body = data.map(row => {
-            return [
-                row.no, // Pastikan row.no ada di sini
-                ...columnsToShow.map(col => row[col] ?? '-')
-            ];
-        });
+                const columnWidthsMap = this.calculateDynamicColumnWidths(headers, data, availableWidth);
+                const scaledWidths = headers.map(header => columnWidthsMap[header]);
 
-        // Calculate column widths
-        const pageWidth = doc.internal.pageSize.width;
-        const margin = 14;
-        const availableWidth = pageWidth - (margin * 2);
+                const yPosition = 30; 
 
-        // --- Perbaikan di sini: Menggunakan fungsi yang sudah ada untuk menghitung lebar kolom
-        const columnWidthsMap = this.calculateDynamicColumnWidths(headers, data, availableWidth);
-        const scaledWidths = headers.map(header => columnWidthsMap[header]);
-
-        // Perbaikan: yPosition harus didefinisikan
-        const yPosition = 30; // Sesuaikan posisi Y awal tabel
-        // --- Akhir Perbaikan ---
-
-        // Create table
-        doc.autoTable({
-            head: [headers],
-            body: body,
-            startY: yPosition + 10,
-            margin: {
-                left: margin,
-                right: margin
-            },
-            styles: {
-                fontSize: 8,
-                cellPadding: 2,
-                overflow: 'linebreak',
-                font: 'helvetica',
-                textColor: [0, 0, 0],
-                minCellHeight: 6
-            },
-            headStyles: {
-                fillColor: [41, 128, 185],
-                textColor: [255, 255, 255],
-                fontStyle: 'bold',
-                fontSize: 9,
-                halign: 'center'
-            },
-            columnStyles: headers.reduce((styles, header, index) => { // Perhatikan perubahan dari index ke header
-                styles[index] = {
-                    cellWidth: scaledWidths[index],
-                    halign: this.getColumnAlignment(header, data) // Gunakan helper alignment
-                };
-                return styles;
-            }, {}),
-            didDrawPage: (data) => {
-                // Footer
-                const pageCount = doc.internal.getNumberOfPages();
-                doc.setFontSize(8);
-                doc.text(
-                    `Halaman ${data.pageNumber} dari ${pageCount}`,
-                    doc.internal.pageSize.width / 2,
-                    doc.internal.pageSize.height - 10, {
-                        align: 'center'
+                doc.autoTable({
+                    head: [headers],
+                    body: body,
+                    startY: yPosition + 10,
+                    margin: {
+                        left: margin,
+                        right: margin
+                    },
+                    styles: {
+                        fontSize: 8,
+                        cellPadding: 2,
+                        overflow: 'linebreak',
+                        font: 'times',
+                        textColor: [0, 0, 0],
+                        minCellHeight: 6
+                    },
+                    headStyles: {
+                        fillColor: [200, 200, 200], 
+                        textColor: [0, 0, 0],
+                        fontStyle: 'bold',
+                        fontSize: 9,
+                        halign: 'center'
+                    },
+                    columnStyles: headers.reduce((styles, header, index) => { 
+                        styles[index] = {
+                            cellWidth: scaledWidths[index],
+                            halign: this.getColumnAlignment(header, data) 
+                        };
+                        return styles;
+                    }, {}),
+                    didDrawPage: (data) => {
+                        // Footer
+                        const pageCount = doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.setFont('times', 'normal');
+                        doc.text(
+                            `Halaman ${data.pageNumber} dari ${pageCount}`,
+                            doc.internal.pageSize.width / 2,
+                            doc.internal.pageSize.height - 10, {
+                                align: 'center'
+                            }
+                        );
                     }
-                );
-            }
-        });
+                });
 
-        doc.save(`Data_Orangtua_${new Date().toISOString().slice(0, 10)}.pdf`);
-    } catch (error) {
-        console.error('Error generating PDF:', error);
-        Swal.fire('Error', 'Gagal membuat PDF', 'error');
-    }
-},
-        // New helper method to calculate dynamic column widths
+                doc.save(`Data_Orangtua_${new Date().toISOString().slice(0, 10)}.pdf`);
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'PDF berhasil dibuat dan disimpan!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                Swal.fire('Error', 'Gagal membuat PDF', 'error');
+            }
+        },
         calculateDynamicColumnWidths(headers, data, availableWidth) {
             const columnWidths = {};
             const contentLengths = {};
 
-            // Default widths for known columns
             const defaultWidths = {
-                'no': 10,
+                'no': 5,
                 'no_kk': 25,
                 'nik_ayah': 20,
                 'nama_ayah': 30,
@@ -687,15 +729,12 @@ export default {
                 'nama_ibu': 30,
             };
 
-            // First calculate content length for each column
             headers.forEach(header => {
                 let maxLength = defaultWidths[header] || 15; // default minimum width
 
-                // Check header length
                 const headerLength = header.length * 1.5; // approximate width in mm
                 if (headerLength > maxLength) maxLength = headerLength;
 
-                // Check data content length
                 data.forEach(row => {
                     const content = row[header] ?.toString() || '';
                     const contentLength = content.length * 1.2; // approximate width in mm
@@ -705,10 +744,8 @@ export default {
                 contentLengths[header] = Math.min(maxLength, 50); // cap at 50mm
             });
 
-            // Calculate total needed width
             const totalNeededWidth = Object.values(contentLengths).reduce((a, b) => a + b, 0);
 
-            // If total needed width is less than available width, distribute extra space
             if (totalNeededWidth < availableWidth) {
                 const extraSpace = availableWidth - totalNeededWidth;
                 const extraPerColumn = extraSpace / headers.length;
@@ -717,7 +754,6 @@ export default {
                     columnWidths[header] = contentLengths[header] + extraPerColumn;
                 });
             } else {
-                // If content is wider than available space, scale down proportionally
                 const scaleFactor = availableWidth / totalNeededWidth;
 
                 headers.forEach(header => {
@@ -728,16 +764,13 @@ export default {
             return columnWidths;
         },
 
-        // Helper method to determine column alignment
         getColumnAlignment(header, data) {
             if (!data || data.length === 0) return 'left';
 
             const sampleValue = data[0][header];
 
-            // Numbers should be right-aligned
             if (typeof sampleValue === 'number') return 'right';
 
-            // Dates should be center-aligned
             if (sampleValue instanceof Date) return 'center';
 
             // Specific columns
@@ -754,7 +787,7 @@ export default {
 
             const specialWidths = {
                 'No': 8,
-                'Nomor KK': 25,
+                'No KK': 25,
                 'NIK Ayah': 20,
                 'Nama Ayah': 30,
                 'NIK Ibu': 20,
@@ -779,7 +812,8 @@ export default {
                 const excelData = data.map(row => {
                     const formattedRow = {};
                     Object.keys(row).forEach(key => {
-                        // Gunakan headerMapping jika ada
+                        if (key === 'id' || key === 'admin_id') return;
+
                         const headerLabel = this.headerMapping[key] || key;
 
                         // Handle null/undefined
@@ -790,12 +824,12 @@ export default {
 
                         // Format khusus untuk beberapa tipe data
                         switch (key) {
-                            case 'tahunLahirAyah':
-                            case 'tahunLahirIbu':
+                            case 'tahun_lahir_ayah':
+                            case 'tahun_lahir_ibu':
                                 formattedRow[headerLabel] = row[key].toString();
                                 break;
-                            case 'penghasilanAyah':
-                            case 'penghasilanIbu':
+                            case 'penghasilan_ayah':
+                            case 'penghasilan_ibu':
                                 formattedRow[headerLabel] = typeof row[key] === 'number' ?
                                     row[key].toLocaleString('id-ID') :
                                     row[key];
@@ -803,6 +837,7 @@ export default {
                             default:
                                 formattedRow[headerLabel] = row[key];
                         }
+
                     });
                     return formattedRow;
                 });
@@ -830,6 +865,14 @@ export default {
                 // Simpan file
                 XLSX.writeFile(wb, `Data_Orangtua_${new Date().toISOString().slice(0, 10)}.xlsx`);
 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Excel berhasil dibuat dan disimpan!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+
             } catch (error) {
                 console.error('Error generating Excel:', error);
                 Swal.fire({
@@ -842,7 +885,7 @@ export default {
         },
         shouldShowColumn(columnName) {
             const columnToFilterMap = {
-                'Nomor KK': 'noKk',
+                'No KK': 'noKk',
                 'Nama Ayah': 'namaAyah',
                 'NIK Ayah': 'nikAyah',
                 'Tahun Lahir Ayah': 'tahunLahirAyah',
@@ -884,13 +927,27 @@ export default {
                 if (confirmDelete.isConfirmed) {
                     const response = await axios.delete(`/orangtua/${orangtuaId}`);
 
-                    Swal.fire('Terhapus!', 'Data orangtua berhasil dihapus.', 'success');
                     this.ortuList = this.ortuList.filter(ortu => ortu.id !== orangtuaId);
+                    Swal.fire('Terhapus!', 'Data orangtua berhasil dihapus.', 'success');
+                    this.dropdownIndex = null;
                 }
             } catch (error) {
                 Swal.fire('Error', 'Gagal menghapus data orangtua!', 'error');
             }
         },
+        handleClickOutside(event) {
+            const popups = this.$refs.popup;
+            const clickedInside = Array.isArray(popups)
+                ? popups.some(popup => popup.contains(event.target))
+                : popups && popups.contains(event.target);
+
+            if (!clickedInside) {
+                this.dropdownIndex = null;
+            }
+        }
+    },
+    beforeUnmount() {
+        document.removeEventListener('click', this.handleClickOutside);
     },
     computed: {
         displayedColumns() {
@@ -899,7 +956,7 @@ export default {
 
             if (selected.length === 0) {
                 return [
-                    'No', 'Nomor KK', 'NIK Ayah', 'NIK Ibu', 'Nama Ayah', 'Nama Ibu', 'Tahun Lahir Ayah',
+                    'No', 'No KK', 'NIK Ayah', 'NIK Ibu', 'Nama Ayah', 'Nama Ibu', 'Tahun Lahir Ayah',
                     'Tahun Lahir Ibu', 'Pendidikan Ayah', 'Pendidikan Ibu', 'Pekerjaan Ayah', 'Pekerjaan Ibu',
                     'Penghasilan Ayah', 'Penghasilan Ibu', 'No Telp'
                 ];
@@ -907,6 +964,7 @@ export default {
 
             return selected.map(key => this.getColumnLabel(key));
         },
+        
         showLeftEllipsis() {
             return this.currentPage > 4;
         },
@@ -948,21 +1006,22 @@ export default {
         paginatedOrtuList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
-            return this.filteredOrtuList.slice(startIndex, endIndex); // Slice dari hasil filter, bukan ortuList langsung
+            return this.filteredOrtuList.slice(startIndex, endIndex); 
         },
         totalPages() {
             return Math.ceil(this.ortuList.length / this.rowsPerPage);
         },
         pageInfo() {
             const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.ortuList.length);
-            return `Showing ${startRow}-${endRow} of ${this.ortuList.length} entries`;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredOrtuList.length);
+            return `Showing ${startRow}-${endRow} of ${this.filteredOrtuList.length} entries`;
         },
     },
     mounted() {
+        document.addEventListener('click', this.handleClickOutside);
+
         (this.ortuList);
 
-        // Hapus duplikasi berdasarkan ID
         this.ortuList = this.ortuList.filter(
             (item, index, self) => index === self.findIndex((t) => t.id === item.id)
         );
@@ -1017,7 +1076,6 @@ export default {
     width: 48%;
 }
 
-
 .checkbox {
     margin-right: 0.5rem;
 }
@@ -1033,10 +1091,10 @@ label {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-top: 4rem;
 }
 
 .breadcrumb {
-    margin-top: 3.5rem;
     margin-bottom: 1rem;
 }
 
@@ -1088,6 +1146,12 @@ label {
 .tampil-baris {
     color: #336C2A;
     font-weight: 600;
+}
+
+.modal-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
 }
 
 .filter-section {
@@ -1408,45 +1472,65 @@ label {
     width: 100%;
 }
 
-.no-data-img {
-    max-width: 100px;
-    margin-bottom: 10px;
-}
-
 .no-data-text {
     font-size: 16px;
     color: #6c757d;
     /* Warna teks abu-abu */
 }
 
-.no-data-cell {
-    text-align: center;
-    padding: 20px;
-    position: relative;
-    height: 150px;
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
 }
 
-.no-data-content {
-    display: flex;
-    margin-top: 0.5rem;
+@media (max-width: 768px) {
+  .filter-section {
     flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
+    align-items: stretch;
     width: 100%;
-}
+    max-width: 40vh;
+  }
 
-.no-data-img {
-    max-width: 100px;
-    margin-bottom: 10px;
-}
+  .row-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
 
-.no-data-text {
-    font-size: 16px;
-    color: #6c757d;
-    /* Warna teks abu-abu */
+  .export-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .filter {
+    width: 100%;
+  }
+
+  .tampil-baris {
+    width: 100%;
+  }
+
+  .search-bar-container {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filter-btn,
+  .btn {
+    width: 100%;
+  }
+
+  .modal-content-ortu,
+  .table-wrapper-ortu {
+    width: 40vh;
+  }
 }
 </style>

@@ -92,7 +92,6 @@ export default {
 };
 </script>
 
-
 <style scoped>
 /* Umum */
 .title h3 {

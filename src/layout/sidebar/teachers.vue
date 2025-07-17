@@ -28,32 +28,6 @@
                     </select>
                 </div>
                 <div class="filter">
-                    <button @click="showModal = true" class="filter-btn">
-                        Filter
-                        <i class="fa-solid fa-filter filter-icon"></i>
-                    </button>
-                    <!-- Filter Popup -->
-                    <div>
-                        <!-- Modal Filter -->
-                        <div v-if="showModal" class="modal-overlay" @click.self="toggleFilterPopup">
-                            <div class="modal-content-ortu">
-                                <div class="modal-header">
-                                    <h5 class="modal-title">Filter Data Guru</h5>
-                                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
-                                </div>
-                                <hr>
-                                <div class="filter-rows">
-                                    <!-- First row -->
-                                    <div class="col" v-for="(filter, key) in firstRowFilters" :key="key">
-                                        <label>
-                                            <input type="checkbox" class="checkbox" v-model="selectedFilters[filter.key]" />
-                                            {{ filter.label }}
-                                        </label>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
                 </div>
                 <div class="export-section">
                     <button class="btn btn-danger" @click="exportData('pdf')">
@@ -136,15 +110,37 @@
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button class="page-link" @click="changePage(currentPage - 1)" aria-label="Previous" :disabled="currentPage === 1">
+                        <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
-                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                        <button class="page-link" @click="changePage(page)">{{ page }}</button>
+
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
                     </li>
+
+                    <li v-if="showLeftEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <button class="page-link" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
+
+                    <li v-if="showRightEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
+
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <button class="page-link" @click="changePage(currentPage + 1)" aria-label="Next" :disabled="currentPage === totalPages">
+                        <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
@@ -174,85 +170,7 @@ export default {
             currentPage: 1,
             showModal: false,
             dropdownIndex: null,
-            searchQuery: '', // for filtering
-            selectedFilters: {
-                nip: true,
-                username: true,
-                password: true,
-                namaGuru: true,
-                gender: false,
-                tempatLahir: false,
-                tglLahir: false,
-                agama: false,
-                alamat: false,
-                noTelp: false,
-                jabatan: true,
-                kelas: true,
-                jmlHari: true,
-                tugasMengajar: true,
-            },
-            guruList: [],
-            kelasList: [],
-            headerMapping: {
-                noKK: 'Nomor Kartu Keluarga',
-            },
-            firstRowFilters: [{
-                    key: "nip",
-                    label: "NIP"
-                },
-                {
-                    key: "username",
-                    label: "Username"
-                },
-                {
-                    key: "password",
-                    label: "Password"
-                },
-                {
-                    key: "namaGuru",
-                    label: "Nama Lengkap"
-                },
-                {
-                    key: "gender",
-                    label: "Jenis Kelamin"
-                },
-                {
-                    key: "tempatLahir",
-                    label: "Tempat Lahir"
-                },
-                {
-                    key: "tglLahir",
-                    label: "Tanggal Lahir"
-                },
-                {
-                    key: "agama",
-                    label: "Agama"
-                },
-                {
-                    key: "alamat",
-                    label: "Alamat"
-                },
-                {
-                    key: "noTelp",
-                    label: "Nomor Telp"
-                },
-                {
-                    key: "jabatan",
-                    label: "Jabatan"
-                },
-                {
-                    key: "kelas",
-                    label: "Kelas Yang Diajar"
-                },
-                {
-                    key: "jmlHari",
-                    label: "Jumlah Hari Mengajar"
-                },
-                {
-                    key: "tugasMengajar",
-                    label: "Tugas Mengajar"
-                },
-            ],
+            searchQuery: '', 
         };
     },
     setup() {
@@ -291,19 +209,18 @@ export default {
                 .catch(error => console.error("Error fetching relasi kelas:", error));
         };
 
-        // Mengelompokkan kelas yang diampu oleh guru
         const guruWithKelas = computed(() => {
             return guruList.value.map(guru => {
                 const kelasDiampu = relasiKelasList.value
-                    .filter(relasi => relasi.guru_id === guru.id) // Cari kelas berdasarkan guru_id
+                    .filter(relasi => relasi.guru_id === guru.id) 
                     .map(relasi => {
                         const kelas = kelasList.value.find(k => k.id === relasi.kelas_id);
-                        return kelas ? kelas.nama_kelas : "Tidak Diketahui"; // Pastikan nama kelas ada
+                        return kelas ? kelas.nama_kelas : "Tidak Diketahui"; 
                     });
 
                 return {
                     ...guru,
-                    kelasDiampu: kelasDiampu.join(", ") // Gabungkan kelas dalam satu string
+                    kelasDiampu: kelasDiampu.join(", ")
                 };
             });
         });
@@ -317,9 +234,149 @@ export default {
         return {
             guruWithKelas,
             fetchGuruList,
+            kelasList,
+            relasiKelasList,
         };
     },
     methods: {
+        exportData(format) {
+            const dataToExport = this.filteredGuruList; 
+
+            if (format === 'pdf') {
+                this.exportToPDF(dataToExport); 
+            } else if (format === 'excel') {
+                this.exportGuruToExcel(dataToExport); 
+            } else if (format === 'json') {
+                axios.get('/guru/export')
+                    .then(response => {
+                        const dataStr = JSON.stringify(response.data.data, null, 2);
+                        const blob = new Blob([dataStr], { type: 'application/json' });
+                        const link = document.createElement('a');
+                        link.href = URL.createObjectURL(blob);
+                        link.download = 'data_guru.json';
+                        link.click();
+                    })
+                    .catch(err => {
+                        console.error('Export failed:', err);
+                    });
+            }
+        },
+
+        async exportToPDF(originalData) {
+            try {
+                const { jsPDF } = await import('jspdf');
+                await import('jspdf-autotable');
+
+                const data = originalData;
+
+                const doc = new jsPDF({ orientation: 'landscape', unit: 'mm' });
+
+                doc.setFontSize(16);
+                doc.setFont('times', 'bold');
+                doc.text('LAPORAN DATA GURU PAUD AL UMMAH', doc.internal.pageSize.width / 2, 15, { align: 'center' });
+
+                doc.setFontSize(10);
+                doc.setFont('times', 'normal');
+                const date = new Date().toLocaleDateString('id-ID', {
+                    weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+                });
+                doc.text(`Dicetak pada: ${date}`, 14, 22);
+
+                const headers = [
+                    'No', 'NIP', 'Nama Lengkap', 'Gender', 'Tempat Lahir', 'Tanggal Lahir',
+                    'Agama', 'Alamat', 'No Telepon', 'Jabatan', 'Kelas Yang Diajar',
+                    'Jumlah Hari Mengajar', 'Tugas Mengajar'
+                ];
+
+                const body = data.map((item, index) => [
+                    index + 1,
+                    item.nip || '-', item.nama_lengkap || '-', item.gender || '-',
+                    item.tempat_lahir || '-', item.tgl_lahir || '-', item.agama || '-',
+                    item.alamat || '-', item.no_telp || '-', item.jabatan || '-',
+                    item.kelasDiampu || '-', item.jumlah_hari_mengajar || '-', item.tugas_mengajar || '-'
+                ]);
+
+                const margin = 14;
+                const availableWidth = doc.internal.pageSize.width - margin * 2;
+                const columnCount = headers.length;
+                const defaultCellWidth = availableWidth / columnCount;
+
+                doc.autoTable({
+                    head: [headers],
+                    body: body,
+                    startY: 30,
+                    margin: { left: margin, right: margin },
+                    styles: {
+                        font: 'times',
+                        fontSize: 8,
+                        textColor: [0, 0, 0],
+                        cellPadding: 2,
+                        minCellHeight: 6,
+                        overflow: 'linebreak'
+                    },
+                    headStyles: {
+                        fillColor: [200, 200, 200], 
+                        textColor: [0, 0, 0],
+                        fontStyle: 'bold',
+                        halign: 'center',
+                        fontSize: 9
+                    },
+                    columnStyles: headers.reduce((cols, _, i) => {
+                        cols[i] = { cellWidth: defaultCellWidth, halign: 'left' };
+                        return cols;
+                    }, {}),
+                    didDrawPage: (data) => {
+                        const pageCount = doc.internal.getNumberOfPages();
+                        doc.setFontSize(8);
+                        doc.setFont('times', 'normal');
+                        doc.text(`Halaman ${data.pageNumber} dari ${pageCount}`,
+                            doc.internal.pageSize.width / 2,
+                            doc.internal.pageSize.height - 10,
+                            { align: 'center' });
+                    }
+                });
+
+                doc.save(`Data_Guru_${new Date().toISOString().slice(0, 10)}.pdf`);
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'PDF berhasil dibuat dan disimpan!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+            } catch (error) {
+                Swal.fire('Error', 'Gagal membuat PDF', 'error');
+            }
+        },
+        async exportGuruToExcel() {
+            try {
+                const XLSX = await import('xlsx');
+                const data = this.guruWithKelas;
+
+                const formatted = data.map(item => ({
+                    'NIP': item.nip || '-', 'Nama Lengkap': item.nama_lengkap || '-',
+                    'Gender': item.gender || '-', 'Tempat Lahir': item.tempat_lahir || '-',
+                    'Tanggal Lahir': item.tgl_lahir || '-', 'Agama': item.agama || '-',
+                    'Alamat': item.alamat || '-', 'No Telepon': item.no_telp || '-',
+                    'Jabatan': item.jabatan || '-', 'Kelas Yang Diajar': item.kelasDiampu || '-',
+                    'Jumlah Hari Mengajar': item.jumlah_hari_mengajar || '-', 'Tugas Mengajar': item.tugas_mengajar || '-'
+                }));
+
+                const ws = XLSX.utils.json_to_sheet(formatted);
+                const wb = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(wb, ws, 'Data Guru');
+
+                ws['!cols'] = Object.keys(formatted[0]).map(key => ({
+                    wch: Math.min(Math.max(key.length, 15), 50)
+                }));
+
+                XLSX.writeFile(wb, `Data_Guru_${new Date().toISOString().slice(0, 10)}.xlsx`);
+                Swal.fire('Berhasil', 'Excel berhasil dibuat dan disimpan!', 'success');
+            } catch (error) {
+                console.error('Excel Export Error:', error);
+                Swal.fire('Error', 'Gagal membuat Excel', 'error');
+            }
+        },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
@@ -330,8 +387,8 @@ export default {
             if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
             }
+            this.dropdownIndex = null;
         },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
         getFilteredData() {
             return this.guruList.map((guru, index) => {
                 const filteredGuru = {
@@ -345,45 +402,11 @@ export default {
                 return filteredGuru;
             });
         },
-        // Fungsi ekspor data berdasarkan filter aktif
-        exportData(format) {
-            const filteredData = this.getFilteredData();
-
-            // Buat header sesuai mapping
-            const headers = ['No', ...Object.keys(this.selectedFilters).filter(key => this.selectedFilters[key])];
-            const headerLabels = headers.map(header => this.headerMapping[header] || header);
-
-            if (format === 'pdf') {
-                const doc = new jsPDF();
-
-                // Buat data tabel untuk PDF
-                const data = filteredData.map(guru => headers.map(key => guru[key] || ''));
-
-                doc.autoTable({
-                    head: [headerLabels],
-                    body: data,
-                });
-
-                doc.save('filtered_data.pdf');
-            } else if (format === 'excel') {
-                const data = [headerLabels, ...filteredData.map(guru => headers.map(key => guru[key] || ''))];
-                const csv = Papa.unparse(data);
-
-                const blob = new Blob([csv], {
-                    type: 'text/csv;charset=utf-8;'
-                });
-                const link = document.createElement('a');
-                link.href = URL.createObjectURL(blob);
-                link.download = 'filtered_data.csv';
-                link.click();
-            }
-        },
         editGuru(id) {
             this.dropdownIndex = null;
 
             this.$router.push(`/adminmainsidebar/addTeachers/${id}`);
         },
-        // Fungsi untuk menghapus kelas berdasarkan ID
         async deleteGuru(guruId) {
             try {
                 // Konfirmasi penghapusan data
@@ -409,21 +432,21 @@ export default {
         },
     },
     computed: {
-        guruWithKelas() {
-            return this.guruList.map(guru => {
-                const kelasDiampu = this.relasiKelasList
-                    .filter(relasi => relasi.guru_id === guru.id) // Cari relasi kelas berdasarkan guru_id
-                    .map(relasi => {
-                        const kelas = this.kelasList.find(k => k.id === relasi.kelas_id);
-                        return kelas ? kelas.nama_kelas : "Tidak Diketahui";
-                    });
+        // guruWithKelas() {
+        //     return this.guruList.map(guru => {
+        //         const kelasDiampu = this.relasiKelasList
+        //             .filter(relasi => relasi.guru_id === guru.id) 
+        //             .map(relasi => {
+        //                 const kelas = this.kelasList.find(k => k.id === relasi.kelas_id);
+        //                 return kelas ? kelas.nama_kelas : "Tidak Diketahui";
+        //             });
 
-                return {
-                    ...guru,
-                    kelasDiampu: kelasDiampu.join(", ") // Gabungkan kelas dalam satu string
-                };
-            });
-        },
+        //         return {
+        //             ...guru,
+        //             kelasDiampu: kelasDiampu.join(", ") 
+        //         };
+        //     });
+        // },
         paginatedGuruList() {
             const startIndex = (this.currentPage - 1) * this.rowsPerPage;
             const endIndex = startIndex + this.rowsPerPage;
@@ -502,10 +525,10 @@ label {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-top: 4rem;
 }
 
 .breadcrumb {
-    margin-top: 3.5rem;
     margin-bottom: 1rem;
 }
 
@@ -783,5 +806,89 @@ label {
 
 .pagination {
     margin: 0;
+}
+
+
+.no-data-cell {
+    text-align: center;
+    padding: 20px;
+    position: relative;
+    height: 150px;
+}
+
+.no-data-content {
+    display: flex;
+    margin-top: 0.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+.no-data-text {
+    font-size: 16px;
+    color: #6c757d;
+    /* Warna teks abu-abu */
+}
+
+.no-data-img {
+    max-width: 100px;
+    margin-bottom: 10px;
+}
+
+
+@media (max-width: 768px) {
+  .filter-section {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    max-width: 40vh;
+  }
+
+  .row-filter-wrapper {
+    flex-direction: column;
+    align-items: stretch;
+    width: 100%;
+    gap: 1rem;
+    margin-bottom: 1rem;
+  }
+
+  .export-section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    width: 100%;
+  }
+
+  .filter {
+    width: 100%;
+  }
+
+  .tampil-baris {
+    width: 100%;
+  }
+
+  .search-bar-container {
+    margin-top: 1rem;
+    width: 100%;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filter-btn,
+  .btn {
+    width: 100%;
+  }
+
+  .modal-content-ortu,
+  .table-wrapper {
+    width: 40vh;
+  }
 }
 </style>

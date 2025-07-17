@@ -1,6 +1,6 @@
 <template>
 <div class="container">
-    <section class="content-header-add">
+    <section class="content-header">
         <nav aria-label="breadcrumb" style="--bs-breadcrumb-divider: '>';">
             <ol class="breadcrumb">
                 <li class="breadcrumb-item">
@@ -22,7 +22,7 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="nip">NIP</label>
-                            <input v-model="form.nip" type="number" id="nip" placeholder="Masukkan NIP" required :disabled="isEdit" />
+                            <input v-model="form.nip" type="number" id="nip" placeholder="Masukkan NIP" required :readonly="isEdit" />
                         </div>
                         <div class="form-group">
                             <label for="nama">Nama</label>
@@ -145,10 +145,10 @@ export default {
                 if (this.isEdit) {
                     response = await axios.put(`${import.meta.env.VITE_API_URL}/api/guru/${this.$route.params.id}`, payload);
                 } else {
-                    response = await axios.post('${import.meta.env.VITE_API_URL}/api/guru/', payload);
+                    response = await axios.post(`${import.meta.env.VITE_API_URL}/api/guru/`, payload);
 
                     const guruId = response.data.data.id;
-                    await axios.post('${import.meta.env.VITE_API_URL}/api/relasikelas', {
+                    await axios.post(`${import.meta.env.VITE_API_URL}/api/relasikelas`, {
                         guru_id: guruId,
                         kelas_id: this.form.kelas_id
                     });
@@ -175,7 +175,7 @@ export default {
 
         async getKelasList() {
             try {
-                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/kelas');
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/kelas`);
                 ("Response API Kelas:", response.data);
 
                 this.kelasList = response.data.data;
@@ -215,7 +215,7 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
 .container {
     display: flex;
     flex-direction: column;
@@ -265,6 +265,13 @@ export default {
 .row {
     display: flex;
     gap: 1rem;
+}
+
+input[readonly] {
+  background-color: #f5f5f5 !important;  
+  cursor: not-allowed !important;
+  color: #555 !important;
+  border: 1px solid #ccc !important;
 }
 
 .form-group {
@@ -317,12 +324,41 @@ export default {
 }
 
 @media (max-width: 768px) {
-    .save-data-ortu {
-        text-align: center;
-    }
+    .row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
 
-    .info-card {
-        width: 100%;
-    }
+  .form-group {
+    width: 100%;
+  }
+
+  .form-group input,
+  .form-group select {
+    width: 100%;
+  }
+
+  .info-card {
+    width: 100% !important;
+    max-width: 100%;
+  }
+
+  .content-1 {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .save-data-ortu {
+    text-align: center;
+  }
+
+  .save-data-ortu .btn {
+    width: 100%;
+  }
+
+  .header-text {
+    font-size: 1.1rem;
+    text-align: center;
+  }
 }
 </style>

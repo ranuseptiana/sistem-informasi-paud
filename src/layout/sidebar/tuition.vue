@@ -43,23 +43,15 @@
                                 <hr>
                                 <div class="filter-form">
                                     <!-- Tahun Ajaran -->
+                                    
+                                    <!-- Status Cicilan -->
                                     <div class="form-group">
-                                        <label>Filter Tahun Ajaran (Rentang)</label>
-                                        <div class="tahun-ajaran-dropdown">
-                                            <select v-model="tahunAwal">
-                                                <option value="">Pilih Tahun Awal</option>
-                                                <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[0]">
-                                                    {{ tahun.tahun }}
-                                                </option>
-                                            </select>
-                                            <span>-</span>
-                                            <select v-model="tahunAkhir">
-                                                <option value="">Pilih Tahun Akhir</option>
-                                                <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[1]">
-                                                    {{ tahun.tahun }}
-                                                </option>
-                                            </select>
-                                        </div>
+                                        <label>Status Cicilan</label>
+                                        <select v-model="filter.status_cicilan" class="form-input">
+                                            <option value="" disabled>Semua</option>
+                                            <option value="Lunas">Lunas</option>
+                                            <option value="Belum Lunas">Belum Lunas</option>
+                                        </select>
                                     </div>
 
                                     <!-- Kelas -->
@@ -89,7 +81,7 @@
                                     <div class="form-group">
                                         <label>Metode Pembayaran</label>
                                         <select v-model="filter.metode_pembayaran" class="form-input">
-                                            <option value="">Semua</option>
+                                            <option value="" disabled>Semua</option>
                                             <option value="full">Cash (Bayar Penuh)</option>
                                             <option value="cicilan">Cicilan</option>
                                         </select>
@@ -99,20 +91,29 @@
                                     <div class="form-group">
                                         <label>Status Pembayaran</label>
                                         <select v-model="filter.status_pembayaran" class="form-input">
-                                            <option value="">Semua</option>
+                                            <option value="" disabled>Semua</option>
                                             <option value="Lunas">Lunas</option>
                                             <option value="Belum Lunas">Belum Lunas</option>
                                         </select>
                                     </div>
 
-                                    <!-- Status Cicilan -->
                                     <div class="form-group">
-                                        <label>Status Cicilan</label>
-                                        <select v-model="filter.status_cicilan" class="form-input">
-                                            <option value="">Semua</option>
-                                            <option value="Lunas">Lunas</option>
-                                            <option value="Belum Lunas">Belum Lunas</option>
-                                        </select>
+                                        <label>Filter Tahun Ajaran (Rentang)</label>
+                                        <div class="tahun-ajaran-dropdown">
+                                            <select v-model="tahunAwal">
+                                                <option value="">Pilih Tahun Awal</option>
+                                                <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[0]">
+                                                    {{ tahun.tahun }}
+                                                </option>
+                                            </select>
+                                            <span>-</span>
+                                            <select v-model="tahunAkhir">
+                                                <option value="">Pilih Tahun Akhir</option>
+                                                <option v-for="tahun in tahunAjaranList" :key="tahun.id" :value="tahun.tahun.split('/')[1]">
+                                                    {{ tahun.tahun }}
+                                                </option>
+                                            </select>
+                                        </div>
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -170,11 +171,11 @@
                         <td>{{ getNamaKelasBySiswaId(pembayaran.siswa_id) }}</td>
                         <td>{{ getTahunAjaranBySiswaId(pembayaran.siswa_id) }}</td>
                         <td>{{ pembayaran.jenis_pembayaran }}</td>
-                        <td>{{ pembayaran.tanggal_pembayaran ? pembayaran.tanggal_pembayaran : 'TanggalTidakDitemukan' }}</td>
+                        <td>{{ pembayaran.tanggal_pembayaran ? pembayaran.tanggal_pembayaran : 'Tanggal Tidak Ditemukan' }}</td>
                         <td>{{ pembayaran.metode_pembayaran }}</td>
                         <td>{{ pembayaran.nominal ? formatRupiah(pembayaran.nominal) : 'Nominal Belum Ditambahkan'
                                 }}</td>
-                        <td>{{ pembayaran.sisa_pembayaran ? formatRupiah(pembayaran.sisa_pembayaran) : 'Tidak AdaSisa Pembayaran' }}</td>
+                        <td>{{ pembayaran.sisa_pembayaran ? formatRupiah(pembayaran.sisa_pembayaran) : 'Tidak Ada Sisa Pembayaran' }}</td>
                         <td>
                             <template v-if="pembayaran.bukti_pembayaran_url">
                                 <img 
@@ -243,6 +244,7 @@
 
                                     <label for="metodePembayaran">Metode Pembayaran:</label>
                                     <select v-model="form.metode_pembayaran" class="form-input" @change="updateStatusPembayaran">
+                                        <option disabled value="">-- Pilih Metode Pembayaran --</option>
                                         <option value="full">Cash (Bayar Penuh Tanpa Cicil)</option>
                                         <option value="cicilan">Cicilan</option>
                                     </select>
@@ -252,6 +254,7 @@
 
                                     <label for="jenisPembayaran">Jenis Pembayaran:</label>
                                     <select v-model="form.jenis_pembayaran" class="form-input">
+                                        <option disabled value="">-- Pilih Jenis Pembayaran --</option>
                                         <option value="pendaftaran baru">Pendaftaran Baru</option>
                                         <option value="daftar ulang">Daftar Ulang</option>
                                     </select>
@@ -281,26 +284,28 @@
 
                                 <div class="satu-row">
                                     <label for="statusPembayaran">Status Pembayaran:</label>
-                                    <input type="text" class="form-input" :value="form.status_pembayaran" readonly :disabled="true" />
+                                    <input type="text" class="form-input" :value="form.status_pembayaran || '-- Status --'" readonly disabled />
                                     <span v-if="errors.status_pembayaran" class="text-danger">{{
                                             errors.status_pembayaran[0]
                                             }}</span>
 
                                     <label for="statusCicilan">Status Cicilan:</label>
-                                    <input type="text" class="form-input" :value="form.status_cicilan" readonly :disabled="true" />
+                                    <input type="text" class="form-input" :value="form.status_cicilan || '-- Status --'" readonly disabled />
                                     <span v-if="errors.status_cicilan" class="text-danger">{{
                                             errors.status_cicilan[0] }}</span>
 
-                                    <label for="statusRapor">Status Rapor:</label>
+                                    <label for="statusRapor">Status Penerimaan Rapor:</label>
                                     <select v-model="form.status_rapor" class="form-input">
+                                        <option disabled value="">-- Status --</option>
                                         <option value="Dapat Diterima">Dapat Diterima</option>
                                         <option value="Belum Dapat Diterima">Belum Dapat Diterima</option>
                                     </select>
                                     <span v-if="errors.status_rapor" class="text-danger">{{ errors.status_rapor[0]
                                             }}</span>
 
-                                    <label for="statusAtribut">Status Atribut:</label>
+                                    <label for="statusAtribut">Status Penerimaan Atribut:</label>
                                     <select v-model="form.status_atribut" class="form-input">
+                                        <option disabled value="">-- Status --</option>
                                         <option value="Sudah Diterima">Sudah Diterima</option>
                                         <option value="Belum Diterima">Belum Diterima</option>
                                     </select>
@@ -322,15 +327,37 @@
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
                     <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                        <button class="page-link" @click="changePage(currentPage - 1)" aria-label="Previous" :disabled="currentPage === 1">
+                        <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
                             <span aria-hidden="true">&laquo;</span>
                         </button>
                     </li>
-                    <li v-for="page in totalPages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                        <button class="page-link" @click="changePage(page)">{{ page }}</button>
+
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
                     </li>
+
+                    <li v-if="showLeftEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <button class="page-link" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
+
+                    <li v-if="showRightEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
+
+                    <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
+
                     <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                        <button class="page-link" @click="changePage(currentPage + 1)" aria-label="Next" :disabled="currentPage === totalPages">
+                        <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
                             <span aria-hidden="true">&raquo;</span>
                         </button>
                     </li>
@@ -768,61 +795,46 @@ export default {
                 const XLSX = await import('xlsx');
 
                 const excelData = data.map((item, index) => ({
-                    No: index + 1,
-                    NISN: item.siswa ?.nisn || '-',
-                    'Nama Siswa': item.nama_siswa || item.siswa ?.nama_siswa || '-',
-                    Kelas: item.kelas_nama || item.siswa ?.kelas ?.nama_kelas || '-',
-                    'Tahun Ajaran': item.tahun_ajaran || item.siswa ?.tahunAjaran ?.tahun || '-',
-                    'Tanggal Bayar': item.tanggal_bayar ? new Date(item.tanggal_bayar).toLocaleDateString('id-ID') : '-',
+                    'No': index + 1,
+                    'NISN': item.nisn || '-',
+                    'Nama Siswa': item.nama_siswa || '-',
+                    'Kelas': item.kelas_nama || '-',
+                    'Tahun Ajaran': item.tahun_ajaran || '-',
+                    'Tanggal Pembayaran': item.tanggal_bayar || '-',
+                    'Jenis Pembayaran': item.jenis_pembayaran || '-',
                     'Metode Pembayaran': item.metode_pembayaran || '-',
+                    'Nominal (Rp)': item.nominal?.toLocaleString('id-ID') || '-',
+                    'Total Cicilan (Rp)': item.total_cicilan?.toLocaleString('id-ID') || '-',
+                    'Sisa Pembayaran (Rp)': item.sisa_pembayaran?.toLocaleString('id-ID') || '-',
+                    'Status Cicilan': item.status_cicilan || '-',
                     'Status Pembayaran': item.status_pembayaran || '-',
-                    'Status Cicilan': item.status_cicilan || (item.cicilan ? this.getStatusCicilan(item.cicilan) : '-'),
-                    Jumlah: this.formatRupiah(item.jumlah || 0)
+                    'Status Rapor': item.status_rapor || '-',
+                    'Status Atribut': item.status_atribut || '-',
                 }));
 
-                const ws = XLSX.utils.json_to_sheet(excelData);
-                const wb = XLSX.utils.book_new();
-                XLSX.utils.book_append_sheet(wb, ws, "Pembayaran");
+                const worksheet = XLSX.utils.json_to_sheet(excelData);
+                const workbook = XLSX.utils.book_new();
+                XLSX.utils.book_append_sheet(workbook, worksheet, 'Pembayaran');
 
-                const wscols = [{
-                        wch: 5
-                    }, 
-                    {
-                        wch: 15
-                    }, 
-                    {
-                        wch: 30
-                    }, 
-                    {
-                        wch: 20
-                    }, 
-                    {
-                        wch: 20
-                    },
-                    {
-                        wch: 15
-                    },
-                    {
-                        wch: 15
-                    }, 
-                    {
-                        wch: 15
-                    }, 
-                    {
-                        wch: 15
-                    },
-                    {
-                        wch: 20
-                    }
-                ];
-                ws['!cols'] = wscols;
+                // Optional: Set column width
+                worksheet['!cols'] = Object.keys(excelData[0]).map(() => ({ wch: 25 }));
 
-                const date = new Date().toISOString().slice(0, 10);
-                XLSX.writeFile(wb, `Laporan Pembayaran_${date}.xlsx`);
+                XLSX.writeFile(workbook, `Data_Pembayaran_SPP_${new Date().toISOString().slice(0, 10)}.xlsx`);
 
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Berhasil',
+                    text: 'Data berhasil diekspor ke Excel!',
+                    timer: 2000,
+                    showConfirmButton: false
+                });
             } catch (error) {
-                console.error('Excel Export Error:', error);
-                throw error;
+                console.error('Error saat ekspor Excel:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Gagal Mengekspor Excel',
+                    text: 'Terjadi kesalahan saat membuat file Excel.'
+                });
             }
         },
 
@@ -1065,7 +1077,6 @@ export default {
             this.isEdit = false;
             this.tampilModal = true;
             this.resetForm();
-            this.form.metode_pembayaran = 'full';
             this.updateStatusPembayaran();
         },
 
@@ -1098,12 +1109,14 @@ export default {
             if (this.form.metode_pembayaran === 'full') {
                 this.form.status_pembayaran = 'Lunas';
                 this.form.status_cicilan = 'Lunas';
-            } else {
+            } else if (this.form.metode_pembayaran === 'cicilan') {
                 this.form.status_pembayaran = 'Belum Lunas';
                 this.form.status_cicilan = 'Belum Lunas';
+            } else {
+                this.form.status_pembayaran = '';
+                this.form.status_cicilan = '';
             }
         },
-
         shouldShowColumn(columnName) {
             const columnToFilterMap = {
                 'Nomor KK': 'noKk',
@@ -1213,7 +1226,7 @@ export default {
                     icon: 'success',
                     title: this.isEdit ? 'Data berhasil diubah' : 'Data berhasil ditambahkan',
                     timer: 1500,
-                    showConfirmButton: false
+                    showConfirmButton: true
                 });
 
                 this.closeModal();
@@ -1316,6 +1329,7 @@ export default {
             if (page >= 1 && page <= this.totalPages) {
                 this.currentPage = page;
             }
+            this.dropdownIndex = null;
         },
         openImageModal(url) {
             this.currentImageUrl = url;
@@ -1340,6 +1354,33 @@ export default {
         this.fetchTahunAjaranList();
     },
     computed: {
+        showLeftEllipsis() {
+            return this.currentPage > 4;
+        },
+
+        showRightEllipsis() {
+            return this.currentPage < this.totalPages - 3;
+        },
+
+        middlePages() {
+            let start = Math.max(2, this.currentPage - 1);
+            let end = Math.min(this.totalPages - 1, this.currentPage + 1);
+
+            if (this.currentPage <= 4) {
+                start = 2;
+                end = Math.min(5, this.totalPages - 1);
+            } else if (this.currentPage >= this.totalPages - 3) {
+                start = Math.max(this.totalPages - 4, 2);
+                end = this.totalPages - 1;
+            }
+
+            const pages = [];
+            for (let i = start; i <= end; i++) {
+                pages.push(i);
+            }
+            return pages;
+        },
+
         selectedKelasLabel() {
             if (!this.filter.kelas_ids || this.filter.kelas_ids.length === 0) {
                 return '';
@@ -1509,6 +1550,39 @@ export default {
     color: red;
     font-size: 0.85em;
     margin-top: 5px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+}
+
+.form-group label {
+    width: 100%;
+    font-weight: 800;
+    color: #336C2A;
+    margin-bottom: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.form-group input {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    width: 100%;
+    color: black;
+    cursor: pointer;
+}
+
+.form-group select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    width: 100%;
+    color: black;
 }
 
 .filter-form {
@@ -1688,6 +1762,7 @@ select[disabled] {
 
 .form-group-spp>label {
     margin-top: 1rem;
+    width: 100%;
     display: block;
     font-weight: 500;
 }
@@ -1795,6 +1870,7 @@ select[disabled] {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-top: 4rem;
 }
 
 .no-data-img {
