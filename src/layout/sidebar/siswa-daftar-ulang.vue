@@ -167,7 +167,7 @@ export default {
 
 <style scoped>
 .content-header {
-    margin-bottom: 1rem;
+    margin-top: 6.5rem;
 }
 
 .info-list {

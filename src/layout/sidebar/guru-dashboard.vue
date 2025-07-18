@@ -200,7 +200,7 @@ export default {
 
         async fetchTahunAjaranList() {
             try {
-                const response = await axios.get('${import.meta.env.VITE_API_URL}/api/tahunajaran');
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/tahunajaran`);
                 //("Response Tahun Ajaran:", response.data); 
                 if (response.data && Array.isArray(response.data.data)) {
                     this.tahunAjaranList = response.data.data;
@@ -245,7 +245,7 @@ export default {
 
 <style scoped>
 .main-content {
-    margin: 0;
+    margin-top: 6.5rem;
     display: flex;
     flex-direction: column;
 }

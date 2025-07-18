@@ -234,6 +234,7 @@ export default {
   
 <style scoped>
 .main-content {
+    margin-top: 6.5rem;
     display: flex;
     flex-direction: column;
 }

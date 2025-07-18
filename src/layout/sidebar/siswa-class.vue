@@ -1,5 +1,8 @@
 <template>
 <div class="container">
+    <ol class="breadcrumb">
+          <li class="breadcrumb-item active" aria-current="page">Kelas</li>
+    </ol>
     <div class="card mb-4">
         <div class="card-body text-center">
             <h1 class="h3 mb-2">
@@ -175,7 +178,7 @@ export default {
 
 <style scoped>
 .container {
-    margin-top: 5rem;
+    margin-top: 8rem;
 }
 .card {
     border-radius: 0.5rem;

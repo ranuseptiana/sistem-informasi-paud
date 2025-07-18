@@ -2,7 +2,7 @@
 <section class="content-header">
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item active" aria-current="page" style="color: #A9A9A9;">Galeri</li>
+            <li class="breadcrumb-item active" aria-current="page">Galeri</li>
         </ol>
     </nav>
     <div class="header-button">
@@ -99,14 +99,14 @@
                     <td v-if="selectedFilters.tanggalKegiatan">{{ album['tanggal_kegiatan'] }}</td>
                     <td v-if="selectedFilters.lokasiKegiatan">{{ album['lokasi_kegiatan'] }}</td>
                     <td>
-                        <div class="popup d-inline-block" ref="popup">
-                            <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
+                        <div class="action-container">
+                            <button class="btn btn-sm" type="button" @click.stop="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
-                            <div class="popup-menu" :class="{ show: dropdownIndex === index }">
-                                <button class="popup-item" @click="detailAlbum(album.id)" style="color: #274278">Detail</button>
-                                <button class="popup-item" @click="prepareEditAlbum(album.id)" style="color: #274278">Edit</button>
-                                <button class="popup-item" @click="deleteAlbum(album.id)" style="color: red">Hapus</button>
+                            <div class="popup-menu-teacher" :class="{ show: dropdownIndex === index }">
+                                <button class="popup-item" @click="detailAlbum(album.id)">Detail</button>
+                                <button class="popup-item" @click="prepareEditAlbum(album.id)">Edit</button>
+                                <button class="popup-item delete-item" @click="deleteAlbum(album.id)">Hapus</button>
                             </div>
                         </div>
                     </td>
@@ -122,59 +122,59 @@
             </tbody>
         </table>
     </div>
-    <div class="pagination-info-ortu">
-        <p class="page-info">{{ pageInfo }}</p>
-        <nav aria-label="Page navigation" class="pagination-nav">
-            <ul class="pagination">
-                <li class="page-item" :class="{ disabled: currentPage === 1 }">
-                    <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
-                        <span aria-hidden="true">&laquo;</span>
-                    </button>
-                </li>
+    <div class="pagination-info">
+            <p class="page-info">{{ pageInfo }}</p>
+            <nav aria-label="Page navigation" class="pagination-nav">
+                <ul class="pagination">
+                    <li class="page-item" :class="{ disabled: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(currentPage - 1)" :disabled="currentPage === 1" aria-label="Previous">
+                            <span aria-hidden="true">&laquo;</span>
+                        </button>
+                    </li>
 
-                <li class="page-item" :class="{ active: currentPage === 1 }">
-                    <button class="page-link" @click="changePage(1)">1</button>
-                </li>
+                    <li class="page-item" :class="{ active: currentPage === 1 }">
+                        <button class="page-link" @click="changePage(1)">1</button>
+                    </li>
 
-                <li v-if="showLeftEllipsis" class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>
+                    <li v-if="showLeftEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
 
-                <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
-                    <button class="page-link" @click="changePage(page)">
-                        {{ page }}
-                    </button>
-                </li>
+                    <li v-for="page in middlePages" :key="page" class="page-item" :class="{ active: currentPage === page }">
+                        <button class="page-link" @click="changePage(page)">
+                            {{ page }}
+                        </button>
+                    </li>
 
-                <li v-if="showRightEllipsis" class="page-item disabled">
-                    <span class="page-link">...</span>
-                </li>
+                    <li v-if="showRightEllipsis" class="page-item disabled">
+                        <span class="page-link">...</span>
+                    </li>
 
-                <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
-                    <button class="page-link" @click="changePage(totalPages)">
-                        {{ totalPages }}
-                    </button>
-                </li>
+                    <li v-if="totalPages > 1" class="page-item" :class="{ active: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(totalPages)">
+                            {{ totalPages }}
+                        </button>
+                    </li>
 
-                <li class="page-item" :class="{ disabled: currentPage === totalPages }">
-                    <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
-                        <span aria-hidden="true">&raquo;</span>
-                    </button>
-                </li>
-            </ul>
-        </nav>
-    </div>
+                    <li class="page-item" :class="{ disabled: currentPage === totalPages }">
+                        <button class="page-link" @click="changePage(currentPage + 1)" :disabled="currentPage === totalPages" aria-label="Next">
+                            <span aria-hidden="true">&raquo;</span>
+                        </button>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 </section>
 </template>
 
 <script>
 import Swal from "sweetalert2";
 import axios from 'axios';
-import {
-    ref,
-    onMounted,
-    computed
-} from 'vue';
+// import {
+//     ref,
+//     onMounted,
+//     computed
+// } from 'vue';
 
 export default {
     data() {
@@ -257,7 +257,7 @@ export default {
             const formData = new FormData();
             formData.append('nama_album', this.form.nama_album);
             formData.append('deskripsi', this.form.deskripsi);
-            formData.append('tanggal_kegiatan', this.form.tanggal_kegiatan || ''); 
+            formData.append('tanggal_kegiatan', this.form.tanggal_kegiatan || '');
             formData.append('lokasi_kegiatan', this.form.lokasi_kegiatan || '');
 
             if (this.form.photo_cover) {
@@ -266,7 +266,7 @@ export default {
 
             try {
                 if (this.isEditing) {
-                    formData.append('_method', 'PUT'); 
+                    formData.append('_method', 'PUT');
                     await axios.post(`/album/${this.form.id}`, formData, {
                         headers: {
                             'Content-Type': 'multipart/form-data'
@@ -312,7 +312,7 @@ export default {
                 if (confirmDelete.isConfirmed) {
                     await axios.delete(`/album/${albumId}`);
                     Swal.fire('Terhapus!', 'Data album berhasil dihapus.', 'success');
-                    this.fetchAlbumList(); 
+                    this.fetchAlbumList();
                 }
             } catch (error) {
                 console.error("Error deleting album:", error);
@@ -334,7 +334,7 @@ export default {
                 .then((res) => {
                     ("Response dari backend:", res.data);
                     if (res.data && Array.isArray(res.data.data)) {
-                        this.AlbumList = res.data.data; 
+                        this.AlbumList = res.data.data;
                     } else {
                         console.error("Data tidak sesuai:", res.data);
                         this.AlbumList = [];
@@ -391,7 +391,7 @@ export default {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
         resetForm() {
-            this.form = { 
+            this.form = {
                 id: null,
                 photo_cover: null,
                 photo_cover_preview: '',
@@ -417,7 +417,7 @@ export default {
         this.fetchAlbumList();
         document.addEventListener('click', this.handleClickOutside);
     },
-    beforeUnmount() { 
+    beforeUnmount() {
         document.removeEventListener('click', this.handleClickOutside);
     },
     computed: {
@@ -477,7 +477,12 @@ export default {
 
 <style scoped>
 .content-header {
+    margin-top: 5rem;
     width: 100%;
+}
+
+.breadcrumb {
+    margin-bottom: 1rem;
 }
 
 .header-button {
@@ -646,43 +651,59 @@ export default {
     padding: 0;
 }
 
-.popup-menu {
-    position: absolute;
-    top: 100%;
-    transform: translateX(-30px);
-    left: 0;
-    background-color: white;
-    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 10px;
-    border-radius: 8px;
-    display: none;
-    z-index: 1000;
+.action-container {
+  position: relative;
+  display: inline-block;
 }
 
-.popup-menu.show {
-    display: block;
+.popup-menu-teacher {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: white;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 10px;
+  border-radius: 8px;
+  display: none;
+  z-index: 1000;
+  min-width: 10px;
+}
+
+.popup-menu-teacher.show {
+  display: block;
 }
 
 .popup-item {
-    display: block;
-    padding: 8px 12px;
-    width: 100%;
-    text-align: left;
-    background: none;
-    border: none;
-    cursor: pointer;
+  display: block;
+  padding: 8px 12px;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #274278;
 }
 
 .popup-item:hover {
-    background-color: #f5f5f5;
+  background-color: none;
+}
+
+.delete-item {
+  color: red !important;
+}
+
+/* Pastikan td terakhir memiliki posisi relatif */
+td:last-child {
+  position: relative;
 }
 
 .pagination-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 140%;
+    width: 94.5%;
     margin-top: 1rem;
+    margin-bottom: 1rem;
 }
 
 .page-info,
@@ -805,15 +826,6 @@ label {
     background-color: white;
     border: 1px solid #636364;
     border-radius: 20px;
-}
-
-.pagination-info-ortu {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    width: 100%;
-    margin-top: 1rem;
-    margin-bottom: 1rem;
 }
 
 .page-info {

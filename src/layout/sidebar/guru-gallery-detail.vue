@@ -103,7 +103,7 @@
                 </tbody>
             </table>
         </div>
-        <div class="pagination-info-ortu">
+        <div class="pagination-info">
             <p class="page-info">{{ pageInfo }}</p>
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
@@ -405,7 +405,11 @@ resetForm() {
 };
 </script>
 
-<style>
+<style scoped>
+.container {
+    margin-top: 2rem;
+}
+
 .breadcrumb {
     margin-top: 3.5rem;
     margin-bottom: 1rem;
@@ -759,11 +763,11 @@ label {
     border-radius: 20px;
 }
 
-.pagination-info-ortu {
+.pagination-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    width: 100%;
+    width: 97%;
     margin-top: 1rem;
     margin-bottom: 1rem;
 }

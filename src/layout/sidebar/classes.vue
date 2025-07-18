@@ -115,7 +115,7 @@
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <div class="popup-menu" :class="{ show: dropdownIndex === index }">
+                                <div class="popup-menu-kelas" :class="{ show: dropdownIndex === index }">
                                     <button class="popup-item" @click="prepareEditKelas(kelas.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deleteKelas(kelas.id)" style="color: red">Hapus</button>
                                 </div>
@@ -666,7 +666,7 @@ export default {
     padding: 0;
 }
 
-.popup-menu {
+.popup-menu-kelas {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
@@ -677,7 +677,7 @@ export default {
     z-index: 1000;
 }
 
-.popup-menu.show {
+.popup-menu-kelas.show {
     display: block;
 }
 

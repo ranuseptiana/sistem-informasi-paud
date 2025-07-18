@@ -95,7 +95,7 @@
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <div class="popup-menu" :class="{ show: dropdownIndex === index }">
+                                <div class="popup-menu-album" :class="{ show: dropdownIndex === index }">
                                     <button class="popup-item" @click="deleteFoto(foto.id)" style="color: red">Hapus</button>
                                 </div>
                             </div>
@@ -585,7 +585,7 @@ resetForm() {
     padding: 0;
 }
 
-.popup-menu {
+.popup-menu-album {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
@@ -593,9 +593,10 @@ resetForm() {
     border-radius: 8px;
     display: none;
     z-index: 1000;
+    left: 71rem;
 }
 
-.popup-menu.show {
+.popup-menu-album.show {
     display: block;
 }
 

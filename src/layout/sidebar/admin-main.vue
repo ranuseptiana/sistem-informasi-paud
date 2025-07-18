@@ -16,34 +16,33 @@
             <div class="collapse navbar-collapse" id="navbarContent">
                 <!-- navbar links -->
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0 nav-menu">
-                    <router-link to="/adminmainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/dashboard" class="w3-bar-item w3-button dashboard-item" :class="{ active: activeMenu === 'dashboard' }" @click="setActive('dashboard')">
                         Beranda
                     </router-link>
-                    <router-link to="/adminmainsidebar/student" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'student' }" @click="setActive('student'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/student" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'student' }" @click="setActive('student')">
                         Siswa
                     </router-link>
-                    <router-link to="/adminmainsidebar/parents" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'parents' }" @click="setActive('parents'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/parents" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'parents' }" @click="setActive('parents')">
                         Orangtua
                     </router-link>
-                    <router-link to="/adminmainsidebar/teachers" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'teacher' }" @click="setActive('teacher'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/teachers" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'teacher' }" @click="setActive('teacher')">
                         Guru
                     </router-link>
-                    <router-link to="/adminmainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/classes" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'class' }" @click="setActive('class')">
                         Kelas
                     </router-link>
-                    <router-link to="/adminmainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/tuition" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'tuition' }" @click="setActive('tuition')">
                         Pembayaran
                     </router-link>
-                    <router-link to="/adminmainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/gallery" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'gallery' }" @click="setActive('gallery')">
                         Galeri
                     </router-link>
-                    <router-link to="/adminmainsidebar/activity" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'activity' }" @click="setActive('activity'); collapseNavbar()">
+                    <router-link to="/adminmainsidebar/activity" class="w3-bar-item w3-button" :class="{ active: activeMenu === 'activity' }" @click="setActive('activity')">
                         Agenda
                     </router-link>
                 </ul>
                 <!-- Profile icon -->
-                <!-- Profile icon -->
-                <div class="navbar-nav ms-auto profile-nav">
+                <div class="navbar-nav ms-auto">
                     <a class="nav-link profile-link" href="#" id="profileDropdown" role="button" @click.prevent="toggleDropdown">
                         <i class="fas fa-user-circle"></i>
                     </a>
@@ -83,20 +82,13 @@ export default {
             userName: "",
             username: "",
             password: "",
-            isDropdownVisible: false,
+            isDropdownVisible: false, // Kontrol visibilitas dropdown
         };
     },
-    created() {
+    created() { 
         this.fetchUserData();
     },
     methods: {
-        collapseNavbar() {
-            const navbarCollapse = document.getElementById("navbarContent");
-            const bsCollapse = window.bootstrap.Collapse.getInstance(navbarCollapse);
-            if (bsCollapse) {
-                bsCollapse.hide();
-            }
-        },
         async login() {
             try {
                 const response = await axios.post("/auth/login", {
@@ -113,7 +105,7 @@ export default {
         },
 
         async fetchUserData() {
-            try {
+            try { 
                 const token = localStorage.getItem('token');
 
                 if (!token) {
@@ -153,6 +145,8 @@ export default {
                 this.activeMenu = 'gallery';
             } else if (currentPath.includes('activity')) {
                 this.activeMenu = 'activity';
+            } else if (currentPath.includes('users')) {
+                this.activeMenu = 'users';
             } else if (currentPath === '/') {
                 this.activeMenu = 'logout';
             }
@@ -185,7 +179,7 @@ export default {
                             });
                         }
                         localStorage.removeItem('token');
-
+                        
                         this.$router.push('/');
                     } catch (error) {
                         console.error('Error during logout:', error);
@@ -255,12 +249,6 @@ main {
     margin-top: 12px;
     margin-right: 3.5rem;
     gap: 15px;
-}
-
-.navbar-nav .profile-nav {
-    display: flex;
-    align-items: center;
-    position: relative;
 }
 
 .nav-menu {
@@ -334,7 +322,7 @@ main {
     color: #336C2A;
 }
 
-/* .profile-dropdown {
+.profile-dropdown {
     position: absolute;
     top: 105%;
     right: 75px;
@@ -346,19 +334,6 @@ main {
     z-index: 1050;
     width: 130px;
     text-align: left;
-} */
-
-.profile-dropdown {
-    position: absolute;
-    top: 110%;
-    right: 0;
-    background-color: white;
-    border: 1px solid rgba(0, 0, 0, 0.15);
-    border-radius: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 0.5rem 0;
-    z-index: 1050;
-    width: 150px;
 }
 
 .profile-dropdown ul {
@@ -407,40 +382,18 @@ main {
     .navbar-brand {
         margin-left: 1rem;
     }
-
     .main-logo {
-        height: 30px;
-        /* Lebih kecil untuk HP */
+        height: 30px; /* Lebih kecil untuk HP */
     }
-
     .main-brand-text {
         font-size: 1rem;
     }
-
     .profile-link {
         margin-right: 1rem;
     }
-
-    .navbar-collapse {
-        flex-direction: column;
-    }
-
-    .nav-menu {
-        flex-direction: column;
-        align-items: start;
-        margin: 1rem 0;
-    }
-
-    .navbar-nav.profile-nav {
-        width: 100%;
-        justify-content: flex-end;
-        margin-top: 0.5rem;
-        padding-right: 1rem;
-    }
-
     .profile-dropdown {
-        right: 1rem;
-        top: 100%;
+        right: 10px;
+        width: auto;
     }
 }
 
@@ -464,16 +417,14 @@ main {
     .navbar-collapse {
         width: 100%;
     }
-
     .nav-menu {
         flex-direction: column;
         margin-left: 0;
         text-align: center;
         gap: 10px;
     }
-
     .navbar-nav {
         margin-right: 0;
     }
-}
+ }
 </style>

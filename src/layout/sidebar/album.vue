@@ -105,7 +105,7 @@
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <div class="popup-menu" :class="{ show: dropdownIndex === index }">
+                                <div class="popup-menu-album" :class="{ show: dropdownIndex === index }">
                                     <button class="popup-item" @click="detailAlbum(album.id)" style="color: #274278">Detail</button>
                                     <button class="popup-item" @click="prepareEditAlbum(album.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deleteAlbum(album.id)" style="color: red">Hapus</button>
@@ -173,11 +173,11 @@
 <script>
 import Swal from "sweetalert2";
 import axios from 'axios';
-import {
-    ref,
-    onMounted,
-    computed
-} from 'vue';
+// import {
+//     ref,
+//     onMounted,
+//     computed
+// } from 'vue';
 
 export default {
     data() {
@@ -662,17 +662,18 @@ export default {
     padding: 0;
 }
 
-.popup-menu {
+.popup-menu-album {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     padding: 10px;
     border-radius: 8px;
     display: none;
+    left: 74rem;
     z-index: 1000;
 }
 
-.popup-menu.show {
+.popup-menu-album.show {
     display: block;
 }
 

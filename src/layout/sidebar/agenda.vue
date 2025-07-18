@@ -58,7 +58,7 @@
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <div class="popup-menu" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
+                                <div class="popup-menu-agenda" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
                                     <button class="popup-item" @click="prepareEditAgenda(agenda.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deleteAgenda(agenda.id)" style="color: red">Hapus</button>
                                 </div>
@@ -813,7 +813,7 @@ select[disabled] {
     padding: 0;
 }
 
-.popup-menu {
+.popup-menu-agenda {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
@@ -821,9 +821,10 @@ select[disabled] {
     border-radius: 8px;
     display: none;
     z-index: 1000;
+    left: 74rem;
 }
 
-.popup-menu.show {
+.popup-menu-agenda.show {
     display: block;
 }
 

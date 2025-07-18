@@ -71,7 +71,7 @@
                 <input :type="passwordFieldType" class="input-login" placeholder="Password" v-model="password" />
                 <span class="password-toggle-icon" @click="togglePasswordVisibility">
                     <i :class="passwordFieldIcon"></i>
-                      </span>
+                </span>
             </div>
 
             <button type="button" class="login-button-2" @click="navigateToDashboard">Login</button>
@@ -444,16 +444,15 @@ body {
     border: 1px solid #C3EAA3;
     background-color: white;
     height: 4rem;
-    width: 29rem;
+    width: 100%;
     color: #000000;
-    padding: 0.7rem;
+    padding: 0.7rem 3rem 0.7rem 2rem;
     border-radius: 10px;
     margin-top: 0.5rem;
-    padding-left: 2rem;
-    padding-right: 40px !important;
     -webkit-user-select: text;
     user-select: text;
     -webkit-tap-highlight-color: transparent;
+    box-sizing: border-box;
 }
 
 .input-login[type="password"],
@@ -473,12 +472,21 @@ body {
     right: 20px;
     top: 50%;
     transform: translateY(-50%);
-    z-index: 10;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px; 
     cursor: pointer;
     color: #6c757d;
     background: none;
     border: none;
     padding: 0;
+}
+
+.password-toggle-icon i {
+  font-size: 1.2rem; 
+  margin-top: 10px;
 }
 
 .password-toggle-icon:hover {
@@ -531,9 +539,7 @@ body {
 @media (max-width: 767px) {
     .offcanvas {
         width: 75% !important;
-        /* Lebar lebih proporsional untuk mobile */
         margin-left: 0 !important;
-        /* Hapus margin kiri yang tidak perlu */
     }
 
     .offcanvas-body {
@@ -578,11 +584,14 @@ body {
         transform: none !important;
     }
 
+    .password-toggle-icon {
+        right: 15px;
+        width: 25px;
+    }
+    
     .input-login {
-        width: 100%;
-        height: 50px;
-        padding: 0 15px;
-        font-size: 16px;
+        padding: 0.7rem 2.5rem 0.7rem 1.5rem;
+        height: 3.5rem;
     }
 
     /* Login button */

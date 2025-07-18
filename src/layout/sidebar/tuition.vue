@@ -198,7 +198,7 @@
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="dropdownIndex === index">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <div class="popup-menu" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
+                                <div class="popup-menu-pembayaran" :class="{ show: dropdownIndex === index }" v-if="dropdownIndex === index">
                                     <button class="popup-item" @click="cicilanPembayaran(pembayaran.id)" style="color: #274278">Cicilan</button>
                                     <button class="popup-item" @click="prepareEditPembayaran(pembayaran.id)" style="color: #274278">Edit</button>
                                     <button class="popup-item" @click="deletePembayaran(pembayaran.id)" style="color: red">Hapus</button>
@@ -2132,7 +2132,7 @@ select[disabled] {
     padding: 0;
 }
 
-.popup-menu {
+.popup-menu-pembayaran {
     position: absolute;
     background-color: white;
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
@@ -2140,10 +2140,10 @@ select[disabled] {
     border-radius: 8px;
     display: none;
     z-index: 1000;
-    left: 77rem;
+    left: 74rem;
 }
 
-.popup-menu.show {
+.popup-menu-pembayaran.show {
     display: block;
 }
 

@@ -210,6 +210,7 @@ export default {
 
 <style scoped>
 .main-content {
+  margin-top: 6.5rem;
   padding: 20px;
   background-color: #f8f9fa;
   min-height: calc(100vh - 56px);
