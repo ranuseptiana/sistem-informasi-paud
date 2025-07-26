@@ -14,7 +14,7 @@
             Cicilan Pembayaran - <span class="student-name">{{ namaSiswa }}</span>
             </h4>
 
-            <button class="btn-add-class" @click="prepareTambahPembayaran">Tambah Data
+            <button class="btn-add-tuition" @click="prepareTambahPembayaran">Tambah Data
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
@@ -33,14 +33,12 @@
                         <option value="100">All</option>
                     </select>
                 </div>
-                <div class="filter">
+                <!-- <div class="filter">
                     <button @click="showModal = true" class="filter-btn">
                         Filter
                         <i class="fa-solid fa-filter filter-icon"></i>
                     </button>
-                    <!-- Filter Popup -->
-                    <div>
-                        <!-- Modal Filter -->
+                    <div>    
                         <div v-if="showModal" class="modal-overlay modal-overlay-filter" @click.self="toggleFilterPopup">
                             <div class="modal-content-spp">
                                 <div class="modal-header">
@@ -59,8 +57,8 @@
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="export-section">
+                </div> -->
+                <!-- <div class="export-section">
                     <button class="btn btn-danger" @click="exportData('pdf')">
                         <i class="fa fa-file-pdf" aria-hidden="true"></i>
                         PDF
@@ -69,7 +67,7 @@
                         <i class="fa fa-file-excel" aria-hidden="true"></i>
                         Excel
                     </button>
-                </div>
+                </div> -->
             </div>
             <div class="search-bar-container">
                 <input type="text" v-model="searchQuery" class="search-input" placeholder="Cari.." />
@@ -474,11 +472,20 @@ export default {
 
 <style scoped>
 /* Filter Rows */
+
 .filter-rows {
     margin: 0.5rem 0;
     flex-direction: column;
     align-items: flex-start;
     margin-top: 1rem;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.filter-container {
+    display: flex;
+    justify-content: space-between;
 }
 
 .col {
@@ -510,6 +517,17 @@ label {
     justify-content: center;
     align-items: center;
     z-index: 1050;
+}
+
+.content-header {
+    width: 100%;
+}
+
+.header-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
 }
 
 .modal-overlay-filter {
@@ -764,6 +782,11 @@ select[disabled] {
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
 }
 
+.row-filter-wrapper {
+    display: flex;
+    align-items: center;
+}
+
 .filter {
     margin-left: 0.5rem;
 }
@@ -967,8 +990,58 @@ select[disabled] {
     margin-bottom: 1rem;
 }
 
+
 .page-info {
     margin: 0;
+}
+
+.pagination {
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.page-item {
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
 
 .pagination {

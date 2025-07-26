@@ -20,7 +20,11 @@
             <div class="row-filter-wrapper">
                 <div class="tampil-baris">
                     Show
-                    <select v-model="rowsPerPage" class="select-rows-student">
+                    <select 
+                        v-model="rowsPerPage" 
+                        class="select-rows-student"
+                        @change="handleRowsPerPageChange"
+                    >
                         <option value="5">5</option>
                         <option value="10">10</option>
                         <option value="20">20</option>
@@ -81,6 +85,7 @@
                                 </div>
                             </div>
 
+                        <div class="form-grouping"></div>
                             <div class="form-group">
                                 <label>Status Siswa</label>
                                 <div class="status-dropdown">
@@ -112,7 +117,7 @@
                                 <div class="modal-content-kelas">
                                     <div class="modal-header">
                                         <h5 class="modal-title">Pilih Kelas</h5>
-                                        <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                                        <button type="button" class="close-btn" @click="tutupModal">&times;</button>
                                     </div>
                                     <div v-for="kelas in kelasList" :key="kelas.id">
                                     <input
@@ -524,6 +529,11 @@ export default {
         };
     },
     methods: {
+        handleRowsPerPageChange() {
+        this.currentPage = 1;
+        
+        window.scrollTo(0, 0);
+    },
         handleFileChange(event) {
             this.selectedFile = event.target.files[0];
         },
@@ -566,6 +576,9 @@ export default {
         closeModal() {
             this.showModal = false;
             this.tampilModal = false;
+        },
+        tutupModal() {
+            this.showKelasModal = false;
         },
         changePage(page) {
             if (page > 0 && page <= this.totalPages) {
@@ -1206,18 +1219,20 @@ export default {
             return selected.map(key => this.getColumnLabel(key));
         },
         paginatedSiswaList() {
-            const start = (this.currentPage - 1) * this.rowsPerPage;
-            const end = start + this.rowsPerPage;
-            // Gunakan filteredSiswaList di sini
+            const start = (this.currentPage - 1) * parseInt(this.rowsPerPage);
+            const end = start + parseInt(this.rowsPerPage);
             return this.filteredSiswaList.slice(start, end);
         },
+        
         totalPages() {
-            // Total halaman dihitung berdasarkan filteredSiswaList
-            return Math.ceil(this.filteredSiswaList.length / this.rowsPerPage);
+            const rows = parseInt(this.rowsPerPage);
+            return Math.ceil(this.filteredSiswaList.length / rows);
         },
+        
         pageInfo() {
-            const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredSiswaList.length);
+            const rows = parseInt(this.rowsPerPage);
+            const startRow = (this.currentPage - 1) * rows + 1;
+            const endRow = Math.min(this.currentPage * rows, this.filteredSiswaList.length);
             return `Showing ${startRow} - ${endRow} of ${this.filteredSiswaList.length} entries`;
         },
         getKelasNama() {
@@ -1241,7 +1256,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 4rem;
+    margin-top: 7rem;
 }
 
 .form-group {
@@ -1296,9 +1311,14 @@ export default {
     background: white;
     padding: 20px;
     border-radius: 8px;
-    width: 500px;
+    width: 27rem;
+    max-height: 90vh; 
+    overflow-y: auto; 
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
     text-align: left;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
 }
 
 /* Header modal */
@@ -1319,7 +1339,6 @@ export default {
     text-align: left;
 }
 
-/* Tombol close */
 .close-btn {
     background: none;
     border: none;
@@ -1327,7 +1346,6 @@ export default {
     cursor: pointer;
 }
 
-/* Layout dua kolom */
 .filter-container {
     display: flex;
     justify-content: space-between;
@@ -1337,7 +1355,6 @@ export default {
     width: 48%;
 }
 
-/* Tahun ajaran dropdown */
 .tahun-ajaran {
     margin-top: 15px;
 }
@@ -1351,7 +1368,6 @@ export default {
 .multi-select-container {
     position: relative;
     width: 100%;
-    /* Sesuaikan lebar */
     border: 1px solid #ccc;
     border-radius: 4px;
     padding: 5px;
@@ -1382,26 +1398,21 @@ export default {
 
 .multi-select-input {
     flex-grow: 1;
-    /* Agar input mengisi sisa ruang */
     border: none;
     outline: none;
     padding: 5px;
     min-width: 100px;
-    /* Lebar minimum untuk input */
 }
 
 .kelas-options-dropdown {
     position: absolute;
     top: 100%;
-    /* Di bawah container */
     left: 0;
     right: 0;
     border: 1px solid #ccc;
     background-color: white;
     z-index: 1000;
-    /* Pastikan di atas elemen lain */
     max-height: 200px;
-    /* Batasi tinggi, tambahkan scroll */
     overflow-y: auto;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 0 0 4px 4px;
@@ -1422,13 +1433,49 @@ export default {
     text-align: center;
 }
 
-/* Footer modal */
+.content-header {
+    width: 100%;
+}
+
+.header-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.btn-add-class {
+    text-decoration: none;
+    background: #46943a;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    right: 12px;
+    width: auto;
+}
+
+.btn-add-class i {
+    font-size: 1rem;
+}
+
+.btn-add-class:hover {
+    color: white;
+    background: #336C2A;
+    transform: translateY(-2px);
+    text-decoration: none;
+}
+
 .modal-footer {
     text-align: right;
     margin-top: 15px;
 }
 
-/* Filter Rows */
 .filter-rows {
     margin: 0.5rem 0;
     flex-direction: column;
@@ -1633,6 +1680,7 @@ label {
   display: flex;
   justify-content: space-between;
 }
+
 .export-section {
     margin-left: 0.5rem;
 }

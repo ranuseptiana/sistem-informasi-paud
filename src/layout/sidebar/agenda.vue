@@ -352,7 +352,17 @@ export default {
 
     
 <style scoped>
-/* Filter Rows */
+.content-header {
+    width: 100%;
+}
+
+.header-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .filter-rows {
     margin: 0.5rem 0;
     flex-direction: column;
@@ -588,7 +598,7 @@ select[disabled] {
     color: #336C2A;
 }
 
-.btn-add-tuition {
+.btn-add-class {
     text-decoration: none;
     background: #46943a;
     color: white;
@@ -604,14 +614,14 @@ select[disabled] {
     width: auto;
 }
 
-.btn-add-tuition:hover {
+.btn-add-class:hover {
     color: white;
     background: #336C2A;
     transform: translateY(-2px);
     text-decoration: none;
 }
 
-.btn-add-tuition i {
+.btn-add-class i {
     font-size: 1rem;
 }
 
@@ -852,7 +862,46 @@ select[disabled] {
 }
 
 .pagination {
-    margin: 0;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.page-item {
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
 }
 
 @media (max-width: 768px) {

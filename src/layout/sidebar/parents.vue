@@ -20,7 +20,11 @@
             <div class="row-filter-wrapper">
                 <div class="tampil-baris">
                     Show
-                    <select v-model="rowsPerPage" class="select-rows">
+                    <select 
+                        v-model="rowsPerPage" 
+                        class="select-rows"
+                        @change="handleRowsPerPageChange"
+                    >
                         <option value="5">5</option>
                         <option value="10">10</option>
                         <option value="20">20</option>
@@ -365,6 +369,11 @@ export default {
         };
     },
     methods: {
+        handleRowsPerPageChange() {
+
+            this.currentPage = 1;
+            window.scrollTo(0, 0); 
+        },
         handleFileChange(event) {
             this.selectedFile = event.target.files[0];
         },
@@ -1004,18 +1013,20 @@ export default {
             });
         },
         paginatedOrtuList() {
-            const startIndex = (this.currentPage - 1) * this.rowsPerPage;
-            const endIndex = startIndex + this.rowsPerPage;
-            return this.filteredOrtuList.slice(startIndex, endIndex); 
+            const startIndex = (this.currentPage - 1) * parseInt(this.rowsPerPage);
+            const endIndex = startIndex + parseInt(this.rowsPerPage);
+            return this.filteredOrtuList.slice(startIndex, endIndex);
         },
         totalPages() {
-            return Math.ceil(this.ortuList.length / this.rowsPerPage);
+            const rows = parseInt(this.rowsPerPage);
+            return Math.ceil(this.ortuList.length / rows);
         },
         pageInfo() {
-            const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredOrtuList.length);
+            const rows = parseInt(this.rowsPerPage);
+            const startRow = (this.currentPage - 1) * rows + 1;
+            const endRow = Math.min(this.currentPage * rows, this.filteredOrtuList.length);
             return `Showing ${startRow}-${endRow} of ${this.filteredOrtuList.length} entries`;
-        },
+        }
     },
     mounted() {
         document.addEventListener('click', this.handleClickOutside);
@@ -1030,6 +1041,17 @@ export default {
 </script>
 
 <style scoped>
+.content-header {
+    width: 100%;
+}
+
+.header-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .modal-overlay {
     position: fixed;
     z-index: 1200;
@@ -1091,7 +1113,7 @@ label {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 4rem;
+    margin-top: 7rem;
 }
 
 .breadcrumb {
@@ -1146,6 +1168,13 @@ label {
 .tampil-baris {
     color: #336C2A;
     font-weight: 600;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
 }
 
 .modal-actions {

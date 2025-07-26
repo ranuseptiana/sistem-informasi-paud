@@ -39,7 +39,7 @@
                         </div>
                         <div class="form-group">
                             <label for="nisn">NISN</label>
-                            <input type="text" v-model="form.nisn" id="nisn" placeholder="Masukkan NISN siswa" :readonly="isEdit"/>
+                            <input type="text" v-model="form.nisn" id="nisn" placeholder="Masukkan NISN siswa"/>
                         </div>
                     </div>
                     <div class="row">
@@ -98,7 +98,7 @@
                         <div class="form-group">
                             <label for="namaAyah">Jumlah Saudara Kandung</label>
                             <select v-model="form.jumlah_saudara" name="jumlahSaudara" id="jumlahSaudara">
-                                <option value="" disabled></option>
+                                <option value="" disabled>Pilih Jumlah Saudara</option>
                                 <option value="0">0</option>
                                 <option value="1">1</option>
                                 <option value="2">2</option>
@@ -118,15 +118,15 @@
                     <div class="row">
                         <div class="form-group">
                             <label for="beratBadan">Berat Badan</label>
-                            <input type="number" v-model="form.berat_badan" id="beratBadan" />
+                            <input type="number" v-model="form.berat_badan" id="beratBadan" placeholder="Masukkan berat badan (kg)" />
                         </div>
                         <div class="form-group">
                             <label for="tinggiBadan">Tinggi Badan</label>
-                            <input type="number" v-model="form.tinggi_badan" id="tinggiBadan" />
+                            <input type="number" v-model="form.tinggi_badan" id="tinggiBadan" placeholder="Masukkan tinggi badan (cm)"/>
                         </div>
                         <div class="form-group">
                             <label for="lingkarKepala">Lingkar Kepala</label>
-                            <input type="number" v-model="form.lingkar_kepala" id="lingkarKepala" />
+                            <input type="number" v-model="form.lingkar_kepala" id="lingkarKepala" placeholder="Masukkan lingkar kepala (cm)"/>
                         </div>
                     </div>
                     <div class="row" style="margin-bottom: 1rem;">
@@ -316,14 +316,6 @@ export default {
 
                 let response;
 
-                // pake rute railway
-                // if (this.isEdit) {
-                //     response = await axios.put(`${import.meta.env.VITE_API_URL}/api/siswa/${this.$route.params.id}`, payload);
-                // } else {
-                //     response = await axios.post('${import.meta.env.VITE_API_URL}/api/siswa', payload);
-                // }
-
-                // pake rute lokal
                 if (this.isEdit) {
                     response = await axios.put(`/siswa/${this.$route.params.id}`, payload);
                 } else {
@@ -390,13 +382,9 @@ input[readonly] {
 
 .container {
     display: flex;
+    margin-top: 7.5rem;
     flex-direction: column;
     align-items: flex-start;
-}
-
-.breadcrumb-item {
-    margin-top: 4.3rem;
-    margin-bottom: 1rem;
 }
 
 .header-text {
@@ -461,6 +449,15 @@ input[readonly] {
     background-color: white;
     width: 100%;
     cursor: pointer;
+}
+
+.form-group select {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: white;
+    width: 100%;
+    color: black;
 }
 
 .save-data-siswa {

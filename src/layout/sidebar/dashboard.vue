@@ -362,7 +362,7 @@ export default {
 
 <style scoped>
 .main-content {
-    margin-top: 4rem;
+    margin-top: 7rem;
     display: flex;
     flex-direction: column;
 }

@@ -8,7 +8,7 @@
         </nav>
         <div class="header-button">
             <h3 class="header-text">Pembayaran</h3>
-            <button class="btn-add-class" @click="prepareTambahPembayaran">Tambah Data
+            <button class="btn-add-payment" @click="prepareTambahPembayaran">Tambah Data
                 <i class="fa-solid fa-plus"></i>
             </button>
         </div>
@@ -177,7 +177,7 @@
                                 }}</td>
                         <td>{{ pembayaran.sisa_pembayaran ? formatRupiah(pembayaran.sisa_pembayaran) : 'Tidak Ada Sisa Pembayaran' }}</td>
                         <td>
-                            <template v-if="pembayaran.bukti_pembayaran_url">
+                            <template v-if="pembayaran.bukti_pembayaran">
                                 <img 
                                     :src="getBuktiUrl(pembayaran.bukti_pembayaran)" 
                                     alt="Bukti Pembayaran" 
@@ -277,7 +277,7 @@
                                             }}</span>
                                     <div v-if="isEdit && form.bukti_pembayaran_url && !form.bukti_pembayaran" class="mt-2">
                                         <p>Bukti pembayaran saat ini:</p>
-                                        <img :src="getBuktiPreviewUrl(form.bukti_pembayaran_url)" alt="Bukti Pembayaran Lama" style="max-width: 150px; height: auto;">
+                                        <img :src="getBuktiUrl(form.bukti_pembayaran_url)" alt="Bukti Pembayaran Lama" style="max-width: 150px; height: auto;">
                                         <button type="button" class="btn btn-sm btn-outline-danger mt-1" @click="removeBuktiPembayaran">Hapus Bukti</button>
                                     </div>
                                 </div>
@@ -322,7 +322,7 @@
                 </div>
             </div>
         </div>
-        <div class="pagination-info-ortu">
+        <div class="pagination-info">
             <p class="page-info">{{ pageInfo }}</p>
             <nav aria-label="Page navigation" class="pagination-nav">
                 <ul class="pagination">
@@ -440,29 +440,14 @@ export default {
         cicilanPembayaran(id) {
             this.$router.push(`/adminmainsidebar/cicilan/${id}`);
         },
-        getBuktiPreviewUrl(path) {
-            if (!path) {
-                return '/src/assets/images/placeholder.png';
-            }
-
-            if (path.startsWith("http")) {
-                return path;
-            }
-
-            return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
-            // return `${import.meta.env.VITE_API_URL}/storage/${path}`;
-        },
         getBuktiUrl(path) {
-            if (!path) {
-                return '/src/assets/images/placeholder.png';
-            }
-
-            if (path.startsWith("http")) {
-                return path;
-            }
-
-            return `https://otgjqjojuoozezaatbpt.supabase.co/storage/v1/object/public/${path}`;
-            // return `${import.meta.env.VITE_API_URL}/storage/${path}`;
+            if (!path) return '/src/assets/images/placeholder.png';
+            
+            // Jika path sudah URL lengkap (dari Supabase)
+            if (path.startsWith("http")) return path;
+            
+            // Jika path relatif (format lama)
+            return `${import.meta.env.VITE_API_URL}/storage/v1/object/public/${path}`;
         },
         formatNominal(event) {
             let inputValue = event.target.value;
@@ -1808,6 +1793,17 @@ select[disabled] {
     background: #ffffff;
 }
 
+.content-header {
+    width: 100%;
+}
+
+.header-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .btn-save {
     background: #007bff;
     color: white;
@@ -1907,7 +1903,7 @@ select[disabled] {
     color: #336C2A;
 }
 
-.btn-add-tuition {
+.btn-add-payment {
     text-decoration: none;
     background: #46943a;
     color: white;
@@ -1923,14 +1919,14 @@ select[disabled] {
     width: auto;
 }
 
-.btn-add-tuition:hover {
+.btn-add-payment:hover {
     color: white;
     background: #336C2A;
     transform: translateY(-2px);
     text-decoration: none;
 }
 
-.btn-add-tuition i {
+.btn-add-payment i {
     font-size: 1rem;
 }
 
@@ -1947,19 +1943,23 @@ select[disabled] {
 }
 
 .filter-section {
-    align-items: center;
-    flex-wrap: wrap;
     display: flex;
     justify-content: space-between;
+    align-items: center;
     position: relative;
     width: 73rem;
     max-width: 150rem;
     overflow-x: auto;
-    background-color: white;
+    background-color: #ffffff;
     margin-top: 1rem;
     padding: 20px;
     border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.row-filter-wrapper {
+    display: flex;
+    align-items: center;
 }
 
 .filter {
@@ -2157,7 +2157,7 @@ select[disabled] {
     cursor: pointer;
 }
 
-.pagination-info-ortu {
+.pagination-info {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -2171,7 +2171,52 @@ select[disabled] {
 }
 
 .pagination {
-    margin: 0;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
+}
+
+.page-item {
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
 }
 
 .image-modal-backdrop {

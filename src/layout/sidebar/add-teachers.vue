@@ -21,8 +21,8 @@
                 <form>
                     <div class="row">
                         <div class="form-group">
-                            <label for="nip">NIP</label>
-                            <input v-model="form.nip" type="number" id="nip" placeholder="Masukkan NIP" required :readonly="isEdit" />
+                            <label for="niy">NIY</label>
+                            <input v-model="form.niy" type="number" id="niy" placeholder="Masukkan NIY" required />
                         </div>
                         <div class="form-group">
                             <label for="nama">Nama</label>
@@ -113,7 +113,7 @@ export default {
         return {
             isEdit: false,
             form: {
-                nip: '',
+                niy: '',
                 nama_lengkap: '',
                 gender: '',
                 agama: '',
@@ -133,7 +133,7 @@ export default {
     },
     methods: {
         async simpanGuru() {
-            if (!this.form.nip) {
+            if (!this.form.niy) {
                 Swal.fire("Peringatan", "Harap lengkapi semua data guru!", "warning");
                 return;
             }
@@ -186,7 +186,7 @@ export default {
         },
         resetForm() {
             this.form = {
-                nip: '',
+                niy: '',
                 nama_lengkap: '',
                 gender: '',
                 agama: '',
@@ -220,6 +220,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
+    margin-top: 6.5rem;
 }
 
 .breadcrumb-item {

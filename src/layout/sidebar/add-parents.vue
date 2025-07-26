@@ -269,6 +269,7 @@ export default {
 .container {
     display: flex;
     flex-direction: column;
+    margin-top: 6.5rem;
     align-items: flex-start;
 }
 

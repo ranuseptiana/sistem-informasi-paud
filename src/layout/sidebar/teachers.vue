@@ -51,7 +51,7 @@
                 <thead>
                     <tr>
                         <th scope="col" class="table-head">No</th>
-                        <th scope="col" class="table-head">NIP</th>
+                        <th scope="col" class="table-head">NIY</th>
                         <th scope="col" class="table-head">Nama Lengkap</th>
                         <th scope="col" class="table-head">Jenis Kelamin</th>
                         <th scope="col" class="table-head">Tempat Lahir</th>
@@ -69,7 +69,7 @@
                 <tbody>
                     <tr v-for="(guru, index) in paginatedGuruList" :key="guru.id">
                         <td>{{ index + 1 + (currentPage - 1) * rowsPerPage }}</td>
-                        <td>{{ guru.nip }}</td>
+                        <td>{{ guru.niy }}</td>
                         <td>{{ guru.nama_lengkap }}</td>
                         <td>{{ guru.gender }}</td>
                         <td>{{ guru.tempat_lahir }}</td>
@@ -283,14 +283,14 @@ export default {
                 doc.text(`Dicetak pada: ${date}`, 14, 22);
 
                 const headers = [
-                    'No', 'NIP', 'Nama Lengkap', 'Gender', 'Tempat Lahir', 'Tanggal Lahir',
+                    'No', 'NIY', 'Nama Lengkap', 'Gender', 'Tempat Lahir', 'Tanggal Lahir',
                     'Agama', 'Alamat', 'No Telepon', 'Jabatan', 'Kelas Yang Diajar',
                     'Jumlah Hari Mengajar', 'Tugas Mengajar'
                 ];
 
                 const body = data.map((item, index) => [
                     index + 1,
-                    item.nip || '-', item.nama_lengkap || '-', item.gender || '-',
+                    item.niy || '-', item.nama_lengkap || '-', item.gender || '-',
                     item.tempat_lahir || '-', item.tgl_lahir || '-', item.agama || '-',
                     item.alamat || '-', item.no_telp || '-', item.jabatan || '-',
                     item.kelasDiampu || '-', item.jumlah_hari_mengajar || '-', item.tugas_mengajar || '-'
@@ -354,7 +354,7 @@ export default {
                 const data = this.guruWithKelas;
 
                 const formatted = data.map(item => ({
-                    'NIP': item.nip || '-', 'Nama Lengkap': item.nama_lengkap || '-',
+                    'NIY': item.niy || '-', 'Nama Lengkap': item.nama_lengkap || '-',
                     'Gender': item.gender || '-', 'Tempat Lahir': item.tempat_lahir || '-',
                     'Tanggal Lahir': item.tgl_lahir || '-', 'Agama': item.agama || '-',
                     'Alamat': item.alamat || '-', 'No Telepon': item.no_telp || '-',
@@ -521,11 +521,22 @@ label {
     color: #636364;
 }
 
+.content-header {
+    width: 100%;
+}
+
+.header-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
 .container {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 4rem;
+    margin-top: 7rem;
 }
 
 .breadcrumb {
@@ -591,6 +602,11 @@ label {
     padding: 20px;
     border-radius: 10px;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.row-filter-wrapper {
+    display: flex;
+    align-items: center;
 }
 
 .filter {
@@ -805,9 +821,53 @@ label {
 }
 
 .pagination {
-    margin: 0;
+    display: flex;
+    padding-left: 0;
+    list-style: none;
+    border-radius: 0.25rem;
 }
 
+.page-item {
+    margin: 0 2px;
+}
+
+.page-item.active .page-link {
+    background-color: #336C2A;
+    border-color: #336C2A;
+    color: white;
+}
+
+.page-item.disabled .page-link {
+    color: #6c757d;
+    pointer-events: none;
+    background-color: #fff;
+    border-color: #dee2e6;
+}
+
+.page-link {
+    position: relative;
+    display: block;
+    padding: 0.5rem 0.75rem;
+    margin-left: -1px;
+    line-height: 1.25;
+    color: #336C2A;
+    background-color: #fff;
+    border: 1px solid #dee2e6;
+    cursor: pointer;
+}
+
+.page-link:hover {
+    color: #1a3615;
+    text-decoration: none;
+    background-color: #e9ecef;
+    border-color: #dee2e6;
+}
+
+.page-link:focus {
+    z-index: 3;
+    outline: 0;
+    box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
+}
 
 .no-data-cell {
     text-align: center;

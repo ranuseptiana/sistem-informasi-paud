@@ -39,7 +39,7 @@
                             <div class="custom-modal-body">
                                 <div class="form-group-kelas">
                                     <label for="namaKelas">Nama Kelas</label>
-                                    <input type="text" id="namaKelas" v-model="form.nama_kelas" class="form-input" />
+                                    <input type="text" id="namaKelas" v-model="form.nama_kelas" class="form-input"  placeholder="Tambahkan nama kelas"/>
                                 </div>
                         
                                 <div class="form-group-kelas">
@@ -442,7 +442,7 @@ export default {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    margin-top: 4rem;
+    margin-top: 7rem;
 }
 
 .breadcrumb {
