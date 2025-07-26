@@ -106,8 +106,8 @@ export default {
             if (this.isLoggingIn) return;
             
             if (!this.username || !this.password) {
-                this.showModal = false;
-                Swal.fire({
+                this.showModal = false; 
+                await Swal.fire({
                     icon: 'warning',
                     title: 'Oops...',
                     text: 'Harap masukkan username dan password!',
@@ -118,60 +118,58 @@ export default {
             this.isLoggingIn = true;
             
             try {
+                const userTypeMap = {
+                    'Admin': 'admin',
+                    'Guru': 'guru',
+                    'Siswa': 'siswa'
+                };
+                const expectedUserType = userTypeMap[this.selectedUser];
+
                 const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
                     username: this.username,
-                    password: this.password
+                    password: this.password,
+                    expected_user_type: expectedUserType 
                 });
 
                 if (!response.data.user_type) {
+                    this.showModal = false; 
                     throw new Error('User type not found in response');
                 }
 
-                const backendUserType = response.data.user_type.toLowerCase();
-                const selectedUserType = this.selectedUser.toLowerCase();
-
-                if (backendUserType !== selectedUserType) {
-                    this.showModal = false;
-                    await Swal.fire({
-                        icon: 'error',
-                        title: 'Tipe User Tidak Sesuai',
-                        text: `Anda memilih login sebagai ${this.selectedUser}, tetapi akun ini adalah ${response.data.user_type}. Silakan pilih tipe user yang sesuai.`,
-                        customClass: {
-                        container: 'swal2-container-custom'
-                        }
-                    });
-                    return;
-                }
-                // Store authentication data
                 localStorage.setItem('token', response.data.token);
                 localStorage.setItem('expires_at', response.data.expires_at);
                 localStorage.setItem('user_id', response.data.user.id);
                 localStorage.setItem('user_type', response.data.user_type);
 
-                // Determine route based on ACTUAL user_type from backend
                 const routeMap = {
                     'admin': '/adminmainsidebar/dashboard',
                     'guru': '/gurumainsidebar/dashboard',
                     'siswa': '/siswamainsidebar/dashboard'
                 };
 
-                const route = routeMap[backendUserType] || '/';
+                const route = routeMap[response.data.user_type.toLowerCase()] || '/';
                 this.$router.push(route);
 
             } catch (error) {
-                this.showModal = false;
-                let errorMessage = error.response?.data?.message || 
-                                  error.response?.data?.error || 
-                                  error.message ||
-                                  'Terjadi kesalahan saat login!';
+                this.showModal = false; 
+                let errorMessage = 'Terjadi kesalahan saat login!';
                 
-                Swal.fire({
+                if (error.response) {
+                    errorMessage = error.response.data?.message || 
+                                 error.response.data?.error ||
+                                 errorMessage;
+                } else {
+                    errorMessage = error.message || errorMessage;
+                }
+                
+                await Swal.fire({
                     icon: 'error',
                     title: 'Login Gagal!',
                     text: errorMessage,
                 });
             } finally {
                 this.isLoggingIn = false;
+                this.showModal = false; // Close modal after login attempt
             }
         },
         toggleDropdown() {
@@ -253,7 +251,6 @@ export default {
     }
 };
 </script>
-
     
 <style scoped>
 body {
