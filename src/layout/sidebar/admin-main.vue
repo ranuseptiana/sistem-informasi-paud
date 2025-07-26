@@ -330,16 +330,17 @@ main {
     border: 1px solid rgba(0, 0, 0, 0.15);
     border-radius: 1rem;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 0.5rem 0;
+    padding: 0.3rem 0rem 0 0;
     z-index: 1050;
-    width: 130px;
+    width: 180px;
+    max-width: 100%;
     text-align: left;
 }
 
 .profile-dropdown ul {
     list-style: none;
     margin: 0;
-    padding: 0;
+    padding: 0rem 0rem 0rem 0rem;
 }
 
 .profile-dropdown li {

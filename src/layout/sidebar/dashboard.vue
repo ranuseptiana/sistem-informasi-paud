@@ -66,7 +66,7 @@
                         <table>
                             <thead>
                                 <tr>
-                                    <th>NIP</th>
+                                    <th>NIY</th>
                                     <th>Nama Lengkap</th>
                                     <th>Jabatan</th>
                                     <th>Kelas Diampu</th>
@@ -76,7 +76,7 @@
                             </thead>
                             <tbody>
                                 <tr v-for="guru in guruWithKelas.slice(0, 5)" :key="guru.id">
-                                    <td>{{ guru.nip }}</td>
+                                    <td>{{ guru.niy }}</td>
                                     <td>{{ guru.nama_lengkap }}</td>
                                     <td>{{ guru.jabatan }}</td>
                                     <td>{{ guru.kelasDiampu }}</td>
@@ -261,7 +261,7 @@ export default {
         } >> ([]);
         const guruList = ref < Array < {
             id: number;
-            nip: string;
+            niy: string;
             nama_lengkap: string;
             jabatan: string;
             tugas_mengajar: string;

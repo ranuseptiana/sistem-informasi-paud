@@ -97,12 +97,16 @@ export default {
             username: '',
             password: '',
             passwordFieldType: 'password',
-            passwordFieldIcon: 'fas fa-eye'
+            passwordFieldIcon: 'fas fa-eye',
+            isLoggingIn: false,
         };
     },
     methods: {
         async navigateToDashboard() {
+            if (this.isLoggingIn) return;
+            
             if (!this.username || !this.password) {
+                this.showModal = false;
                 Swal.fire({
                     icon: 'warning',
                     title: 'Oops...',
@@ -111,38 +115,63 @@ export default {
                 return;
             }
 
+            this.isLoggingIn = true;
+            
             try {
                 const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
                     username: this.username,
                     password: this.password
                 });
 
-                const token = response.data.token;
-                const expiresAt = response.data.expires_at;
-                const userId = response.data.user.id;
-
-                localStorage.setItem('token', token);
-                localStorage.setItem('expires_at', expiresAt);
-                localStorage.setItem('user_id', userId);
-
-                let route = '/';
-                if (this.selectedUser === 'Admin') {
-                    route = '/adminmainsidebar/dashboard';
-                } else if (this.selectedUser === 'Guru') {
-                    route = '/gurumainsidebar/dashboard';
-                } else if (this.selectedUser === 'Siswa') {
-                    route = '/siswamainsidebar/dashboard';
+                if (!response.data.user_type) {
+                    throw new Error('User type not found in response');
                 }
+
+                const backendUserType = response.data.user_type.toLowerCase();
+                const selectedUserType = this.selectedUser.toLowerCase();
+
+                if (backendUserType !== selectedUserType) {
+                    this.showModal = false;
+                    await Swal.fire({
+                        icon: 'error',
+                        title: 'Tipe User Tidak Sesuai',
+                        text: `Anda memilih login sebagai ${this.selectedUser}, tetapi akun ini adalah ${response.data.user_type}. Silakan pilih tipe user yang sesuai.`,
+                        customClass: {
+                        container: 'swal2-container-custom'
+                        }
+                    });
+                    return;
+                }
+                // Store authentication data
+                localStorage.setItem('token', response.data.token);
+                localStorage.setItem('expires_at', response.data.expires_at);
+                localStorage.setItem('user_id', response.data.user.id);
+                localStorage.setItem('user_type', response.data.user_type);
+
+                // Determine route based on ACTUAL user_type from backend
+                const routeMap = {
+                    'admin': '/adminmainsidebar/dashboard',
+                    'guru': '/gurumainsidebar/dashboard',
+                    'siswa': '/siswamainsidebar/dashboard'
+                };
+
+                const route = routeMap[backendUserType] || '/';
                 this.$router.push(route);
+
             } catch (error) {
-                // console.error(error);
                 this.showModal = false;
+                let errorMessage = error.response?.data?.message || 
+                                  error.response?.data?.error || 
+                                  error.message ||
+                                  'Terjadi kesalahan saat login!';
+                
                 Swal.fire({
                     icon: 'error',
                     title: 'Login Gagal!',
-                    text: error.response ?.data ?.message || 'Username atau password salah!',
+                    text: errorMessage,
                 });
-                this.resetForm();
+            } finally {
+                this.isLoggingIn = false;
             }
         },
         toggleDropdown() {
@@ -246,7 +275,7 @@ body {
     display: flex;
     justify-content: center;
     align-items: center;
-    z-index: 99999;
+    z-index: 9999;
     backdrop-filter: blur(2px);
 }
 
