@@ -332,7 +332,7 @@ main {
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     padding: 0.3rem 0rem 0 0;
     z-index: 1050;
-    width: 180px;
+    width: 200px;
     max-width: 100%;
     text-align: left;
 }
