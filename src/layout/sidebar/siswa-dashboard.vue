@@ -28,19 +28,19 @@
         </div>
         
         <div class="col-md-6 mb-3">
-          <div class="card">
-            <div class="card-body">
-              <div class="d-flex align-items-center">
-                <div class="me-3">
-                  <i class="fas fa-money-bill-wave fs-2 text-success"></i>
+            <div class="card">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="me-3">
+                            <i class="fas fa-money-bill-wave fs-2 text-success"></i>
+                        </div>
+                        <div>
+                            <h5 class="card-title">Total Pembayaran</h5>
+                            <p class="card-text mb-0">Rp {{ formatCurrency(totalPembayaran) }}</p>
+                        </div>
+                    </div>
                 </div>
-                <div>
-                  <h5 class="card-title">Total Pembayaran</h5>
-                  <p class="card-text mb-0">Rp 4.000.000</p>
-                </div>
-              </div>
             </div>
-          </div>
         </div>
       </div>
 
@@ -119,8 +119,10 @@ import axios from 'axios';
 
 export default {
   name: 'StudentDashboard',
+  name: 'TotalPembayaran',
   data() {
     return {
+      totalPembayaran: 0,
       userName: "",
       assignedKelasNama: 'Memuat...',
       assignedKelasJumlahSiswa: 0,
@@ -152,6 +154,7 @@ export default {
     }
   },
   created() {
+    this.fetchPembayaranData();
     this.fetchUserData();
     this.fetchAssignedKelasData();
     this.fetchGuruData();
@@ -203,6 +206,29 @@ export default {
       } catch (error) {
         console.error("Error fetching guru data:", error);
       }
+    },
+    async fetchPembayaranData() {
+      const idSiswa = localStorage.getItem('user_id') || localStorage.getItem('id_siswa');
+      console.log('ID SISWA:', idSiswa);
+  if (!idSiswa) {
+    this.error = 'ID Siswa tidak ditemukan';
+    return;
+  }
+
+  try {
+    const response = await axios.get(`/siswa/${idSiswa}/total-pembayaran`);
+    if (response.data.success) {
+      this.totalPembayaran = response.data.total_pembayaran;
+    } else {
+      this.error = response.data.message || 'Gagal memuat data pembayaran';
+    }
+  } catch (error) {
+    console.error('Error fetching total pembayaran:', error);
+    this.error = 'Gagal memuat data pembayaran';
+  }
+},
+    formatCurrency(value) {
+      return new Intl.NumberFormat('id-ID').format(value);
     }
   }
 }

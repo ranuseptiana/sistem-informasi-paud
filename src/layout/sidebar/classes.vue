@@ -43,16 +43,20 @@
                                 </div>
                         
                                 <div class="form-group-kelas">
-                                <label for="guru">Guru Pengajar</label>
-                                <input
-                                    type="text"
-                                    style="cursor: pointer;"
-                                    class="form-input"
-                                    :value="selectedGuruLabels.join(', ')"
-                                    placeholder="Tap untuk memilih guru"
-                                    readonly
-                                    @click="showGuruModal = true"
-                                />
+                                    <label for="guru">Guru Pengajar</label>
+                                    <input
+                                        type="text"
+                                        style="cursor: pointer;"
+                                        class="form-input"
+                                        :value="selectedGuruLabels.length ? selectedGuruLabels.join(', ') : 'Tap untuk memilih guru'"
+                                        placeholder="Tap untuk memilih guru"
+                                        readonly
+                                        @click="showGuruModal = true"
+                                    />
+                                    <!-- Tampilkan nama guru yang sudah dipilih saat edit -->
+                                    <div v-if="isEditing && form.guru_id.length > 0" class="current-teachers">
+                                        <small>Guru saat ini: {{ getCurrentTeachers }}</small>
+                                    </div>
                                 </div>
 
                                 <div v-if="showGuruModal" class="modal-overlay-kelas" @click.self="showGuruModal = false">
@@ -178,264 +182,271 @@
     </section>
 </div>
 </template>
-
-<script>
-import "jspdf-autotable";
-import Swal from "sweetalert2";
-import axios from 'axios';
-import {
-    ref,
-    onMounted
-} from 'vue';
-
-export default {
-    data() {
-        return {
-            maxVisiblePages: 5,
-            rowsPerPage: 5,
-            currentPage: 1,
-            openModal: false,
-            isEditing: false,
-            showGuruModal: false,
-            dropdownIndex: null,
-            searchQuery: '',
-            GuruList: [],
-            showModal: false,
-            isFilterPopupVisible: false,
-            headerMapping: {
-                namaKelas: 'Nama Kelas',
-                jumlahSiswa: 'Jumlah Siswa',
-                namaGuru: 'Nama Guru'
-            },
-            form: {
-                nama_kelas: '',
-                guru_id: [],
-            },
-            errors: {},
-        };
-    },
-    methods: {
-        prepareTambahKelas() {
-            this.form = {
-                id: null,
-                nama_kelas: "",
-                guru_id: []
-            }; 
-            this.isEditing = false;
-            this.showModal = true; 
-        },
-        prepareEditKelas(id) {
-            this.dropdownIndex = null;
+    
+    <script>
+    import { ref, computed, onMounted } from 'vue'
+    import Swal from "sweetalert2"
+    import axios from 'axios'
+    
+    export default {
+      setup() {
+        // Reactive state
+        const maxVisiblePages = ref(5)
+        const rowsPerPage = ref(5)
+        const currentPage = ref(1)
+        const isEditing = ref(false)
+        const showGuruModal = ref(false)
+        const dropdownIndex = ref(null)
+        const searchQuery = ref('')
+        const showModal = ref(false)
+        const isFilterPopupVisible = ref(false)
+        
+        const form = ref({
+          id: null,
+          nama_kelas: '',
+          guru_id: []
+        })
+    
+        const errors = ref({})
+        const KelasList = ref([])
+        const GuruList = ref([])
+    
+        const headerMapping = {
+          namaKelas: 'Nama Kelas',
+          jumlahSiswa: 'Jumlah Siswa',
+          namaGuru: 'Nama Guru'
+        }
+    
+        // Methods
+        const prepareTambahKelas = () => {
+          form.value = {
+            id: null,
+            nama_kelas: "",
+            guru_id: []
+          }
+          isEditing.value = false
+          showModal.value = true
+        }
+    
+        const prepareEditKelas = (id) => {
+            dropdownIndex.value = null;
+            const kelas = KelasList.value.find(k => k.id === id);
             
-            const kelas = this.KelasList.find(k => k.id === id); 
             if (kelas) {
-                this.form = {
-                    ...kelas
-                }; 
-                this.isEditing = true; 
-                this.showModal = true; 
-            }
-        },
-        async simpanKelas() {
-            const payload = {
-                nama_kelas: this.form.nama_kelas,
-                guru_id: this.form.guru_id
-            };
-
-            try {
-                if (this.isEditing) {
-                    await axios.put(`/kelas/${this.form.id}`, payload);
-                    Swal.fire('Berhasil', 'Data kelas berhasil diperbarui!', 'success');
-                } else {
-                    await axios.post('/kelas', payload);
-                    Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success');
-                }
-
-                this.closeModal(); 
-                this.fetchKelasList(); 
-            } catch (error) {
-                if (error.response && error.response.status === 422) {
-                    this.errors = error.response.data.errors;
-                } else {
-                    console.error(error);
-                    Swal.fire('Error', 'Gagal menyimpan data kelas!', 'error');
-                }
-            }
-        },
-        async deleteKelas(kelasId) {
-            try {
-                const confirmDelete = await Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data ini akan dihapus!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonText: 'Ya, Hapus',
-                    cancelButtonText: 'Batal'
-                });
-
-                if (confirmDelete.isConfirmed) {
-                    // Kirim permintaan DELETE ke backend
-                    const response = await axios.delete(`/kelas/${kelasId}`);
-
-                    // Tampilkan pesan sukses
-                    Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success');
-
-                    // Hapus kelas dari KelasList di frontend
-                    this.KelasList = this.KelasList.filter(kelas => kelas.id !== kelasId);
-                }
-            } catch (error) {
-                Swal.fire('Error', 'Gagal menghapus data kelas!', 'error');
-            }
-        },
-        changePage(page) {
-            if (page > 0 && page <= this.totalPages) {
-                this.currentPage = page;
-            }
-        },
-        // Fungsi untuk mendapatkan data berdasarkan filter aktif
-        getFilteredData() {
-            return this.KelasList.map((kelas, index) => {
-                const filteredKelas = {
-                    No: index + 1,
+                // Konversi string guru_ids ke array number
+                const guruIds = kelas.guru_ids 
+                ? kelas.guru_ids.split(',').map(id => parseInt(id))
+                : [];
+                
+                form.value = {
+                id: kelas.id,
+                nama_kelas: kelas.nama_kelas,
+                guru_id: guruIds // Gunakan array ID guru yang sudah dikonversi
                 };
-                Object.keys(this.selectedFilters).forEach((key) => {
-                    if (this.selectedFilters[key]) {
-                        filteredKelas[key] = kelas[key];
-                    }
-                });
-                return filteredKelas;
-            });
-        },
-        closeModal() {
-            this.showModal = false;
-            this.showGuruModal = false;
-            this.resetForm();
-        },
-        toggleDropdown(index) {
-            this.dropdownIndex = this.dropdownIndex === index ? null : index;
-        },
-        resetForm() {
-            this.form = {
-                nama_kelas: '',
-                guru_id: [],
-            };
-        },
-    },
-    //untuk menampilkan data kelas
-    setup() {
-        const kelas = ref([]);
-        const KelasList = ref([]); 
-        const guru = ref([]);
-        const GuruList = ref([]);
-
-        const fetchKelasList = () => {
-            axios.get('/kelas')
-                .then((res) => {
-                    // ("Response dari backend:", res.data);
-                    if (res.data && Array.isArray(res.data.data)) {
-                        KelasList.value = res.data.data;
-                    } else {
-                        console.error("Data tidak sesuai:", res.data);
-                        KelasList.value = [];
-                    }
-                })
-                .catch((error) => {
-                    console.error("Gagal mengambil data kelas:", error);
-                });
+                isEditing.value = true;
+                showModal.value = true;
+            }
         };
-
-        const fetchGuruList = () => {
-            axios.get('/guru')
-                .then((res) => {
-                    ("Response dari backend:", res.data);
-                    if (res.data && Array.isArray(res.data.data)) {
-                        GuruList.value = res.data.data;
-                    } else {
-                        console.error("Data tidak sesuai:", res.data);
-                        GuruList.value = [];
-                    }
-                })
-                .catch((error) => {
-                    console.error("Gagal mengambil data guru:", error);
-                });
+    
+        const simpanKelas = async () => {
+          const payload = {
+            nama_kelas: form.value.nama_kelas,
+            guru_id: form.value.guru_id
+          }
+    
+          try {
+            if (isEditing.value) {
+              await axios.put(`/kelas/${form.value.id}`, payload)
+              Swal.fire('Berhasil', 'Data kelas berhasil diperbarui!', 'success')
+            } else {
+              await axios.post('/kelas', payload)
+              Swal.fire('Berhasil', 'Data kelas berhasil disimpan!', 'success')
+            }
+    
+            closeModal()
+            fetchKelasList()
+          } catch (error) {
+            if (error.response && error.response.status === 422) {
+              errors.value = error.response.data.errors
+            } else {
+              console.error(error)
+              Swal.fire('Error', 'Gagal menyimpan data kelas!', 'error')
+            }
+          }
+        }
+    
+        const deleteKelas = async (kelasId) => {
+          try {
+            const confirmDelete = await Swal.fire({
+              title: 'Apakah Anda yakin?',
+              text: "Data ini akan dihapus!",
+              icon: 'warning',
+              showCancelButton: true,
+              confirmButtonText: 'Ya, Hapus',
+              cancelButtonText: 'Batal'
+            })
+    
+            if (confirmDelete.isConfirmed) {
+              await axios.delete(`/kelas/${kelasId}`)
+              Swal.fire('Terhapus!', 'Data kelas berhasil dihapus.', 'success')
+              KelasList.value = KelasList.value.filter(kelas => kelas.id !== kelasId)
+            }
+          } catch (error) {
+            Swal.fire('Error', 'Gagal menghapus data kelas!', 'error')
+          }
+        }
+    
+        const changePage = (page) => {
+          if (page > 0 && page <= totalPages.value) {
+            currentPage.value = page
+          }
+        }
+    
+        const closeModal = () => {
+          showModal.value = false
+          showGuruModal.value = false
+          resetForm()
+        }
+    
+        const toggleDropdown = (index) => {
+          dropdownIndex.value = dropdownIndex.value === index ? null : index
+        }
+    
+        const resetForm = () => {
+          form.value = {
+            nama_kelas: '',
+            guru_id: []
+          }
+        }
+    
+        const fetchKelasList = async () => {
+        try {
+            const res = await axios.get('/kelas');
+            if (res.data && Array.isArray(res.data.data)) {
+            KelasList.value = res.data.data.map(kelas => ({
+                ...kelas,
+                // Pastikan guru_ids selalu string kosong jika null
+                guru_ids: kelas.guru_ids || ''
+            }));
+            }
+        } catch (error) {
+            console.error("Gagal mengambil data kelas:", error);
+        }
         };
+        const fetchGuruList = async () => {
+          try {
+            const res = await axios.get('/guru')
+            if (res.data && Array.isArray(res.data.data)) {
+              GuruList.value = res.data.data
+            }
+          } catch (error) {
+            console.error("Gagal mengambil data guru:", error)
+          }
+        }
+    
+        // Computed properties
+        const selectedGuruLabels = computed(() => {
+          const guruIds = Array.isArray(form.value.guru_id) ? form.value.guru_id : []
+          return GuruList.value
+            .filter(g => guruIds.includes(g.id))
+            .map(g => g.nama_lengkap)
+        })
+    
+        const showLeftEllipsis = computed(() => currentPage.value > 4)
+        const showRightEllipsis = computed(() => currentPage.value < totalPages.value - 3)
+    
+        const middlePages = computed(() => {
+          let start = Math.max(2, currentPage.value - 1)
+          let end = Math.min(totalPages.value - 1, currentPage.value + 1)
+    
+          if (currentPage.value <= 4) {
+            start = 2
+            end = Math.min(5, totalPages.value - 1)
+          } else if (currentPage.value >= totalPages.value - 3) {
+            start = Math.max(totalPages.value - 4, 2)
+            end = totalPages.value - 1
+          }
+    
+          const pages = []
+          for (let i = start; i <= end; i++) {
+            pages.push(i)
+          }
+          return pages
+        })
+    
+        const filteredKelasList = computed(() => {
+          const query = searchQuery.value.toLowerCase()
+          return KelasList.value.filter(kelas => {
+            return Object.keys(kelas).some(key => {
+              return kelas[key] && String(kelas[key]).toLowerCase().includes(query)
+            })
+          })
+        })
+    
+        const paginatedKelasList = computed(() => {
+          const start = (currentPage.value - 1) * rowsPerPage.value
+          return filteredKelasList.value.slice(start, start + rowsPerPage.value)
+        })
+    
+        const totalPages = computed(() => Math.ceil(KelasList.value.length / rowsPerPage.value))
+    
+        const pageInfo = computed(() => {
+          if (filteredKelasList.value.length === 0) return 'Tidak ada data'
+          const startRow = (currentPage.value - 1) * rowsPerPage.value + 1
+          const endRow = Math.min(currentPage.value * rowsPerPage.value, filteredKelasList.value.length)
+          return `Showing ${startRow} - ${endRow} of ${filteredKelasList.value.length} entries`
+        })
 
-        onMounted(() => {
-            fetchKelasList();
-            fetchGuruList();
+        const getCurrentTeachers = computed(() => {
+            if (!isEditing.value) return '';
+            
+            const kelas = KelasList.value.find(k => k.id === form.value.id);
+            return kelas ? kelas.nama_guru : '';
         });
-
+    
+        // Lifecycle hooks
+        onMounted(() => {
+          fetchKelasList()
+          fetchGuruList()
+        })
+    
+        // Expose to template
         return {
-            kelas,
-            KelasList,
-            guru,
-            GuruList,
-            fetchKelasList,
-            fetchGuruList
-        };
-    },
-    computed: {
-        selectedGuruLabels() {
-            return this.GuruList
-            .filter(g => this.form.guru_id.includes(g.id))
-            .map(g => g.nama_lengkap);
-        },
-        showLeftEllipsis() {
-            return this.currentPage > 4;
-        },
-        showRightEllipsis() {
-            return this.currentPage < this.totalPages - 3;
-        },
-        middlePages() {
-            let start = Math.max(2, this.currentPage - 1);
-            let end = Math.min(this.totalPages - 1, this.currentPage + 1);
-
-            if (this.currentPage <= 4) {
-                start = 2;
-                end = Math.min(5, this.totalPages - 1);
-            } else if (this.currentPage >= this.totalPages - 3) {
-                start = Math.max(this.totalPages - 4, 2);
-                end = this.totalPages - 1;
-            }
-
-            const pages = [];
-            for (let i = start; i <= end; i++) {
-                pages.push(i);
-            }
-            return pages;
-        },
-        filteredKelasList() {
-            const query = this.searchQuery.toLowerCase();
-            return this.KelasList.filter(kelas => {
-                return Object.keys(kelas).some(key => {
-                    return kelas[key] && String(kelas[key]).toLowerCase().includes(query);
-                });
-            });
-        },
-        paginatedKelasList() {
-            let start = (this.currentPage - 1) * this.rowsPerPage;
-            return this.filteredKelasList.slice(start, start + this.rowsPerPage);
-        },
-        totalPages() {
-            return Math.ceil(this.KelasList.length / this.rowsPerPage);
-        },
-        pageInfo() {
-            if (this.filteredKelasList.length === 0) {
-                return 'Tidak ada data';
-            }
-            const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredKelasList.length);
-            return `Showing ${startRow} - ${endRow} of ${this.filteredKelasList.length} entries`;
-        },
-    },
-    mounted() {
-        document.addEventListener('click', this.handleClickOutside);
-    },
-    beforeDestroy() {
-        document.removeEventListener('click', this.handleClickOutside);
-    },
-};
-</script>
+          maxVisiblePages,
+          rowsPerPage,
+          currentPage,
+          isEditing,
+          showGuruModal,
+          dropdownIndex,
+          searchQuery,
+          showModal,
+          isFilterPopupVisible,
+          form,
+          errors,
+          KelasList,
+          GuruList,
+          headerMapping,
+          prepareTambahKelas,
+          prepareEditKelas,
+          simpanKelas,
+          deleteKelas,
+          changePage,
+          closeModal,
+          toggleDropdown,
+          resetForm,
+          selectedGuruLabels,
+          showLeftEllipsis,
+          showRightEllipsis,
+          middlePages,
+          filteredKelasList,
+          paginatedKelasList,
+            totalPages,
+            pageInfo,
+          getCurrentTeachers
+        }
+      }
+    }
+    </script>
 
 <style scoped>
 .container {

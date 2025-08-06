@@ -101,19 +101,25 @@
                         <td v-if="selectedFilters.tanggalKegiatan">{{ album['tanggal_kegiatan'] }}</td>
                         <td v-if="selectedFilters.lokasiKegiatan">{{ album['lokasi_kegiatan'] }}</td>
                         <td>
-                            <div class="popup d-inline-block" ref="popup">
-                                <button class="btn btn-sm" type="button" 
-                                @click="toggleDropdown(index)" 
-                                :aria-expanded="dropdownIndex === ((currentPage - 1) * rowsPerPage + index)">
+                        <div class="popup d-inline-block" ref="popup">
+                            <button class="btn btn-sm" type="button" @click="toggleDropdown(album.id)" 
+                            aria-label="Toggle actions menu" aria-controls="dropdown-menu">
                                 <i class="fas fa-ellipsis-h"></i>
                             </button>
-                            <div class="popup-menu-album" :class="{ show: isDropdownVisible(index) }">
-                                    <button class="popup-item" @click="detailAlbum(album.id)" style="color: #274278">Detail</button>
-                                    <button class="popup-item" @click="prepareEditAlbum(album.id)" style="color: #274278">Edit</button>
-                                    <button class="popup-item" @click="deleteAlbum(album.id)" style="color: red">Hapus</button>
-                                </div>
+
+                            <div class="popup-menu-album" 
+                                id="dropdown-menu" v-if="isDropdownVisible(album.id)"
+                                role="menu">
+                                <button class="popup-item" @click="detailAlbum(album.id)" style="color: #274278">Detail</button>
+                                <button class="popup-item" @click="prepareEditAlbum(album.id)" style="color: #274278">Edit</button>
+                                <button class="popup-item" 
+                                            @click="() => { dropdownIndex = null; deleteAlbum(album.id) }"
+                                            style="color: red">
+                                        Hapus
+                                </button>
                             </div>
-                        </td>
+                        </div>
+                    </td>
                     </tr>
                     <tr v-if="AlbumList.length === 0" class="no-data">
                         <td colspan="7" class="no-data-cell">
@@ -186,10 +192,12 @@ export default {
         return {
             maxVisiblePages: 5,
             rowsPerPage: 5,
+            dropdownId: null,
             currentPage: 1,
             openModal: false,
             isEditing: false,
             dropdownIndex: null,
+            isPopup: false,
             searchQuery: '',
             showModal: false,
             isFilterPopupVisible: false,
@@ -232,95 +240,96 @@ export default {
             this.$router.push(`/adminmainsidebar/detailGallery/${id}`);
         },
         async prepareEditAlbum(id) {
-    this.dropdownIndex = null;
+            this.dropdownIndex = null;
+            isDropdownVisible: false;
 
-    try {
-        const response = await axios.get(`/album/${id}?t=${new Date().getTime()}`); // Tambahkan cache busting
-        const album = response.data.data;
+            try {
+                const response = await axios.get(`/album/${id}?t=${new Date().getTime()}`); // Tambahkan cache busting
+                const album = response.data.data;
 
-        if (album) {
-            this.form = {
-                id: album.id,
-                photo_cover: null,
-                photo_cover_preview: album.photo_cover 
-                    ? this.getCoverAlbumUrl(album.photo_cover) 
-                    : '',
-                nama_album: album.nama_album,
-                deskripsi: album.deskripsi,
-                tanggal_kegiatan: album.tanggal_kegiatan,
-                lokasi_kegiatan: album.lokasi_kegiatan
-            };
-            this.isEditing = true;
-            this.showModal = true;
-        } else {
-            Swal.fire('Error', 'Album tidak ditemukan.', 'error');
-        }
-    } catch (error) {
-        console.error("Gagal mengambil data album untuk edit:", error);
-        Swal.fire('Error', 'Gagal mengambil data album untuk diedit!', 'error');
-    }
-},
+                if (album) {
+                    this.form = {
+                        id: album.id,
+                        photo_cover: null,
+                        photo_cover_preview: album.photo_cover ?
+                            this.getCoverAlbumUrl(album.photo_cover) :
+                            '',
+                        nama_album: album.nama_album,
+                        deskripsi: album.deskripsi,
+                        tanggal_kegiatan: album.tanggal_kegiatan,
+                        lokasi_kegiatan: album.lokasi_kegiatan
+                    };
+                    this.isEditing = true;
+                    this.showModal = true;
+                } else {
+                    Swal.fire('Error', 'Album tidak ditemukan.', 'error');
+                }
+            } catch (error) {
+                console.error("Gagal mengambil data album untuk edit:", error);
+                Swal.fire('Error', 'Gagal mengambil data album untuk diedit!', 'error');
+            }
+        },
         async simpanAlbum() {
-    const formData = new FormData();
-    formData.append('nama_album', this.form.nama_album);
-    formData.append('deskripsi', this.form.deskripsi);
-    formData.append('tanggal_kegiatan', this.form.tanggal_kegiatan || '');
-    formData.append('lokasi_kegiatan', this.form.lokasi_kegiatan || '');
+            const formData = new FormData();
+            formData.append('nama_album', this.form.nama_album);
+            formData.append('deskripsi', this.form.deskripsi);
+            formData.append('tanggal_kegiatan', this.form.tanggal_kegiatan || '');
+            formData.append('lokasi_kegiatan', this.form.lokasi_kegiatan || '');
 
-    if (this.form.photo_cover) {
-        formData.append('photo_cover', this.form.photo_cover);
-    }
-
-    try {
-        let response;
-        if (this.isEditing) {
-            formData.append('_method', 'PUT');
-            response = await axios.post(`/album/${this.form.id}`, formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            
-            const updatedAlbum = response.data.data;
-            const index = this.AlbumList.findIndex(a => a.id === updatedAlbum.id);
-            if (index !== -1) {
-                if (updatedAlbum.photo_cover && !updatedAlbum.photo_cover.includes('?')) {
-                    updatedAlbum.photo_cover = `${updatedAlbum.photo_cover}?t=${new Date().getTime()}`;
-                }
-                
-                this.AlbumList = [
-                ...this.AlbumList.slice(0, index),
-                updatedAlbum,
-                ...this.AlbumList.slice(index + 1)
-                ];
+            if (this.form.photo_cover) {
+                formData.append('photo_cover', this.form.photo_cover);
             }
-            
-            Swal.fire('Berhasil', 'Data album berhasil diperbarui!', 'success');
-        } else {
-            response = await axios.post('/album', formData, {
-                headers: {
-                    'Content-Type': 'multipart/form-data'
-                }
-            });
-            Swal.fire('Berhasil', 'Data album berhasil disimpan!', 'success');
-            this.AlbumList.unshift(response.data.data);
-        }
 
-        this.closeModal();
-    } catch (error) {
-        if (error.response && error.response.status === 422) {
-            this.errors = error.response.data.errors;
-            let errorMessage = 'Terjadi kesalahan validasi:\n';
-            for (const key in this.errors) {
-                errorMessage += `${this.errors[key].join(', ')}\n`;
+            try {
+                let response;
+                if (this.isEditing) {
+                    formData.append('_method', 'PUT');
+                    response = await axios.post(`/album/${this.form.id}`, formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+
+                    const updatedAlbum = response.data.data;
+                    const index = this.AlbumList.findIndex(a => a.id === updatedAlbum.id);
+                    if (index !== -1) {
+                        if (updatedAlbum.photo_cover && !updatedAlbum.photo_cover.includes('?')) {
+                            updatedAlbum.photo_cover = `${updatedAlbum.photo_cover}?t=${new Date().getTime()}`;
+                        }
+
+                        this.AlbumList = [
+                            ...this.AlbumList.slice(0, index),
+                            updatedAlbum,
+                            ...this.AlbumList.slice(index + 1)
+                        ];
+                    }
+
+                    Swal.fire('Berhasil', 'Data album berhasil diperbarui!', 'success');
+                } else {
+                    response = await axios.post('/album', formData, {
+                        headers: {
+                            'Content-Type': 'multipart/form-data'
+                        }
+                    });
+                    Swal.fire('Berhasil', 'Data album berhasil disimpan!', 'success');
+                    this.AlbumList.unshift(response.data.data);
+                }
+
+                this.closeModal();
+            } catch (error) {
+                if (error.response && error.response.status === 422) {
+                    this.errors = error.response.data.errors;
+                    let errorMessage = 'Terjadi kesalahan validasi:\n';
+                    for (const key in this.errors) {
+                        errorMessage += `${this.errors[key].join(', ')}\n`;
+                    }
+                    Swal.fire('Error Validasi', errorMessage, 'error');
+                } else {
+                    console.error("Error saving album:", error.response || error);
+                    Swal.fire('Error', 'Gagal menyimpan data album!', 'error');
+                }
             }
-            Swal.fire('Error Validasi', errorMessage, 'error');
-        } else {
-            console.error("Error saving album:", error.response || error);
-            Swal.fire('Error', 'Gagal menyimpan data album!', 'error');
-        }
-    }
-},
+        },
         async deleteAlbum(albumId) {
             try {
                 const confirmDelete = await Swal.fire({
@@ -368,17 +377,17 @@ export default {
                 });
         },
         getCoverAlbumUrl(path) {
-    if (!path) return '/src/assets/images/placeholder.png';
-    
-    if (path.startsWith("http")) {
-        if (path.includes('?')) {
-            return `${path}&t=${new Date().getTime()}`;
-        }
-        return `${path}?t=${new Date().getTime()}`;
-    }
+            if (!path) return '/src/assets/images/placeholder.png';
 
-    return `${import.meta.env.VITE_API_URL}/storage/${path}?t=${new Date().getTime()}`;
-},
+            if (path.startsWith("http")) {
+                if (path.includes('?')) {
+                    return `${path}&t=${new Date().getTime()}`;
+                }
+                return `${path}?t=${new Date().getTime()}`;
+            }
+
+            return `${import.meta.env.VITE_API_URL}/storage/${path}?t=${new Date().getTime()}`;
+        },
         changePage(page) {
             if (page > 0 && page <= this.totalPages) {
                 this.currentPage = page;
@@ -411,16 +420,18 @@ export default {
             this.showModal = false;
             this.resetForm();
         },
-        toggleDropdown(index) {
-        // Sesuaikan dropdownIndex dengan offset halaman
-        const globalIndex = (this.currentPage - 1) * this.rowsPerPage + index;
-        this.dropdownIndex = this.dropdownIndex === globalIndex ? null : globalIndex;
-    },
-    isDropdownVisible(index) {
-        // Periksa apakah dropdown aktif untuk elemen tertentu
-        const globalIndex = (this.currentPage - 1) * this.rowsPerPage + index;
-        return this.dropdownIndex === globalIndex;
-    },
+        toggleDropdown(id) {
+            if (this.dropdownId === id) {
+                this.dropdownId = null;
+                console.log('Closing dropdown');
+            } else {
+                this.dropdownId = id;
+                console.log('Opening dropdown for ID:', id);
+            }
+        },
+        isDropdownVisible(id) {
+            return this.dropdownId === id;
+        },
         resetForm() {
             this.form = {
                 id: null,
@@ -453,32 +464,32 @@ export default {
     },
     computed: {
         totalPages() {
-        return Math.ceil(this.filteredAlbumList.length / this.rowsPerPage);
-    },
-    paginatedAlbumList() {
-        const start = (this.currentPage - 1) * this.rowsPerPage;
-        const end = start + Number(this.rowsPerPage); // Pastikan rowsPerPage sebagai number
-        return this.filteredAlbumList.slice(start, end);
-    },
-    filteredAlbumList() {
-        const query = this.searchQuery.toLowerCase();
-        return this.AlbumList.filter(album => {
-            return Object.keys(album).some(key => {
-                if (['nama_album', 'deskripsi', 'tanggal_kegiatan', 'lokasi_kegiatan'].includes(key)) {
-                    return album[key] && String(album[key]).toLowerCase().includes(query);
-                }
-                return false;
+            return Math.ceil(this.filteredAlbumList.length / this.rowsPerPage);
+        },
+        paginatedAlbumList() {
+            const start = (this.currentPage - 1) * this.rowsPerPage;
+            const end = start + Number(this.rowsPerPage); // Pastikan rowsPerPage sebagai number
+            return this.filteredAlbumList.slice(start, end);
+        },
+        filteredAlbumList() {
+            const query = this.searchQuery.toLowerCase();
+            return this.AlbumList.filter(album => {
+                return Object.keys(album).some(key => {
+                    if (['nama_album', 'deskripsi', 'tanggal_kegiatan', 'lokasi_kegiatan'].includes(key)) {
+                        return album[key] && String(album[key]).toLowerCase().includes(query);
+                    }
+                    return false;
+                });
             });
-        });
-    },
-    pageInfo() {
-        if (this.filteredAlbumList.length === 0) {
-            return 'Tidak ada data';
-        }
-        const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
-        const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredAlbumList.length);
-        return `Showing ${startRow} - ${endRow} of ${this.filteredAlbumList.length} entries`;
-    },
+        },
+        pageInfo() {
+            if (this.filteredAlbumList.length === 0) {
+                return 'Tidak ada data';
+            }
+            const startRow = (this.currentPage - 1) * this.rowsPerPage + 1;
+            const endRow = Math.min(this.currentPage * this.rowsPerPage, this.filteredAlbumList.length);
+            return `Showing ${startRow} - ${endRow} of ${this.filteredAlbumList.length} entries`;
+        },
         showLeftEllipsis() {
             return this.currentPage > 4;
         },
@@ -516,7 +527,7 @@ export default {
     },
 };
 </script>
-    
+
 <style scoped>
 .container {
     display: flex;
@@ -707,7 +718,7 @@ export default {
     box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
     padding: 10px;
     border-radius: 8px;
-    display: none;
+    /* display: none; */
     left: 74rem;
     z-index: 1000;
 }

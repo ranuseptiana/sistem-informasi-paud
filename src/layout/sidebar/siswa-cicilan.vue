@@ -241,7 +241,7 @@ export default {
 }
 
 .table-wrapper {
-    width: 121%;
+    width: 100%;
     max-width: auto;
     overflow-x: auto;
     background-color: white;

@@ -43,13 +43,26 @@
                         <form @submit.prevent="simpanFoto">
                             <div class="custom-modal-body">
                                 <div class="form-group-kelas">
-                                    <label for="pathFoto">Foto</label>
-                                    <input type="file" id="pathFoto" @change="handleFileChange" class="form-input" required />
+                                    <label for="pathFoto">
+                                        Foto ({{ isEditing ? 'Ganti satu foto' : 'Bisa pilih banyak' }})
+                                    </label>
+                                    <input type="file" id="pathFoto" @change="handleFileChange" class="form-input" :multiple="!isEditing" accept="image/*" :required="!isEditing" />
                                 </div>
                                 <div class="form-group-kelas">
-                                    <label for="pathFoto">Preview Foto</label>
-                                    <img v-if="form.file_preview" :src="form.file_preview" alt="Foto Preview" style="width: 100px; height: auto; margin-top: 10px;" />
+                                    <label>Preview Foto</label>
+                                    <div class="preview-container">
+                                        <div v-if="isEditing && form.file_previews.length === 0" class="preview-item">
+                                            <img :src="form.file_preview_old" alt="Preview Lama" class="preview-image" />
+                                        </div>
+                                        <div v-for="(preview, index) in form.file_previews" :key="index" class="preview-item">
+                                            <img :src="preview.url" alt="Preview Baru" class="preview-image" />
+                                            <button type="button" class="remove-preview" @click="removePreview(index)">
+                                                <i class="fas fa-times"></i>
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
+
                                 <div class="form-group-kelas">
                                     <label for="caption">Caption</label>
                                     <input type="text" id="caption" v-model="form.caption" class="form-input" />
@@ -87,14 +100,22 @@
                         </td>
                         <td>{{ foto.caption }}</td>
                         <td>
-                            <!-- popup set -->
-                            <div class="popup d-inline-block" ref="popup">
+                            <div class="popup d-inline-block" :ref="'popup-' + index">
                                 <button class="btn btn-sm" type="button" @click="toggleDropdown(index)" :aria-expanded="isDropdownVisible(index)">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
                                 <div class="popup-menu-album" :class="{ show: isDropdownVisible(index) }">
-                                    <button class="popup-item" @click="prepareEditFoto(foto.id)">Edit</button>
-                                    <button class="popup-item" @click="deleteFoto(foto.id)" style="color: red">Hapus</button>
+                                    <button class="popup-item"
+                                            @click="() => { dropdownIndex = null; prepareEditFoto(foto.id) }"
+                                            style="color: #274278">
+                                        Edit
+                                    </button>
+
+                                    <button class="popup-item" 
+                                            @click="() => { dropdownIndex = null; deleteFoto(foto.id) }"
+                                            style="color: red">
+                                        Hapus
+                                    </button>
                                 </div>
                             </div>
                         </td>
@@ -176,8 +197,9 @@ export default {
             FotoList: [],
             form: {
                 id: null,
-                file: null,
-                file_preview: '',
+                files: [],
+                file_previews: [],
+                file_preview_old: '',
                 caption: '',
             },
             errors: {},
@@ -210,92 +232,48 @@ export default {
         },
         async prepareEditFoto(id) {
             try {
-                const response = await axios.get(`/foto/${id}`);
-
-                const foto = response.data.data;
-                this.form = {
-                    id: foto.id,
-                    file: null,
-                    file_preview: this.getFotoUrl(foto.path_foto),
-                    caption: foto.caption || ''
-                };
-                this.isEditing = true;
-                this.showModal = true;
-                this.fetchFotoListByAlbum();
-            } catch (error) {
-                console.error("Error fetching foto:", error.response || error);
-                Swal.fire('Error', 'Gagal mengambil data foto', 'error');
-            }
-        },
-        handleFileChange(event) {
-            const file = event.target.files[0];
-            if (file) {
-                this.form.file = file;
-                this.form.file_preview = URL.createObjectURL(file);
-            } else {
-                this.form.file = null;
-                this.form.file_preview = '';
+            const res = await axios.get(`/foto/${id}`);
+            const foto = res.data.data;
+            this.form = {
+                id: foto.id,
+                files: [],
+                file_previews: [],
+                file_preview_old: this.getFotoUrl(foto.path_foto),
+                caption: foto.caption || '',
+            };
+            this.isEditing = true;
+            this.showModal = true;
+            } catch (err) {
+            console.error(err);
+            Swal.fire('Error', 'Gagal mengambil data foto.', 'error');
             }
         },
         async simpanFoto() {
-            const formData = new FormData();
-            formData.append('album_id', this.albumId);
+    const fd = new FormData();
+    fd.append('album_id', this.albumId);
+    if (this.isEditing && this.form.files.length === 1) {
+      fd.append('_method', 'PUT');
+      fd.append('file', this.form.files[0]);
+    } else {
+      this.form.files.forEach((file, i) => fd.append(`files[${i}]`, file));
+    }
+    fd.append('caption', this.form.caption || '');
 
-            if (this.form.file) {
-                formData.append('file', this.form.file);
-            }
+    try {
+      const res = this.isEditing
+        ? await axios.post(`/foto/${this.form.id}`, fd)
+        : await axios.post('/foto/multiple', fd);
 
-            formData.append('caption', this.form.caption || '');
-
-            try {
-                let response;
-                if (this.isEditing) {
-                    formData.append('_method', 'PUT');
-                    response = await axios.post(`/foto/${this.form.id}`, formData);
-                } else {
-                    response = await axios.post('/foto', formData);
-                }
-
-                // Perbaikan pengecekan response
-                if (response.status === 200 || response.status === 201) {
-                    // Update data langsung tanpa refresh
-                    if (this.isEditing) {
-                        const index = this.FotoList.findIndex(f => f.id === this.form.id);
-                        if (index !== -1) {
-                            this.FotoList.splice(index, 1, response.data.data);
-                        }
-                    } else {
-                        this.FotoList.unshift(response.data.data);
-                    }
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: 'Berhasil',
-                        text: response.data.message,
-                        timer: 1500
-                    });
-
-                    this.closeModal();
-                } else {
-                    throw new Error(response.data.message || 'Gagal menyimpan data');
-                }
-            } catch (error) {
-                console.error("Error saving foto:", error);
-
-                let errorMessage = 'Gagal menyimpan data foto';
-                if (error.response) {
-                    errorMessage = error.response.data ?.message ||
-                        Object.values(error.response.data ?.errors || {}).flat().join('\n') ||
-                        error.message;
-                }
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: errorMessage,
-                });
-            }
-        },
+      if ([200, 201].includes(res.status)) {
+        this.fetchFotoListByAlbum();
+        Swal.fire('Berhasil', res.data.message, 'success');
+        this.closeModal();
+      }
+    } catch (error) {
+      console.error(error);
+      Swal.fire('Error', error.response?.data?.message || 'Gagal menyimpan foto', 'error');
+    }
+  },
         async deleteFoto(fotoId) {
             try {
                 const confirmDelete = await Swal.fire({
@@ -317,6 +295,38 @@ export default {
                 Swal.fire('Error', 'Gagal menghapus data foto!', 'error');
             }
         },
+        handleFileChange(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) {
+            this.form.files = [];
+            this.form.file_previews = [];
+            return;
+            }
+
+            if (this.isEditing) {
+            // hanya satu file saat edit
+            const file = files[0];
+            this.form.files = [file];
+            this.form.file_previews = [{
+                url: URL.createObjectURL(file),
+                name: file.name
+            }];
+            } else {
+            this.form.files = [];
+            this.form.file_previews = [];
+            Array.from(files).forEach(file => {
+                this.form.files.push(file);
+                this.form.file_previews.push({
+                url: URL.createObjectURL(file),
+                name: file.name
+                });
+            });
+            }
+        },
+        removePreview(index) {
+            this.form.files.splice(index, 1);
+            this.form.file_previews.splice(index, 1);
+        },
         getFotoUrl(path) {
             if (!path) {
                 return require('@/assets/images/placeholder.png');
@@ -330,32 +340,35 @@ export default {
         },
         resetForm() {
             this.form = {
-                id: null,
-                file: null,
-                file_preview: '',
-                caption: '',
+            id: null,
+            files: [],
+            file_previews: [],
+            file_preview_old: '',
+            caption: '',
             };
-            this.errors = {};
+            this.isEditing = false;
         },
         closeModal() {
             this.showModal = false;
             this.resetForm();
         },
         toggleDropdown(index) {
-            const globalIndex = (this.currentPage - 1) * this.rowsPerPage + index;
+            const globalIndex = this.getGlobalIndex(index);
             this.dropdownIndex = this.dropdownIndex === globalIndex ? null : globalIndex;
         },
         isDropdownVisible(index) {
-            const globalIndex = (this.currentPage - 1) * this.rowsPerPage + index;
-            return this.dropdownIndex === globalIndex;
+            return this.dropdownIndex === this.getGlobalIndex(index);
+        },
+        getGlobalIndex(index) {
+            return (this.currentPage - 1) * this.rowsPerPage + index;
         },
         handleClickOutside(event) {
             if (this.dropdownIndex !== null) {
-                let clickedOnDropdown = false;
-                if (this.$refs.popup && this.$refs.popup[this.dropdownIndex]) {
-                    clickedOnDropdown = this.$refs.popup[this.dropdownIndex].contains(event.target);
-                }
-                if (!clickedOnDropdown) {
+                const refName = 'popup-' + (this.dropdownIndex % this.rowsPerPage);
+                const popupElement = this.$refs[refName];
+
+                // Jika popup ditemukan dan tidak mengandung elemen target yang diklik
+                if (!popupElement || !popupElement.contains(event.target)) {
                     this.dropdownIndex = null;
                 }
             }
@@ -365,6 +378,7 @@ export default {
                 this.currentPage = page;
             }
         },
+
     },
     computed: {
         totalPages() {
@@ -465,6 +479,42 @@ export default {
     align-items: center;
     justify-content: space-between;
     width: 100%;
+}
+
+.preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.preview-item {
+    position: relative;
+    width: 100px;
+}
+
+.preview-image {
+    width: 100%;
+    height: auto;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.remove-preview {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: #ff4444;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 10px;
 }
 
 .header-text {

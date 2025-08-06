@@ -52,8 +52,24 @@
             <div class="info-item">
                 <label>Bukti Pembayaran</label>
                 <div class="text-box">
-                    <img :src="getProofImageUrl(userData.bukti_pembayaran)" alt="Bukti Pembayaran" class="img-setting" v-if="userData.bukti_pembayaran" />
-                    <span v-else>Tidak ada bukti pembayaran</span>
+                    <template v-if="userData.bukti_pembayaran">
+                        <img
+                        :src="userData.bukti_pembayaran"
+                        alt="Bukti Pembayaran"
+                        class="img-setting"
+                        @click="openImageModal(userData.bukti_pembayaran)"
+                        style="cursor: zoom-in"
+                        />
+
+                        <div v-if="showImageModal" class="modal-overlay">
+                        <button class="close-button" @click.stop="closeImageModal">×</button>
+                        <img :src="zoomImageSrc" alt="Zoomed Bukti Pembayaran" class="zoomed-image" />
+                        </div>
+                    </template>
+
+                    <template v-else>
+                        <span>Tidak ada bukti pembayaran</span>
+                    </template>
                 </div>
             </div>
         </div>
@@ -102,11 +118,21 @@ export default {
     data() {
         return {
             userData: {},
-            baseServerUrl: 'import.meta.env.VITE_API_URL/',
+            showImageModal: false,
+            zoomImageSrc: '',
+            baseServerUrl: import.meta.env.VITE_API_URL,
         };
     },
 
     methods: {
+        openImageModal(src) {
+            this.zoomImageSrc = src;
+            this.showImageModal = true;
+        },
+        closeImageModal() {
+            this.showImageModal = false;
+            this.zoomImageSrc = '';
+        },
         lihatCicilan(id) {
             if (id) {
                 this.$router.push({
@@ -170,6 +196,43 @@ export default {
 <style scoped>
 .content-header {
     margin-top: 6.5rem;
+}
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999999;
+  cursor: zoom-out;
+}
+
+.zoomed-image {
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 10px;
+  box-shadow: 0 0 10px none;
+}
+
+.close-button {
+  position: absolute;
+  top: 20px;
+  right: 25px;
+  font-size: 2rem;
+  color: white;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  z-index: 1001;
+}
+
+.close-button:hover {
+  color: red;
 }
 
 .info-list {

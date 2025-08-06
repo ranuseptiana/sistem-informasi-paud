@@ -270,17 +270,33 @@
                                 </div>
 
                                 <div class="form-group">
-                                    <label for="bukti_pembayaran">Bukti Pembayaran (Gambar):</label>
-                                    <input type="file" id="bukti_pembayaran" @change="handleFileUpload" class="form-control-file">
-                                    <span v-if="errors.bukti_pembayaran" class="text-danger">{{
-                                            errors.bukti_pembayaran[0]
-                                            }}</span>
-                                    <div v-if="isEdit && form.bukti_pembayaran_url && !form.bukti_pembayaran" class="mt-2">
-                                        <p>Bukti pembayaran saat ini:</p>
-                                        <img :src="getBuktiUrl(form.bukti_pembayaran_url)" alt="Bukti Pembayaran Lama" style="max-width: 150px; height: auto;">
-                                        <button type="button" class="btn btn-sm btn-outline-danger mt-1" @click="removeBuktiPembayaran">Hapus Bukti</button>
-                                    </div>
-                                </div>
+    <label for="bukti_pembayaran">Bukti Pembayaran (Gambar):</label>
+    <input type="file" 
+           id="bukti_pembayaran" 
+           ref="fileInput" 
+           @change="handleFileUpload" 
+           class="form-control-file">
+    <span v-if="errors.bukti_pembayaran" class="text-danger">{{ errors.bukti_pembayaran[0] }}</span>
+    
+    <!-- Tampilkan gambar lama jika ada -->
+    <div v-if="isEdit && form.bukti_pembayaran_url && !form.previewUrl" class="mt-2">
+        <p>Bukti pembayaran saat ini:</p>
+        <img :src="form.bukti_pembayaran_url" 
+             alt="Bukti Pembayaran Lama" 
+             style="max-width: 150px; height: auto; cursor: pointer;"
+             @click="showImageModal = true; currentImageUrl = form.bukti_pembayaran_url">
+        <button type="button" class="btn btn-sm btn-outline-danger mt-1" @click="removeBuktiPembayaran">
+            Hapus Bukti
+        </button>
+    </div>
+    
+    <!-- Tampilkan preview file baru jika ada -->
+    <div v-if="form.previewUrl" class="mt-2">
+        <p>File baru:</p>
+        <img :src="form.previewUrl" 
+             style="max-width: 150px; height: auto;">
+    </div>
+</div>
 
                                 <div class="satu-row">
                                     <label for="statusPembayaran">Status Pembayaran:</label>
@@ -417,7 +433,9 @@ export default {
                 metode_pembayaran: '',
                 isCicilan: false,
                 bukti_pembayaran: null,
-                bukti_pembayaran_url: null,
+                previewUrl: null,             // Untuk URL preview gambar baru
+            bukti_pembayaran_url: null,   // Untuk URL gambar dari backend
+            should_delete_bukti: false,
                 status_pembayaran: '',
                 status_cicilan: '',
                 status_rapor: '',
@@ -1141,47 +1159,42 @@ export default {
             return this.displayedColumns.includes(columnName);
         },
         prepareEditPembayaran(id) {
-            axios.get(`/pembayaran/${id}`)
-                .then((res) => {
-                    const pembayaran = res.data.data;
+    axios.get(`/pembayaran/${id}`)
+        .then((res) => {
+            const pembayaran = res.data.data;
 
-                    this.displayNominal = pembayaran.nominal ?
-                        parseInt(pembayaran.nominal).toLocaleString('id-ID') :
-                        '';
+            this.displayNominal = pembayaran.nominal ?
+                parseInt(pembayaran.nominal).toLocaleString('id-ID') :
+                '';
 
-                    this.form = {
-                        id: pembayaran.id,
-                        siswa_id: pembayaran.siswa_id,
-                        tanggal_pembayaran: pembayaran.tanggal_pembayaran || '',
-                        jenis_pembayaran: pembayaran.jenis_pembayaran || 'pendaftaran baru',
-                        nominal: pembayaran.nominal ? pembayaran.nominal.toString() : '',
-                        metode_pembayaran: pembayaran.metode_pembayaran || 'full',
-                        bukti_pembayaran: null,
-                        bukti_pembayaran_url: pembayaran.bukti_pembayaran,
-                        bukti_pembayaran_url_from_backend: pembayaran.bukti_pembayaran_url,
-                        status_pembayaran: pembayaran.status_pembayaran || 'Belum Lunas',
-                        status_cicilan: pembayaran.status_cicilan || 'Belum Lunas',
-                        status_rapor: pembayaran.status_rapor || 'Dapat Diterima',
-                        status_atribut: pembayaran.status_atribut || 'Sudah Diterima',
-                    };
+            this.form = {
+                id: pembayaran.id,
+                siswa_id: pembayaran.siswa_id,
+                tanggal_pembayaran: pembayaran.tanggal_pembayaran || '',
+                jenis_pembayaran: pembayaran.jenis_pembayaran || 'pendaftaran baru',
+                nominal: pembayaran.nominal ? pembayaran.nominal.toString() : '',
+                metode_pembayaran: pembayaran.metode_pembayaran || 'full',
+                bukti_pembayaran: null, // Tetap null untuk file baru
+                bukti_pembayaran_url: pembayaran.bukti_pembayaran, // Simpan URL lengkap
+                status_pembayaran: pembayaran.status_pembayaran || 'Belum Lunas',
+                status_cicilan: pembayaran.status_cicilan || 'Belum Lunas',
+                status_rapor: pembayaran.status_rapor || 'Dapat Diterima',
+                status_atribut: pembayaran.status_atribut || 'Sudah Diterima',
+            };
 
-                    this.isEdit = true;
-                    this.tampilModal = true;
-                    this.errors = {};
-                    const fileInput = document.getElementById('bukti_pembayaran');
-                    if (fileInput) {
-                        fileInput.value = '';
-                    }
-                })
-                .catch((err) => {
-                    console.error("Gagal mengambil data pembayaran", err);
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal memuat data',
-                        text: err.response ?.data ?.message || 'Terjadi kesalahan saat memuat data pembayaran',
-                    });
-                });
-        },
+            this.isEdit = true;
+            this.tampilModal = true;
+            this.errors = {};
+        })
+        .catch((err) => {
+            console.error("Gagal mengambil data pembayaran", err);
+            Swal.fire({
+                icon: 'error',
+                title: 'Gagal memuat data',
+                text: err.response?.data?.message || 'Terjadi kesalahan saat memuat data pembayaran',
+            });
+        });
+},
         async simpanPembayaran() {
             this.errors = {};
 
@@ -1297,27 +1310,67 @@ export default {
         formatRupiah(angka) {
             return new Intl.NumberFormat('id-ID').format(angka);
         },
-        handleFileUpload(event) {
-            const file = event.target.files[0];
-            if (file) {
-                this.form.bukti_pembayaran = file;
+        isImage(file) {
+        return file && file.type && file.type.startsWith('image/');
+    },
+    
+    getImagePreview(file) {
+    if (!file) return null;
+    try {
+        return URL.createObjectURL(file);
+    } catch (error) {
+        console.error("Error creating object URL:", error);
+        return null;
+    }
+},
+handleFileUpload(event) {
+        // Clear previous preview
+        if (this.form.previewUrl) {
+            URL.revokeObjectURL(this.form.previewUrl);
+        }
 
-                this.form.bukti_pembayaran_url = URL.createObjectURL(file);
-            } else {
-                this.form.bukti_pembayaran = null;
-                if (!this.isEdit || (this.isEdit && !this.form.bukti_pembayaran_url_from_backend)) {
-                    this.form.bukti_pembayaran_url = null;
-                }
-            }
+        const file = event.target.files[0];
+        if (!file) {
+            this.resetFileData();
+            return;
+        }
+
+        this.form.bukti_pembayaran = file;
+        this.form.previewUrl = this.isImage(file) 
+            ? this.getImagePreview(file)
+            : null;
+        
+        // Mark that we don't want to keep old file
+        if (this.isEdit) {
+            this.form.should_keep_old_bukti = false;
+        }
+    },
+
+    removeBuktiPembayaran() {
+        this.resetFileData();
+        this.form.should_delete_bukti = true;
         },
-        removeBuktiPembayaran() {
-            this.form.bukti_pembayaran = '';
+    
+        resetFileData() {
+        // Clear preview URL
+        if (this.form.previewUrl) {
+            URL.revokeObjectURL(this.form.previewUrl);
+        }
+        
+        // Reset form data
+        this.form.bukti_pembayaran = null;
+        this.form.previewUrl = null;
+        
+        // Reset file input
+        if (this.$refs.fileInput) {
+            this.$refs.fileInput.value = '';
+        }
+        
+        // If in edit mode, clear the backend URL reference
+        if (this.isEdit) {
             this.form.bukti_pembayaran_url = null;
-            const fileInput = document.getElementById('bukti_pembayaran');
-            if (fileInput) {
-                fileInput.value = '';
-            }
-        },
+        }
+    },
         toggleDropdown(index) {
             this.dropdownIndex = this.dropdownIndex === index ? null : index;
         },
@@ -1541,6 +1594,12 @@ export default {
             return `Showing ${startRow} - ${endRow} of ${this.filteredPembayaranList.length} entries`;
         },
     },
+    beforeUnmount() {
+    // Cleanup object URLs ketika komponen di-unmount
+    if (this.form.previewUrl) {
+        URL.revokeObjectURL(this.form.previewUrl);
+    }
+}
 };
 </script>
 
@@ -2217,6 +2276,24 @@ select[disabled] {
     z-index: 3;
     outline: 0;
     box-shadow: 0 0 0 0.2rem rgba(51, 108, 42, 0.25);
+}
+/* Style untuk preview gambar */
+.image-preview {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    margin-top: 10px;
+    background-color: #f8f9fa;
+}
+
+.image-preview img {
+    max-height: 150px;
+    display: block;
+}
+
+.btn-remove-image {
+    margin-top: 5px;
+    font-size: 12px;
 }
 
 .image-modal-backdrop {

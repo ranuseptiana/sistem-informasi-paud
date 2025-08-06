@@ -50,37 +50,118 @@
 
 <div class="container">
     <!-- modal login -->
-    <div v-if="showModal" class="modal-overlay" @click="closeModal">
+    <div v-if="showModal" class="modal-overlay">
         <div class="modal-content" @click.stop>
-            <h5>Login sebagai</h5>
-            <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Pilih salah satu untuk melanjutkan</p>
-            <div class="user-buttons">
-                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Admin'}" @click="selectedUser = 'Admin'">
-                    Admin
-                </button>
-                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Guru' }" @click="selectedUser = 'Guru'">
-                    Guru
-                </button>
-                <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Siswa' }" @click="selectedUser = 'Siswa'">
-                    Orangtua
-                </button>
+            <div v-if="!showRegisterForm">
+                <!-- Form Login (existing) -->
+                <div class="modal-header">
+                    <h5>Login sebagai</h5>
+                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                </div>
+                <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Pilih salah satu untuk melanjutkan</p>
+                <div class="user-buttons">
+                    <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Admin'}" @click="selectedUser = 'Admin'">
+                        Admin
+                    </button>
+                    <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Guru' }" @click="selectedUser = 'Guru'">
+                        Guru
+                    </button>
+                    <button type="button" class="button-user" :class="{ 'active-user': selectedUser === 'Siswa' }" @click="selectedUser = 'Siswa'">
+                        Orangtua
+                    </button>
+                </div>
+
+                <input type="text" class="input-login" placeholder="Username" v-model="username" />
+                <div class="password-wrapper">
+                    <input :type="passwordFieldType" class="input-login" placeholder="Password" v-model="password" />
+                    <span class="password-toggle-icon" @click="togglePasswordVisibility">
+                        <i :class="passwordFieldIcon"></i>
+                    </span>
+                </div>
+
+                <p class="register-text">Belum punya akun? <span class="register-link" @click="showRegisterForm = true">Daftar disini</span></p>
+
+                <button type="button" class="login-button-2" @click="navigateToDashboard">Login</button>
             </div>
 
-            <input type="text" class="input-login" placeholder="Username" v-model="username" />
-            <div class="password-wrapper">
-                <input :type="passwordFieldType" class="input-login" placeholder="Password" v-model="password" />
-                <span class="password-toggle-icon" @click="togglePasswordVisibility">
-                    <i :class="passwordFieldIcon"></i>
-                </span>
-            </div>
+            <!-- Form Register -->
+            <div v-else>
+                <div class="modal-header">
+                    <h5>Registrasi akun</h5>
+                    <button type="button" class="close-btn" @click="closeModal">&times;</button>
+                </div>
+                <p style="margin-bottom: 0.5rem; font-size: 1.12rem;">Isi data berikut untuk mendaftar</p>
 
-            <button type="button" class="login-button-2" @click="navigateToDashboard">Login</button>
+                <div class="user-buttons">
+                    <button type="button" class="button-user" :class="{ 'active-user': registerData.user_type === 'guru'}" @click="registerData.user_type = 'guru'">
+                        Guru
+                    </button>
+                    <button type="button" class="button-user" :class="{ 'active-user': registerData.user_type === 'siswa' }" @click="registerData.user_type = 'siswa'">
+                        Orangtua
+                    </button>
+                </div>
+
+                <!-- Common fields -->
+                <input type="text" class="input-login" placeholder="Nama Lengkap" v-model="registerData.name" />
+                <input type="text" class="input-login" placeholder="Username" v-model="registerData.username" />
+
+                <div class="password-wrapper">
+                    <input :type="passwordFieldType" class="input-login" placeholder="Password" v-model="registerData.password" />
+                    <span class="password-toggle-icon" @click="togglePasswordVisibility">
+                        <i :class="passwordFieldIcon"></i>
+                    </span>
+                </div>
+
+                <!-- Guru specific fields -->
+                <div v-if="registerData.user_type === 'guru'">
+                    <input type="text" class="input-login" placeholder="NIY" v-model="registerData.niy" />
+                    <input type="text" class="input-login" placeholder="Alamat" v-model="registerData.alamat" />
+                    <input type="text" class="input-login" placeholder="Gender (L/P)" v-model="registerData.gender" />
+                    <input type="text" class="input-login" placeholder="Nomor Telepon" v-model="registerData.no_telp" />
+                    <input type="date" class="input-login" placeholder="Tanggal Lahir" v-model="registerData.tgl_lahir" />
+                    <input type="text" class="input-login" placeholder="Agama" v-model="registerData.agama" />
+                    <input type="text" class="input-login" placeholder="Jabatan" v-model="registerData.jabatan" />
+                    <input type="number" class="input-login" placeholder="Jumlah Hari Mengajar" v-model="registerData.jumlah_hari_mengajar" />
+                    <input type="text" class="input-login" placeholder="Tugas Mengajar" v-model="registerData.tugas_mengajar" />
+                </div>
+
+                <!-- Siswa specific fields -->
+                <div v-if="registerData.user_type === 'siswa'">
+                    <select class="input-login" v-model="registerData.no_kk" required>
+                        <option value="">Pilih Nomor KK</option>
+                        <option v-if="isLoadingOrangtua" value="" disabled>Memuat data...</option>
+                        <option v-else v-for="orangtua in orangtuaList" :key="orangtua.no_kk" :value="orangtua.no_kk">
+                            {{ orangtua.no_kk }} - {{ orangtua.nama_ayah || orangtua.nama_ibu || 'Nama tidak tersedia' }}
+                        </option>
+                    </select>
+                    <input type="text" class="input-login" placeholder="NIK Siswa (16 digit)" v-model="registerData.nik_siswa" />
+                    <input type="text" class="input-login" placeholder="NISN (10 digit)" v-model="registerData.nisn" />
+                    <input type="text" class="input-login" placeholder="NIPD (10 digit)" v-model="registerData.nipd" />
+                    <input type="text" class="input-login" placeholder="Tempat Lahir" v-model="registerData.tempat_lahir" />
+                    <input type="date" class="input-login" placeholder="Tanggal Lahir" v-model="registerData.tanggal_lahir" />
+                    <select class="input-login" v-model="registerData.jenis_kelamin">
+                        <option value="">Pilih Jenis Kelamin</option>
+                        <option value="Laki-laki">Laki-laki</option>
+                        <option value="Perempuan">Perempuan</option>
+                    </select>
+                    <input type="text" class="input-login" placeholder="Agama" v-model="registerData.agama" />
+                    <input type="text" class="input-login" placeholder="Alamat" v-model="registerData.alamat" />
+                    <input type="number" class="input-login" placeholder="Anak ke-" v-model="registerData.anak_ke" />
+                    <input type="number" class="input-login" placeholder="Jumlah Saudara" v-model="registerData.jumlah_saudara" />
+                    <input type="number" class="input-login" placeholder="Berat Badan (kg)" v-model="registerData.berat_badan" />
+                    <input type="number" class="input-login" placeholder="Tinggi Badan (cm)" v-model="registerData.tinggi_badan" />
+                    <input type="number" class="input-login" placeholder="Lingkar Kepala (cm)" v-model="registerData.lingkar_kepala" />
+                </div>
+
+                <p class="register-text">Sudah punya akun? <span class="register-link" @click="showRegisterForm = false">Login disini</span></p>
+
+                <button type="button" class="login-button-2" @click="handleRegister">Daftar</button>
+            </div>
         </div>
     </div>
 </div>
 </template>
 
-    
 <script>
 import Swal from 'sweetalert2';
 import axios from 'axios';
@@ -99,14 +180,162 @@ export default {
             passwordFieldType: 'password',
             passwordFieldIcon: 'fas fa-eye',
             isLoggingIn: false,
+            showRegisterForm: false,
+            registerData: {
+                user_type: 'guru',
+                name: '',
+                username: '',
+                password: '',
+                // Guru fields
+                niy: '',
+                alamat: '',
+                gender: '',
+                no_telp: '',
+                tgl_lahir: '',
+                agama: '',
+                jabatan: '',
+                jumlah_hari_mengajar: '',
+                tugas_mengajar: '',
+                // Siswa fields
+                no_kk: '',
+                nik_siswa: '',
+                nisn: '',
+                nipd: '',
+                tempat_lahir: '',
+                tanggal_lahir: '',
+                jenis_kelamin: '',
+                anak_ke: '',
+                jumlah_saudara: '',
+                berat_badan: '',
+                tinggi_badan: '',
+                lingkar_kepala: ''
+            },
+            isLoadingOrangtua: false,
+            orangtuaList: []
         };
     },
     methods: {
+        async handleRegister() {
+            // Validate common fields
+            if (!this.registerData.name || !this.registerData.username ||
+                !this.registerData.password || !this.registerData.user_type) {
+                this.showModal = false;
+                await Swal.fire({
+                    icon: 'warning',
+                    title: 'Data tidak lengkap',
+                    text: 'Harap isi semua field wajib!',
+                });
+                return;
+            }
+
+            // Validate specific fields based on user type
+            if (this.registerData.user_type === 'guru') {
+                if (!this.registerData.niy || !this.registerData.alamat ||
+                    !this.registerData.gender || !this.registerData.no_telp ||
+                    !this.registerData.tgl_lahir || !this.registerData.agama ||
+                    !this.registerData.jabatan || !this.registerData.jumlah_hari_mengajar ||
+                    !this.registerData.tugas_mengajar) {
+                    this.showModal = false;
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Data guru tidak lengkap',
+                        text: 'Harap isi semua field untuk guru!',
+                    });
+                    return;
+                }
+            } else if (this.registerData.user_type === 'siswa') {
+                if (!this.registerData.no_kk || !this.registerData.nik_siswa ||
+                    !this.registerData.nisn || !this.registerData.tempat_lahir ||
+                    !this.registerData.tanggal_lahir || !this.registerData.jenis_kelamin ||
+                    !this.registerData.agama || !this.registerData.alamat ||
+                    !this.registerData.anak_ke || !this.registerData.jumlah_saudara ||
+                    !this.registerData.berat_badan || !this.registerData.tinggi_badan ||
+                    !this.registerData.lingkar_kepala) {
+                    this.showModal = false;
+                    await Swal.fire({
+                        icon: 'warning',
+                        title: 'Data siswa tidak lengkap',
+                        text: 'Harap isi semua field untuk siswa!',
+                    });
+                    return;
+                }
+            }
+
+            try {
+                const endpoint = this.registerData.user_type === 'guru' ?
+                    '/api/auth/register-guru' :
+                    '/api/auth/register-siswa';
+
+                const response = await axios.post(`${import.meta.env.VITE_API_URL}${endpoint}`, this.registerData);
+
+                this.showModal = false;
+                await Swal.fire({
+                    icon: 'success',
+                    title: 'Registrasi Berhasil!',
+                    text: 'Akun Anda telah terdaftar',
+                });
+
+                this.resetRegisterForm();
+                this.showModal = false;
+                this.showRegisterForm = false;
+
+            } catch (error) {
+                this.showModal = false;
+                let errorMessage = 'Terjadi kesalahan saat pendaftaran';
+                let errorDetails = '';
+
+                if (error.response) {
+                    errorMessage = error.response.data ?.error || errorMessage;
+                    errorDetails = error.response.data ?.message ||
+                        (error.response.data ?.errors ? Object.values(error.response.data.errors).join(' ') : '');
+                }
+
+                await Swal.fire({
+                    icon: 'error',
+                    title: errorMessage,
+                    text: errorDetails,
+                });
+                this.resetRegisterForm();
+            }
+        },
+
+        resetRegisterForm() {
+            this.registerData = {
+                user_type: '',
+                name: '',
+                username: '',
+                password: '',
+                // Guru fields
+                niy: '',
+                alamat: '',
+                gender: '',
+                no_telp: '',
+                tgl_lahir: '',
+                agama: '',
+                jabatan: '',
+                jumlah_hari_mengajar: '',
+                tugas_mengajar: '',
+                // Siswa fields
+                no_kk: '',
+                nik_siswa: '',
+                nisn: '',
+                nipd: '',
+                tempat_lahir: '',
+                tanggal_lahir: '',
+                jenis_kelamin: '',
+                anak_ke: '',
+                jumlah_saudara: '',
+                berat_badan: '',
+                tinggi_badan: '',
+                lingkar_kepala: ''
+            };
+        },
+
         async navigateToDashboard() {
             if (this.isLoggingIn) return;
-            
+          
             if (!this.username || !this.password) {
-                this.showModal = false; 
+                this.showModal = false;
                 await Swal.fire({
                     icon: 'warning',
                     title: 'Oops...',
@@ -116,7 +345,7 @@ export default {
             }
 
             this.isLoggingIn = true;
-            
+
             try {
                 const userTypeMap = {
                     'Admin': 'admin',
@@ -128,11 +357,11 @@ export default {
                 const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/auth/login`, {
                     username: this.username,
                     password: this.password,
-                    expected_user_type: expectedUserType 
+                    expected_user_type: expectedUserType
                 });
 
                 if (!response.data.user_type) {
-                    this.showModal = false; 
+                    this.showModal = false;
                     throw new Error('User type not found in response');
                 }
 
@@ -151,17 +380,17 @@ export default {
                 this.$router.push(route);
 
             } catch (error) {
-                this.showModal = false; 
+                this.showModal = false;
                 let errorMessage = 'Terjadi kesalahan saat login!';
-                
+                this.resetForm();
                 if (error.response) {
-                    errorMessage = error.response.data?.message || 
-                                 error.response.data?.error ||
-                                 errorMessage;
+                    errorMessage = error.response.data ?.message ||
+                        error.response.data ?.error ||
+                        errorMessage;
                 } else {
                     errorMessage = error.message || errorMessage;
                 }
-                
+
                 await Swal.fire({
                     icon: 'error',
                     title: 'Login Gagal!',
@@ -169,7 +398,7 @@ export default {
                 });
             } finally {
                 this.isLoggingIn = false;
-                this.showModal = false; // Close modal after login attempt
+                this.showModal = false;
             }
         },
         toggleDropdown() {
@@ -196,14 +425,15 @@ export default {
             }
         },
         openModal() {
-            // Cek apakah offcanvas masih terbuka
             const offcanvasEl = document.querySelector('.offcanvas.show');
             if (offcanvasEl) {
                 const bsOffcanvas = bootstrap.Offcanvas.getInstance(offcanvasEl);
                 if (bsOffcanvas) bsOffcanvas.hide();
             }
 
-            // Tunggu animasi offcanvas selesai baru buka modal
+            this.fetchOrangtuaList();
+            this.showModal = true;
+
             setTimeout(() => {
                 this.selectedUser = 'Admin';
                 this.showModal = true;
@@ -219,8 +449,9 @@ export default {
             setTimeout(() => {
                 this.showModal = false;
                 this.isClosing = false;
-                this.resetForm(); // reset isian form
-                document.body.style.overflow = ''; // balikin scroll body
+                this.resetForm();
+                this.showRegisterForm = false;
+                document.body.style.overflow = '';
             }, 300);
         },
         togglePasswordVisibility() {
@@ -235,9 +466,41 @@ export default {
         resetForm() {
             this.username = '';
             this.password = '';
+        },
+        async fetchOrangtuaList() {
+            this.isLoadingOrangtua = true;
+            try {
+                const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/orangtua`);
+                console.log('API Response:', response.data);
+
+                if (response.data ?.data ?.length) {
+                    this.orangtuaList = response.data.data.map(item => {
+                        console.log('Processing item:', item);
+                        return {
+                            no_kk: item.no_kk || 'Tidak ada KK',
+                            nama_ayah: item.nama_ayah,
+                            nama_ibu: item.nama_ibu,
+                            displayName: item.nama_ayah ?
+                                `${item.nama_ayah} (Ayah)` :
+                                item.nama_ibu ?
+                                `${item.nama_ibu} (Ibu)` :
+                                'Orangtua'
+                        };
+                    });
+                    console.log('Processed orangtuaList:', this.orangtuaList);
+                } else {
+                    console.warn('Data orangtua kosong');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                await Swal.fire('Error', 'Gagal memuat data orangtua', 'error');
+            } finally {
+                this.isLoadingOrangtua = false;
+            }
         }
     },
     mounted() {
+        this.fetchOrangtuaList();
         this.updateActiveMenu(this.$route);
         document.addEventListener("click", this.handleOutsideClick);
     },
@@ -251,7 +514,7 @@ export default {
     }
 };
 </script>
-    
+
 <style scoped>
 body {
     overflow-x: hidden;
@@ -297,15 +560,25 @@ body {
     overflow-y: auto;
 }
 
-.close-button {
+.close-btn {
     position: absolute;
     top: 10px;
     right: 10px;
     background: none;
     border: none;
-    font-size: 16px;
+    font-size: 20px;
     cursor: pointer;
     color: #336C2A;
+}
+
+.modal-header {
+    background: #ffffff;
+    font-size: 1.25rem;
+    margin-bottom: 0;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
 /* Navbar styling */
@@ -465,6 +738,23 @@ body {
     border: #C3EAA3;
 }
 
+.register-text {
+    text-align: center;
+    margin-top: 1rem;
+    color: #6c757d;
+}
+
+.register-link {
+    color: #336C2A;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.register-link:hover {
+    color: #2a5a23;
+}
+
 /* login */
 .input-login {
     border: 1px solid #C3EAA3;
@@ -475,10 +765,22 @@ body {
     padding: 0.7rem 3rem 0.7rem 2rem;
     border-radius: 10px;
     margin-top: 0.5rem;
+    margin-bottom: 1rem;
     -webkit-user-select: text;
     user-select: text;
     -webkit-tap-highlight-color: transparent;
     box-sizing: border-box;
+    /* appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1em; */
+}
+
+.input-login option {
+    padding: 10px;
 }
 
 .input-login[type="password"],
@@ -496,13 +798,13 @@ body {
 .password-toggle-icon {
     position: absolute;
     right: 20px;
-    top: 50%;
+    top: 40%;
     transform: translateY(-50%);
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 30px; 
+    width: 30px;
     cursor: pointer;
     color: #6c757d;
     background: none;
@@ -511,8 +813,8 @@ body {
 }
 
 .password-toggle-icon i {
-  font-size: 1.2rem; 
-  margin-top: 10px;
+    font-size: 1.2rem;
+    margin-top: 10px;
 }
 
 .password-toggle-icon:hover {
@@ -614,7 +916,7 @@ body {
         right: 15px;
         width: 25px;
     }
-    
+
     .input-login {
         padding: 0.7rem 2.5rem 0.7rem 1.5rem;
         height: 3.5rem;
