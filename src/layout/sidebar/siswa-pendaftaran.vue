@@ -198,6 +198,25 @@ export default {
     margin-top: 6.5rem;
 }
 
+.btn-link {
+    background-color: #428b36;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-link:hover {
+  background-color: #336C2A;
+  color: white;
+}
+
 .modal-overlay {
   position: fixed;
   top: 0;

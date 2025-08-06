@@ -43,7 +43,10 @@
             <div class="info-item">
                 <label>Status Cicilan</label>
                 <div class="text-box">{{ userData.status_cicilan }}
-                    <button v-if="userData.status_cicilan === 'Belum Lunas' || userData.status_cicilan === 'Lunas'" @click="lihatCicilan(userData.id_pembayaran)" class="btn-link">
+                    <button 
+                    v-if="userData.status_cicilan === 'Belum Lunas' || userData.status_cicilan === 'Lunas'" 
+                    @click="lihatCicilan(userData.id_pembayaran)" 
+                    class="btn-link">
                         Lihat Detail
                     </button>
                 </div>
@@ -223,6 +226,25 @@ export default {
     background-color: #f9f9f9;
     flex: 2;
     min-width: 200px;
+}
+
+.btn-link {
+    background-color: #428b36;
+  color: white;
+  padding: 6px 12px;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin-left: 10px;
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 0.3s ease;
+}
+
+.btn-link:hover {
+  background-color: #336C2A;
+  color: white;
 }
 
 .img-setting {
